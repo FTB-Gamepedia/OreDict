@@ -24,8 +24,8 @@ class OreDictApi extends ApiBase {
 		return [
 			'api.php?action=oredict&oredict-search-tag=logWood',
 			'api.php?action=oredict&oredict-search-tag=logWood&oredict-search-mod=V',
-			'api.php?action=oredict&oredict-add=<newentry1>|<newentry2>|<newentry3>',
-			'api.php?action=oredict&oredict-del=1|2|3|4',
+			'api.php?action=oredict&oredict-add=<newentry1>|<newentry2>|<newentry3>&token=<edittoken>',
+			'api.php?action=oredict&oredict-del=1|2|3|4&token=<edittoken>',
 		];
 	}
 
