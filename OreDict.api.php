@@ -147,6 +147,7 @@ class OreDictApi extends ApiBase {
 
 		if ($this->isSearchAction()) {
 			$results = $this->doSearch();
+			$this->getResult()->setIndexedTagName($results, 'entry');
 			$this->getResult()->addValue($this->getModuleName(), 'entries', $results);
 		}
 	}
