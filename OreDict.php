@@ -31,9 +31,6 @@ $wgMessagesDirs['OreDict'] = __DIR__ .'/i18n';
 $wgExtensionMessagesFiles['OreDict'] = dirname(__FILE__)."/OreDict.i18n.php";
 $wgExtensionMessagesFiles['OreDictMagic'] = dirname(__FILE__)."/OreDict.i18n.magic.php";
 
-$wgAutoloadClasses['OreDictApi'] = dirname(__FILE__)."/OreDict.api.php";
-$wgAPIModules['oredict'] = 'OreDictApi';
-
 $wgAutoloadClasses['OreDict'] = dirname(__FILE__)."/OreDict.body.php";
 $wgAutoloadClasses['OreDictItem'] = dirname(__FILE__)."/OreDict.body.php";
 $wgAutoloadClasses['OreDictError'] = dirname(__FILE__)."/OreDict.body.php";
