@@ -99,7 +99,7 @@ class OreDictApi extends ApiBase {
 	private function isEditAction() {
 		$editParams = ['oredict-add', 'oredict-edit', 'oredict-del'];
 		foreach ($editParams as $param) {
-			$val = $this->getParameter($param);
+			$val = $this->getRequest()->getVal($param);
 			if (!empty($val)) return true;
 		}
 		return false;
@@ -111,14 +111,14 @@ class OreDictApi extends ApiBase {
 	private function isSearchAction() {
 		$searchParams = ['oredict-search-prefix', 'oredict-search-tag', 'oredict-search-mod'];
 		foreach ($searchParams as $param) {
-			$val = $this->getParameter($param);
+			$val = $this->getRequest()->getVal($param);
 			if (!empty($val)) return true;
 		}
 		return false;
 	}
 
 	public function needsToken() {
-		return $this->isEditAction();
+		return $this->isEditAction() ? '' : false;
 	}
 
 	public function mustBePosted() {
@@ -127,7 +127,7 @@ class OreDictApi extends ApiBase {
 	}
 
 	public function getTokenSalt() {
-		return $this->needsToken() ? '' : false;
+		return $this->needsToken();
 	}
 
 	/**
