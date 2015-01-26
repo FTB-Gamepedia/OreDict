@@ -1,6 +1,6 @@
 <?php
 /**
- * Ore Dict
+ * OreDict
  *
  * @file
  * @ingroup Extensions
@@ -16,11 +16,11 @@ $wgShowExceptionDetails = true;
 
 $wgExtensionCredits['parserhooks'][] = array(
 	'path' => __FILE__,
-	'name' => 'Ore Dict',
+	'name' => 'OreDict',
 	'descriptionmsg' => 'oredict-desc',
 	'version' => '1.0.1',
-	'author' => '[http://wiki.feed-the-beast.com/User:Jinbobo Jinbobo]',
-	'url' => 'http://wiki.feed-the-beast.com/User:Jinbobo'
+	'author' => '[http://wiki.feed-the-beast.com/User:Jinbobo Jinbobo], Telshin',
+	'url' => 'http://wiki.feed-the-beast.com/User:Jinbobo, Telshin'
 );
 
 // Setup logging
