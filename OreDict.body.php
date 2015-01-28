@@ -1,6 +1,6 @@
 <?php
 /**
- * Ore Dict main file
+ * OreDict main file
  *
  * @file
  * @ingroup Extensions
@@ -103,7 +103,7 @@ class OreDict{
 	}
 
 	/**
-	 * Queries the ore dict table
+	 * Queries the OreDict table
 	 *
 	 * @param bool $byTag
 	 * @return bool
@@ -260,7 +260,7 @@ class OreDictItem{
 	}
 
 	/**
-	 * Helper function that rejoins and overwrites the default parameters provided in the ore dict.
+	 * Helper function that rejoins and overwrites the default parameters provided in the OreDict.
 	 *
 	 * @param string $params
 	 * @param bool $override
@@ -380,7 +380,7 @@ class OreDictError{
 		);
 
 		$html = "<table class=\"wikitable\" style=\"width:100%;\">";
-		$html .= "<caption>Ore Dictionary extension warnings</caption>";
+		$html .= "<caption>OreDict extension warnings</caption>";
 		$html .= "<tr><th style=\"width:10%;\">Type</th><th>Message</th><tr>";
 		$flag = true;
 		foreach(self::$mDebug as $message){

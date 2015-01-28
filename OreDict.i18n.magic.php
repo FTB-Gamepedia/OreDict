@@ -1,6 +1,6 @@
 <?php
 /**
- * Ore dict magic word file
+ * OreDict magic word file
  *
  * @file
  * @ingroup Extensions

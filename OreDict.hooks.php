@@ -1,6 +1,6 @@
 <?php
 /**
- * Ore Dict hooks file
+ * OreDict hooks file
  * Defines entry points to the extension
  *
  * @file
@@ -111,7 +111,7 @@ class OreDictHooks {
 			$mod = '';
 			if(isset($options['mod'])) $mod = $options['mod'];
 
-			// Call ore dict
+			// Call OreDict
 			$dict = new OreDict($options[1], $mod, $mode);
 			$dict->exec(isset($options['tag']));
 			$outs[] = $dict->runHooks(self::BuildParamString($options));
@@ -128,7 +128,7 @@ class OreDictHooks {
 	}
 
 	/**
-	 * Query ore dict and return output.
+	 * Query OreDict and return output.
 	 *
 	 * @param Parser $parser
 	 * @return array
@@ -153,7 +153,7 @@ class OreDictHooks {
 		$mod = '';
 		if(isset($options['mod'])) $mod = $options['mod'];
 
-		// Call ore dict
+		// Call OreDict
 		$dict = new OreDict($options[1], $mod, $mode);
 		$dict->exec(isset($options['tag']));
 		return $dict->runHooks(self::BuildParamString($options));

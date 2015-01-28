@@ -60,7 +60,7 @@ class ImportOreDict extends SpecialPage {
 
 			foreach($input as $line){
 				// Parse line
-				// Line format: ore dict name!item name!mod name!params!flags=207
+				// Line format: OreDict name!item name!mod name!params!flags=207
 				$line = trim($line);
 				if($line == "") continue;
 				$p = explode('!', $line);
