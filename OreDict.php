@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @version 1.0.1
+ * @version 1.0.2
  * @author Jinbobo <paullee05149745@gmail.com>
  * @license
  */
@@ -18,9 +18,9 @@ $wgExtensionCredits['parserhooks'][] = array(
 	'path' => __FILE__,
 	'name' => 'OreDict',
 	'descriptionmsg' => 'oredict-desc',
-	'version' => '1.0.1',
-	'author' => '[http://wiki.feed-the-beast.com/User:Jinbobo Jinbobo], Telshin',
-	'url' => 'http://wiki.feed-the-beast.com/User:Jinbobo, Telshin'
+	'version' => '1.0.2',
+	'author' => '[http://ftb.gamepedia.com/User:Jinbobo Jinbobo], Telshin, [http://ftb.gamepedia.com/User:Retep998 Retep998], [http://ftb.gamepedia.com/User:TheSatanicSanta SatanicSanta], noahm',
+	'url' => 'http://help.gamepedia.com/Extension:OreDict'
 );
 
 // Setup logging

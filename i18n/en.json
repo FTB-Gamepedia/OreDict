@@ -11,7 +11,7 @@
 	"oredict-desc": "An extension that mimics the ore dictionary in Minecraft.",
 	"oredict-import-legend": "Mass Import",
 	"oredict-import-input": "Entries to import",
-	"oredict-import-input-hint": "Entries must be in the following format: <code>$tagName!$itemName!$modName!$gridParams!$flags</code>. <code>$modName</code>, <code>$gridParams</code> and <code>$flags</code> may be left blank. <code>$flag</code> will default to 207 if left blank.",
+	"oredict-import-input-hint": "Entries must be in the following format: <code>$tagName!$itemName!$modName!$gridParams!$flags</code>. <code>$gridParams</code> and <code>$flags</code> may be left blank. <code>$flag</code> will default to 207 if left blank.",
 	"oredict-import-submit": "Import",
 	"oredict-import-update": "Update mode",
 	"oredict-import-update-hint": "Extension will overwrite any conflicting entries, if you want to edit only one entry, use the [[Special:OreDictEntryManager|Entry Manager]] instead. Please note that you can only modify the grid params and flags using this method.",
