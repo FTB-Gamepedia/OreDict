@@ -52,6 +52,9 @@ $wgHooks['ParserFirstCallInit'][] = 'OreDictHooks::SetupParser';
 $wgHooks['EditPage::showEditForm:initial'][] = 'OreDictHooks::OutputWarnings';
 $wgHooks['LoadExtensionSchemaUpdates'][] = 'OreDictHooks::SchemaUpdate';
 
+$wgAvailableRights[] = 'edittilesheets';
+$wgAvailableRights[] = 'importtilesheets';
+
 // Resource loader modules
 $wgResourceModules['ext.oredict.list'] = array(
 	'styles' => 'css/ext.oredict.list.css',
