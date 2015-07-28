@@ -42,11 +42,8 @@ $wgAutoloadClasses['OreDictList'] = dirname(__FILE__)."/special/OreDictList.php"
 $wgAutoloadClasses['ImportOreDict'] = dirname(__FILE__)."/special/ImportOreDict.php";
 
 $wgSpecialPages['OreDictEntryManager'] = "OreDictEntryManager";
-$wgSpecialPageGroups['OreDictEntryManager'] = "oredict";
 $wgSpecialPages['OreDictList'] = "OreDictList";
-$wgSpecialPageGroups['OreDictList'] = "oredict";
 $wgSpecialPages['ImportOreDict'] = "ImportOreDict";
-$wgSpecialPageGroups['ImportOreDict'] = "oredict";
 
 $wgHooks['ParserFirstCallInit'][] = 'OreDictHooks::SetupParser';
 $wgHooks['EditPage::showEditForm:initial'][] = 'OreDictHooks::OutputWarnings';

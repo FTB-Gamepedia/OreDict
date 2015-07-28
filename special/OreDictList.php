@@ -12,12 +12,16 @@
 class OreDictList extends SpecialPage {
 	protected $opts;
 
-	function __construct(){
+	public function __construct(){
 		parent::__construct('OreDictList');
 	}
 
-	function execute($par){
-		global $wgQueryPageDefaultLimit, $wgUser;
+	public function getGroupName() {
+		return 'oredict';
+	}
+
+	public function execute($par){
+		global $wgQueryPageDefaultLimit;
 		$out = $this->getOutput();
 
 		$this->setHeaders();
@@ -89,7 +93,7 @@ class OreDictList extends SpecialPage {
 		$msgModName = wfMessage('oredict-mod-name');
 		$msgGridParams = wfMessage('oredict-grid-params');
 		$msgFlags = wfMessage('oredict-flags');
-		$canEdit = in_array("editoredict", $wgUser->getRights());
+		$canEdit = in_array("editoredict", $this->getUser()->getRights());
 		$table .= "! !! # !! $msgTagName !! $msgItemName !! $msgModName !! $msgGridParams !! $msgFlags\n";
 		foreach ($results as $result) {
 			$lId = $result->entry_id;

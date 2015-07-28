@@ -13,9 +13,15 @@ class ImportOreDict extends SpecialPage {
 	/**
 	 * Calls parent constructor and sets special page title
 	 */
-
-	function __construct(){
+	public function __construct(){
 		parent::__construct('ImportOreDict', 'importoredict');
+	}
+
+	/**
+	 * Returns the category under which this special page will be grouped on Special:SpecialPages
+	 */
+	public function getGroupName() {
+		return 'oredict';
 	}
 
 	/**
@@ -23,13 +29,9 @@ class ImportOreDict extends SpecialPage {
 	 *
 	 * @param null|string $par Subpage name
 	 */
-
-	function execute($par){
+	public function execute($par){
 		// Restrict access from unauthorized users
-		if (!$this->userCanExecute($this->getUser())){
-			$this->displayRestrictionError();
-			return;
-		}
+		$this->checkPermissions();
 
 		$out = $this->getOutput();
 

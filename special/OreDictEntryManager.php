@@ -10,17 +10,17 @@
  */
 
 class OreDictEntryManager extends SpecialPage {
-	function __construct(){
+	public function __construct(){
 		parent::__construct('OreDictEntryManager', 'editoredict');
 	}
 
-	function execute($par){
-		global $wgUser;
+	public function getGroupName() {
+		return 'oredict';
+	}
+
+	public function execute($par){
 		// Restrict access from unauthorized users
-		if (!$this->userCanExecute($this->getUser())){
-			$this->displayRestrictionError();
-			return;
-		}
+		$this->checkPermissions();
 
 		$out = $this->getOutput();
 
@@ -56,7 +56,7 @@ class OreDictEntryManager extends SpecialPage {
 		if($opts->getValue('entry_id') === 0) return;
 		if($opts->getValue('update') == 1 && $opts->getValue('entry_id') != -1){
 			// XSRF prevention
-			if ( !$wgUser->matchEditToken( $this->getRequest()->getVal( 'token' ) ) ) {
+			if ( !$this->getUser()->matchEditToken( $this->getRequest()->getVal( 'token' ) ) ) {
 				return;
 			}
 
@@ -189,7 +189,7 @@ class OreDictEntryManager extends SpecialPage {
 	}
 
 	private function outputUpdateForm(stdClass $opts = NULL){
-		global $wgScript, $wgUser;
+		global $wgScript;
 		$vEntryId = is_object($opts) ? $opts->entry_id : -1;
 		$vTagName = is_object($opts) ? $opts->tag_name : '';
 		$vTagReadonly = is_object($opts) ? "readonly=\"readonly\"" : '';
@@ -234,7 +234,7 @@ class OreDictEntryManager extends SpecialPage {
 		$out = Xml::openElement('form', array('method' => 'get', 'action' => $wgScript, 'id' => 'ext-oredict-manager-form')) .
 			Xml::fieldset($msgFieldsetMain) .
 			Html::hidden('title', $this->getTitle()->getPrefixedText()) .
-			Html::hidden('token', $wgUser->getEditToken()) .
+			Html::hidden('token', $this->getUser()->getEditToken()) .
 			Html::hidden('update', 1) .
 			Html::hidden('orig_flags', $vFlags) .
 			$form .
