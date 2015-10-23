@@ -16,7 +16,13 @@ class OreDictList extends SpecialPage {
 		parent::__construct('OreDictList');
 	}
 
-	public function getGroupName() {
+	/**
+	 * Return the group name for this special page.
+	 *
+	 * @access	protected
+	 * @return	string
+	 */
+	protected function getGroupName() {
 		return 'oredict';
 	}
 

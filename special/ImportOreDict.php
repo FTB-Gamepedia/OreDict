@@ -20,7 +20,7 @@ class ImportOreDict extends SpecialPage {
 	/**
 	 * Returns the category under which this special page will be grouped on Special:SpecialPages
 	 */
-	public function getGroupName() {
+	protected function getGroupName() {
 		return 'oredict';
 	}
 
