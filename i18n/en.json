@@ -55,6 +55,7 @@
 	"logentry-oredict-editentry": "$1 edited entry #$15 ($7{{#if:$8|&nbsp;from $8}}). Changes: $4;",
 	"logentry-oredict-createentry": "$1 created entry #$4 ($6{{#if:$7|&nbsp;from $7}}) and assigned it to the $5 tag and set the bits $9.",
 	"logentry-oredict-edittag": "$1 toggled bits $5 on $4.",
+	"logentry-oredict-delete": "$1 deleted entry $15 ($7 from $8 as $6)",
 	"action-editoredict": "edit OreDict entries",
 	"right-editoredict": "Edit entries for the OreDict extension",
 	"action-importoredict": "mass-import OreDict entries",
