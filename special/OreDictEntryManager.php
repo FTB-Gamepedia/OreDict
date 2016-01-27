@@ -171,7 +171,7 @@ class OreDictEntryManager extends SpecialPage {
 
 		// Delete before any other processing is done.
 		if ($flags & 0x100 && OreDict::checkExists($fItem, $tag, $mod) != 0) {
-			$dbw->delete($tableName, $ary);
+			$dbw->delete($tableName, array('entry_id' => $opts->getValue('entry_id')));
 
 			// Start log
 			$logEntry = new ManualLogEntry('oredict', 'delete');
