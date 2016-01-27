@@ -24,7 +24,7 @@ class OreDictEntryManager extends SpecialPage {
 		return 'oredict';
 	}
 
-	public function execute($par){
+	public function execute($par) {
 		// Restrict access from unauthorized users
 		$this->checkPermissions();
 
@@ -123,13 +123,15 @@ class OreDictEntryManager extends SpecialPage {
 	private function updateEntry(FormOptions $opts){
 		$dbw = wfGetDB(DB_MASTER);
 		$stuff = $dbw->select('ext_oredict_items', '*', array('entry_id' => $opts->getValue('entry_id')));
-		$result = $dbw->update('ext_oredict_items', array(
+		$ary = array(
 			//'tag_name' => $opts->getValue('tag_name'),
 			'item_name' => $opts->getValue('item_name'),
 			'mod_name' => $opts->getValue('mod_name'),
 			'grid_params' => $opts->getValue('grid_params'),
 			'flags' => $opts->getValue('flags')
-		), array('entry_id' => $opts->getValue('entry_id')));
+		);
+		$tableName = $dbw->tableName('ext_oredict_items');
+		$result = $dbw->update('ext_oredict_items', $ary, array('entry_id' => $opts->getValue('entry_id')));
 
 		if($stuff->numRows() == 0) return;
 		if($result == false) return;
@@ -167,6 +169,21 @@ class OreDictEntryManager extends SpecialPage {
 		}
 		if($diffString == "" || count($diff) == 0) return; // No change
 
+		// Delete before any other processing is done.
+		if ($flags & 0x100 && OreDict::checkExists($fItem, $tag, $mod) != 0) {
+			$dbw->delete('ext_oredict_items', array('entry_id' => $opts->getValue('entry_id')));
+
+			// Start log
+			$logEntry = new ManualLogEntry('oredict', 'delete');
+			$logEntry->setPerformer($this->getUser());
+			$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
+			$logEntry->setParameters(array("6::tag" => $tag, "7::item" => $item->item_name, "8::mod" => $item->mod_name, "15::id" => $item->entry_id));
+			$logId = $logEntry->insert();
+			$logEntry->publish($logId);
+			// End log
+			return;
+		}
+
 		// Start log
 		$logEntry = new ManualLogEntry('oredict', 'editentry');
 		$logEntry->setPerformer($this->getUser());
@@ -178,7 +195,6 @@ class OreDictEntryManager extends SpecialPage {
 
 		$toggleFlag = 0xc0 & (intval($opts->getValue('orig_flags')) ^ intval($opts->getValue('flags')));
 		if($toggleFlag){
-			$tableName = $dbw->tableName('ext_oredict_items');
 			$tagName = $dbw->addQuotes($opts->getValue('tag_name'));
 			$entryId = intval($opts->getValue('entry_id'));
 			$dbw->query("UPDATE $tableName SET `flags` = `flags` ^ $toggleFlag WHERE `tag_name` = $tagName AND `entry_id` != $entryId");

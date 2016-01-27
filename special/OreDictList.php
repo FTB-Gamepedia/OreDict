@@ -108,8 +108,7 @@ class OreDictList extends SpecialPage {
 			$lMod = $result->mod_name;
 			$lParams = $result->grid_params;
 			$lFlags = $result->flags;
-			if($lFlags & 0x100) $table .= "|- class=\"listDeletedEntry\" style=\"color: grey;\"\n";
-			else $table .= "|-\n";
+			$table .= "|-\n";
 			// Check user rights
 			if ($canEdit) {
 				$editLink = "[[Special:OreDictEntryManager/$lId|Edit]]";
