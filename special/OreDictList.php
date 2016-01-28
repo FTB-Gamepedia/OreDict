@@ -12,7 +12,7 @@
 class OreDictList extends SpecialPage {
 	protected $opts;
 
-	public function __construct(){
+	public function __construct() {
 		parent::__construct('OreDictList');
 	}
 
@@ -26,7 +26,7 @@ class OreDictList extends SpecialPage {
 		return 'oredict';
 	}
 
-	public function execute($par){
+	public function execute($par) {
 		global $wgQueryPageDefaultLimit;
 		$out = $this->getOutput();
 
@@ -67,11 +67,13 @@ class OreDictList extends SpecialPage {
 				'item_name BETWEEN '.$dbr->addQuotes($opts->getValue('start'))." AND 'zzzzzzzz'"
 			)
 		);
-		foreach($results as $result) {
+		foreach ($results as $result) {
 			$maxRows = $result->row_count;
 		}
 
-		if(!isset($maxRows)) return;
+		if (!isset($maxRows)) {
+			return;
+		}
 
 		$order = $opts->getValue('start') == '' ? 'entry_id ASC' : 'item_name ASC';
 		$results = $dbr->select(
@@ -117,7 +119,9 @@ class OreDictList extends SpecialPage {
 			}
 			$table .= "| style=\"width:23px; padding-left:5px; padding-right:5px; text-align:center; font-weight:bold;\" | $editLink || $lId || $lTag || $lItem || $lMod || $lParams || $lFlags\n";
 
-			if($lId > $maxId) $maxId = $lId;
+			if ($lId > $maxId) {
+				$maxId = $lId;
+			}
 		}
 		$table .= "|}\n";
 
@@ -155,10 +159,10 @@ class OreDictList extends SpecialPage {
 		$out->addModules( 'ext.oredict.list' );
 	}
 
-	public function buildForm(FormOptions $opts){
+	public function buildForm(FormOptions $opts) {
 		global $wgScript;
 		$optionTags = "";
-		foreach([20,50,100,250,500,5000] as $lim){
+		foreach ([20,50,100,250,500,5000] as $lim) {
 			if ($opts->getValue('limit') == $lim) {
 				$optionTags .= "<option selected=\"\" value=\"$lim\">$lim</option>";
 			} else {
@@ -171,15 +175,24 @@ class OreDictList extends SpecialPage {
 		$form .= OreDictForm::createFormRow('list', 'start', $opts->getValue('start'));
 		$form .= OreDictForm::createFormRow('list', 'tag', $opts->getValue('tag'));
 		$form .= OreDictForm::createFormRow('list', 'mod', $opts->getValue('mod'));
-		$form .= '<tr><td style="text-align:right"><label for="limit">'.$this->msg('oredict-list-limit').'</td><td><select name="limit">'.$optionTags.'</select></td></tr>';
+		$form .= '<tr>
+					<td style="text-align:right">
+						<label for="limit">'.$this->msg('oredict-list-limit').'</label>
+					</td>
+					<td>
+						<select name="limit">'.$optionTags.'</select>
+					</td>
+				  </tr>';
 		$form .= OreDictForm::createSubmitButton('list');
 		$form .= "</table>";
 
-		$out = Xml::openElement('form', array('method' => 'get', 'action' => $wgScript, 'id' => 'ext-oredict-list-filter')) .
-			Xml::fieldset($this->msg('oredict-list-legend')->text()) .
-			Html::hidden('title', $this->getTitle()->getPrefixedText()) .
-			$form .
-			Xml::closeElement( 'fieldset' ) . Xml::closeElement( 'form' ) . "\n";
+		$out = Xml::openElement('form', array('method' => 'get', 'action' => $wgScript, 'id' => 'ext-oredict-list-filter'))
+			 . Xml::fieldset($this->msg('oredict-list-legend')->text())
+			 . Html::hidden('title', $this->getTitle()->getPrefixedText())
+			 . $form
+			 . Xml::closeElement( 'fieldset' )
+			 . Xml::closeElement( 'form' )
+			 . "\n";
 
 		return $out;
 	}
