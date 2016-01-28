@@ -22,7 +22,7 @@ class OreDictForm {
 	 * @return string
 	 */
 
-	static public function createFormRow($ext, $name, $value = "", $type = "text", $attr = "", $lattr = ""){
+	static public function createFormRow($ext, $name, $value = "", $type = "text", $attr = "", $lattr = "") {
 		$msgName = wfMessage("oredict-$ext-$name")->text();
 		$html = "<tr><td style=\"text-align:right; width:200px;\"><label for=\"$name\" $lattr>$msgName</td><td><input type=\"$type\" name=\"$name\" id=\"$name\" value=\"$value\" $attr></td></tr>";
 		return $html;
@@ -36,7 +36,7 @@ class OreDictForm {
 	 * @return string
 	 */
 
-	static public function createSubmitButton($ext, $msg = "submit"){
+	static public function createSubmitButton($ext, $msg = "submit") {
 		return "<tr><td colspan=\"2\"><input type=\"submit\" value=\"".wfMessage("oredict-$ext-$msg")->text()."\"></td></tr>";
 	}
 
@@ -48,7 +48,7 @@ class OreDictForm {
 	 * @return string
 	 */
 
-	static public function createInputHint($ext, $name){
+	static public function createInputHint($ext, $name) {
 		return "<tr><td colspan=\"2\" class=\"htmlform-tip\">".wfMessage("oredict-$ext-$name-hint")->parse()."</td></tr>";
 	}
 
@@ -64,7 +64,7 @@ class OreDictForm {
 	 * @return string
 	 */
 
-	static public function createCheckBox($ext, $name, $value, $checked = false, $attr = "", $lattr = ""){
+	static public function createCheckBox($ext, $name, $value, $checked = false, $attr = "", $lattr = "") {
 		$msgName = wfMessage("oredict-$ext-$name");
 		$attr = $checked ? $attr." checked=\"checked\"" : $attr;
 		$html = "<tr><td style=\"text-align:right\"><label for=\"$name\" $lattr>$msgName</td><td><input type=\"checkbox\" id=\"$name\" value=\"$value\" $attr></td></tr>";

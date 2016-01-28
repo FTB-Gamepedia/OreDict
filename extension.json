@@ -1,0 +1,69 @@
+{
+	"name": "OreDict",
+	"version": "1.0.2",
+	"author": "[http://ftb.gamepedia.com/User:Jinbobo Jinbobo], Telshin, [http://ftb.gamepedia.com/User:Retep998 Retep998], [http://ftb.gamepedia.com/User:TheSatanicSanta SatanicSanta], noahm, applehat",
+	"url": "http://help.gamepedia.com/Extension:OreDict",
+	"descriptionmsg": "oredict-desc",
+	"type": "parserhooks",
+	"AvailableRights": [
+		"edittilesheets",
+		"importtilesheets"
+	],
+	"SpecialPages": {
+		"OreDictEntryManager": "OreDictEntryManager",
+		"OreDictList": "OreDictList",
+		"ImportOreDict": "ImportOreDict"
+	},
+	"LogTypes": [
+		"oredict"
+	],
+	"LogActionsHandlers": {
+		"oredict/*": "LogFormatter"
+	},
+	"MessagesDirs": {
+		"OreDict": [
+			"i18n"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"OreDictMagic": "OreDict.i18n.magic.php"
+	},
+	"AutoloadClasses": {
+		"OreDict": "OreDict.body.php",
+		"OreDictItem": "OreDict.body.php",
+		"OreDictError": "OreDict.body.php",
+		"OreDictHooks": "OreDict.hooks.php",
+		"OreDictForm": "classes/OreDictForm.php",
+		"OreDictEntryManager": "special/OreDictEntryManager.php",
+		"OreDictList": "special/OreDictList.php",
+		"ImportOreDict": "special/ImportOreDict.php"
+	},
+	"ResourceModules": {
+		"ext.oredict.list": {
+			"styles": "css/ext.oredict.list.css"
+		},
+		"ext.oredict.manager": {
+			"scripts": "js/ext.oredict.manager.js"
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "OreDict"
+	},
+	"Hooks": {
+		"ParserFirstCallInit": [
+			"OreDictHooks::SetupParser"
+		],
+		"EditPage::showEditForm:initial": [
+			"OreDictHooks::OutputWarnings"
+		],
+		"LoadExtensionSchemaUpdates": [
+			"OreDictHooks::SchemaUpdate"
+		]
+	},
+	"config": {
+		"ShowExceptionDetails": true,
+		"OreDictDebug": false
+	},
+	"manifest_version": 1
+}

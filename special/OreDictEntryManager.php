@@ -10,7 +10,7 @@
  */
 
 class OreDictEntryManager extends SpecialPage {
-	public function __construct(){
+	public function __construct() {
 		parent::__construct('OreDictEntryManager', 'editoredict');
 	}
 
@@ -56,11 +56,11 @@ class OreDictEntryManager extends SpecialPage {
 
 		$out->addHtml($this->outputSearchForm());
 
-		if($opts->getValue('update') == 1 && $opts->getValue('entry_id') == -1){
+		if ($opts->getValue('update') == 1 && $opts->getValue('entry_id') == -1) {
 			$opts->setValue('entry_id', $this->createEntry($opts));
 		}
-		if($opts->getValue('entry_id') === 0) return;
-		if($opts->getValue('update') == 1 && $opts->getValue('entry_id') != -1){
+		if ($opts->getValue('entry_id') === 0) return;
+		if ($opts->getValue('update') == 1 && $opts->getValue('entry_id') != -1) {
 			// XSRF prevention
 			if ( !$this->getUser()->matchEditToken( $this->getRequest()->getVal( 'token' ) ) ) {
 				return;
@@ -73,24 +73,24 @@ class OreDictEntryManager extends SpecialPage {
 		$dbr = wfGetDB(DB_SLAVE);
 		$results = $dbr->select('ext_oredict_items','*',array('entry_id' => $opts->getValue('entry_id')));
 
-		if($results->numRows() == 0 && $opts->getValue('entry_id') != -1 && $opts->getValue('entry_id') != -2){
+		if ($results->numRows() == 0 && $opts->getValue('entry_id') != -1 && $opts->getValue('entry_id') != -2) {
 			$out->addWikitext('Query returned an empty set (i.e. zero rows).');
 			// $out->addHtml($this->outputUpdateForm());
-		} else if($opts->getValue('entry_id') == -2){
+		} else if ($opts->getValue('entry_id') == -2) {
 			$out->addWikitext('Insert failed!');
 			$out->addHtml($this->outputUpdateForm());
-		} else if($results->numRows() == 1){
+		} else if ($results->numRows() == 1) {
 			$out->addHtml($this->outputUpdateForm($results->current()));
 		} else {
 			$out->addHtml($this->outputUpdateForm());
 		}
 	}
 
-	private function createEntry(FormOptions $opts){
+	private function createEntry(FormOptions $opts) {
 		$dbw = wfGetDB(DB_MASTER);
 
 		// Check if exists
-		if(OreDict::checkExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'))) return -2;
+		if (OreDict::checkExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'))) return -2;
 
 		$dbw->insert('ext_oredict_items', array(
 			'tag_name' => $opts->getValue('tag_name'),
@@ -120,7 +120,7 @@ class OreDictEntryManager extends SpecialPage {
 		return intval($result->current()->id);
 	}
 
-	private function updateEntry(FormOptions $opts){
+	private function updateEntry(FormOptions $opts) {
 		$dbw = wfGetDB(DB_MASTER);
 		$stuff = $dbw->select('ext_oredict_items', '*', array('entry_id' => $opts->getValue('entry_id')));
 		$ary = array(
@@ -133,8 +133,8 @@ class OreDictEntryManager extends SpecialPage {
 		$tableName = $dbw->tableName('ext_oredict_items');
 		$result = $dbw->update('ext_oredict_items', $ary, array('entry_id' => $opts->getValue('entry_id')));
 
-		if($stuff->numRows() == 0) return;
-		if($result == false) return;
+		if ($stuff->numRows() == 0) return;
+		if ($result == false) return;
 
 		$tag = $opts->getValue('tag_name');
 		$fItem = $opts->getValue('item_name');
@@ -147,27 +147,27 @@ class OreDictEntryManager extends SpecialPage {
 		$target = empty($mod) || $mod == "" ? "$tag - $fItem" : "$tag - $fItem ($mod)";
 
 		$diff = array();
-		if($item->item_name != $fItem){
+		if ($item->item_name != $fItem) {
 			$diff['item'][] = $item->item_name;
 			$diff['item'][] = $fItem;
 		}
-		if($item->mod_name != $mod){
+		if ($item->mod_name != $mod) {
 			$diff['mod'][] = $item->mod_name;
 			$diff['mod'][] = $mod;
 		}
-		if($item->grid_params != $params){
+		if ($item->grid_params != $params) {
 			$diff['params'][] = $item->grid_params;
 			$diff['params'][] = $params;
 		}
-		if($item->flags != $flags){
+		if ($item->flags != $flags) {
 			$diff['flags'][] = sprintf("0x%03X (0b%09b)",$item->flags,$item->flags);
 			$diff['flags'][] = sprintf("0x%03X (0b%09b)",$flags,$flags);
 		}
 		$diffString = "";
-		foreach($diff as $field => $change){
+		foreach($diff as $field => $change) {
 			$diffString .= "$field [$change[0] -> $change[1]] ";
 		}
-		if($diffString == "" || count($diff) == 0) return; // No change
+		if ($diffString == "" || count($diff) == 0) return; // No change
 
 		// Delete before any other processing is done.
 		if ($flags & 0x100 && OreDict::checkExists($fItem, $tag, $mod) != 0) {
@@ -194,7 +194,7 @@ class OreDictEntryManager extends SpecialPage {
 		// End log
 
 		$toggleFlag = 0xc0 & (intval($opts->getValue('orig_flags')) ^ intval($opts->getValue('flags')));
-		if($toggleFlag){
+		if ($toggleFlag) {
 			$tagName = $dbw->addQuotes($opts->getValue('tag_name'));
 			$entryId = intval($opts->getValue('entry_id'));
 			$dbw->query("UPDATE $tableName SET `flags` = `flags` ^ $toggleFlag WHERE `tag_name` = $tagName AND `entry_id` != $entryId");
@@ -210,7 +210,7 @@ class OreDictEntryManager extends SpecialPage {
 		}
 	}
 
-	private function outputUpdateForm(stdClass $opts = NULL){
+	private function outputUpdateForm(stdClass $opts = NULL) {
 		global $wgScript;
 		$vEntryId = is_object($opts) ? $opts->entry_id : -1;
 		$vTagName = is_object($opts) ? $opts->tag_name : '';
@@ -265,7 +265,7 @@ class OreDictEntryManager extends SpecialPage {
 		return $out;
 	}
 
-	private function outputSearchForm(){
+	private function outputSearchForm() {
 		global $wgScript;
 		$form = "<table>";
 		$form .= OreDictForm::createFormRow('manager-filter', 'entry_id', '', 'number', 'min="1" id="form-entry-id"');
