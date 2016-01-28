@@ -150,22 +150,22 @@ class OreDict{
 				//$query = "SELECT * FROM $fTableName WHERE `tag_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
 
 				$result = $dbr->select(
-						$fTableName,
-						"*",
-						[
-							'tag_name' => $fItem,
-							$dbr->makeList([$fMod => '','mod_name' => $fMod], LIST_OR),
-							"($mfTag & $fType & `flags`)",
-							"($mfCall & $fType & `flags`)",
-							"($mfDisp & $fType & `flags`)",
-							"NOT ($fDel & `flags`)"
-					 	],
-						__METHOD__,
-						[
-							"ORDER BY" => $sRand,
-							"LIMIT" => $sLim,
-							"OFFSET" => 0
-						]
+					$fTableName,
+					"*",
+					[
+						'tag_name' => $fItem,
+						$dbr->makeList([$fMod => '','mod_name' => $fMod], LIST_OR),
+						"($mfTag & $fType & `flags`)",
+						"($mfCall & $fType & `flags`)",
+						"($mfDisp & $fType & `flags`)",
+						"NOT ($fDel & `flags`)"
+				 	],
+					__METHOD__,
+					[
+						"ORDER BY" => $sRand,
+						"LIMIT" => $sLim,
+						"OFFSET" => 0
+					]
 				);
 
 			} else {
@@ -192,19 +192,19 @@ class OreDict{
 				}
 
 				$result = $dbr->select(
-						$fTableName,
-						"*",
-						[
-							'`tag_name` IN ('.$dbr->makeList($tagNameList, LIST_COMMA).')',
-							"($mfDisp & $fType & `flags`)",
-							"NOT($fDel & `flags`)"
-					 	],
-						__METHOD__,
-						[
-							"ORDER BY" => $sRand,
-							"LIMIT" => $sLim,
-							"OFFSET" => 0
-						]
+					$fTableName,
+					"*",
+					[
+						'`tag_name` IN ('.$dbr->makeList($tagNameList, LIST_COMMA).')',
+						"($mfDisp & $fType & `flags`)",
+						"NOT($fDel & `flags`)"
+				 	],
+					__METHOD__,
+					[
+						"ORDER BY" => $sRand,
+						"LIMIT" => $sLim,
+						"OFFSET" => 0
+					]
 				);
 
 			}
