@@ -9,7 +9,6 @@
  * @author Jinbobo <paullee05149745@gmail.com>
  * @license
  */
-
 class OreDictHooks {
 	/**
 	 * Setups and Modifies Database Information
@@ -46,36 +45,36 @@ class OreDictHooks {
 	 */
 	public static function RenderMultiple(Parser &$parser) {
 		$opts = array();
-		for($i = 1; $i < func_num_args(); $i++){
+		for ($i = 1; $i < func_num_args(); $i++) {
 			$opts[] = func_get_arg($i);
 		}
 
 		// Check if input is in the correct format
-		foreach($opts as $opt){
-			if(strpos("{{", $opt) !== false || strpos("}}", $opt) !== false){
-				OreDictError::error("Incorrect input format in #grid_foreach! Aborting!");
-				return "";
+		foreach ($opts as $opt) {
+			if (strpos('{{', $opt) !== false || strpos('}}', $opt) !== false) {
+				OreDictError::error('Incorrect input format in #grid_foreach! Aborting!');
+				return '';
 			}
 		}
 
 		// Check if separated by commas
-		if(strpos($opts[0], ',') !== false){
+		if (strpos($opts[0], ',') !== false) {
 			$opts = explode(',', $opts[0]);
 		}
 
 		// Check for global parameters
 		$gParams = array();
-		foreach($opts as $option){
+		foreach ($opts as $option) {
 			$pair = explode('=>', $option);
-			if(count($pair) == 2){
+			if (count($pair) == 2) {
 				$gParams[trim($pair[0])] = trim($pair[1]);
 			}
 		}
 
 		// Prepare items
 		$items = array();
-		foreach($opts as $option){
-			if(strpos($option, '=>') === false){
+		foreach ($opts as $option) {
+			if (strpos($option, '=>') === false) {
 				// Pre-load global params
 				$items[] = $gParams;
 				end($items);
@@ -83,9 +82,9 @@ class OreDictHooks {
 
 				// Parse string
 				$gridOptions = explode('!', $option);
-				foreach($gridOptions as $key => $gridOption){
+				foreach ($gridOptions as $key => $gridOption) {
 					$pair = explode('=', $gridOption);
-					if(count($pair) == 2){
+					if (count($pair) == 2) {
 						$gridOptions[trim($pair[0])] = trim($pair[1]);
 						$items[$iKey][trim($pair[0])] = trim($pair[1]);
 					} else {
@@ -97,19 +96,33 @@ class OreDictHooks {
 
 		// Create grids
 		$outs = array();
-		foreach($items as $options){
+		foreach ($items as $options) {
 			// Set mode
 			$mode = 0x00;
-			if(isset($options['grid'])) $mode = $mode | OreDict::MODE_GRID;
-			if(isset($options['tag'])) $mode = $mode | OreDict::MODE_TAG;
-			if(isset($options['force'])) $mode = $mode | OreDict::MODE_FORCE;
-			if($mode == 0x00) $mode = $mode | OreDict::MODE_GRID;
-			if(isset($options['shuffle'])) $mode = $mode | OreDict::CTRL_RAND;
-			if(isset($options['no-oredict'])) $mode = 0x00;
+			if (isset($options['grid'])) {
+				$mode = $mode | OreDict::MODE_GRID;
+			}
+			if (isset($options['tag'])) {
+				$mode = $mode | OreDict::MODE_TAG;
+			}
+			if (isset($options['force'])) {
+				$mode = $mode | OreDict::MODE_FORCE;
+			}
+			if ($mode == 0x00) {
+				$mode = $mode | OreDict::MODE_GRID;
+			}
+			if (isset($options['shuffle'])) {
+				$mode = $mode | OreDict::CTRL_RAND;
+			}
+			if (isset($options['no-oredict'])) {
+				$mode = 0x00;
+			}
 
 			// Set mod
 			$mod = '';
-			if(isset($options['mod'])) $mod = $options['mod'];
+			if (isset($options['mod'])) {
+				$mod = $options['mod'];
+			}
 
 			// Call OreDict
 			$dict = new OreDict($options[1], $mod, $mode);
@@ -117,9 +130,11 @@ class OreDictHooks {
 			$outs[] = $dict->runHooks(self::BuildParamString($options));
 		}
 
-		$ret = "";
-		foreach($outs as $out){
-			if(!isset($out[0])) continue;
+		$ret = '';
+		foreach($outs as $out) {
+			if (!isset($out[0])) {
+				continue;
+			}
 			$ret .= $out[0];
 		}
 
@@ -135,23 +150,37 @@ class OreDictHooks {
 	 */
 	public static function RenderParser(Parser &$parser) {
 		$opts = array();
-		for($i = 1; $i < func_num_args(); $i++){
+		for ($i = 1; $i < func_num_args(); $i++) {
 			$opts[] = func_get_arg($i);
 		}
 		$options = OreDictHooks::ExtractOptions($opts);
 
 		// Set mode
 		$mode = 0x00;
-		if(isset($options['grid'])) $mode = $mode | OreDict::MODE_GRID;
-		if(isset($options['tag'])) $mode = $mode | OreDict::MODE_TAG;
-		if(isset($options['force'])) $mode = $mode | OreDict::MODE_FORCE;
-		if($mode == 0x00) $mode = $mode | OreDict::MODE_GRID;
-		if(isset($options['shuffle'])) $mode = $mode | OreDict::CTRL_RAND;
-		if(isset($options['no-oredict'])) $mode = 0x00;
+		if (isset($options['grid'])) {
+			$mode = $mode | OreDict::MODE_GRID;
+		}
+		if (isset($options['tag'])) {
+			$mode = $mode | OreDict::MODE_TAG;
+		}
+		if (isset($options['force'])) {
+			$mode = $mode | OreDict::MODE_FORCE;
+		}
+		if ($mode == 0x00) {
+			$mode = $mode | OreDict::MODE_GRID;
+		}
+		if (isset($options['shuffle'])) {
+			$mode = $mode | OreDict::CTRL_RAND;
+		}
+		if (isset($options['no-oredict'])) {
+			$mode = 0x00;
+		}
 
 		// Set mod
 		$mod = '';
-		if(isset($options['mod'])) $mod = $options['mod'];
+		if (isset($options['mod'])) {
+			$mod = $options['mod'];
+		}
 
 		// Call OreDict
 		$dict = new OreDict($options[1], $mod, $mode);
@@ -166,10 +195,12 @@ class OreDictHooks {
 	 * @return array|bool
 	 */
 	public static function ExtractOptions($opts) {
-		if(count($opts) == 0) return array();
-		foreach($opts as $key => $option){
+		if (count($opts) == 0) {
+			return array();
+		}
+		foreach ($opts as $key => $option) {
 			$pair = explode('=', $option);
-			if(count($pair) == 2){
+			if (count($pair) == 2) {
 				$name = trim($pair[0]);
 				$value = trim($pair[1]);
 				$results[$name] = $value;
@@ -188,7 +219,9 @@ class OreDictHooks {
 	 * @return array
 	 */
 	public static function ParseParamString($params) {
-		if($params === "") return array();
+		if ($params === '') {
+			return array();
+		}
 		return OreDictHooks::ExtractOptions(explode('|', $params));
 	}
 
@@ -200,11 +233,13 @@ class OreDictHooks {
 	 */
 
 	public static function BuildParamString($params) {
-		foreach($params as $key => $value){
+		foreach ($params as $key => $value) {
 			$pairs[] = "$key=$value";
 		}
-		if(!isset($pairs)) return "";
-		return implode("|", $pairs);
+		if (!isset($pairs)) {
+			return '';
+		}
+		return implode('|', $pairs);
 	}
 
 	/**

@@ -1,1 +1,3 @@
-.mw-datatable .listDeletedEntry:hover td { background-color:#FFCECE; }
+.mw-datatable .listDeletedEntry:hover td {
+    background-color:#FFCECE;
+}
