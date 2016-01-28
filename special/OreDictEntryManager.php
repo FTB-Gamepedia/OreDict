@@ -59,7 +59,9 @@ class OreDictEntryManager extends SpecialPage {
 		if ($opts->getValue('update') == 1 && $opts->getValue('entry_id') == -1) {
 			$opts->setValue('entry_id', $this->createEntry($opts));
 		}
-		if ($opts->getValue('entry_id') === 0) return;
+		if ($opts->getValue('entry_id') === 0) {
+			return;
+		}
 		if ($opts->getValue('update') == 1 && $opts->getValue('entry_id') != -1) {
 			// XSRF prevention
 			if ( !$this->getUser()->matchEditToken( $this->getRequest()->getVal( 'token' ) ) ) {
@@ -90,7 +92,9 @@ class OreDictEntryManager extends SpecialPage {
 		$dbw = wfGetDB(DB_MASTER);
 
 		// Check if exists
-		if (OreDict::checkExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'))) return -2;
+		if (OreDict::checkExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'))) {
+			return -2;
+		}
 
 		$dbw->insert('ext_oredict_items', array(
 			'tag_name' => $opts->getValue('tag_name'),
@@ -133,8 +137,13 @@ class OreDictEntryManager extends SpecialPage {
 		$tableName = $dbw->tableName('ext_oredict_items');
 		$result = $dbw->update('ext_oredict_items', $ary, array('entry_id' => $opts->getValue('entry_id')));
 
-		if ($stuff->numRows() == 0) return;
-		if ($result == false) return;
+		if ($stuff->numRows() == 0) {
+			return;
+		}
+
+		if ($result == false) {
+			return;
+		}
 
 		$tag = $opts->getValue('tag_name');
 		$fItem = $opts->getValue('item_name');
@@ -167,7 +176,9 @@ class OreDictEntryManager extends SpecialPage {
 		foreach($diff as $field => $change) {
 			$diffString .= "$field [$change[0] -> $change[1]] ";
 		}
-		if ($diffString == "" || count($diff) == 0) return; // No change
+		if ($diffString == "" || count($diff) == 0) {
+			return; // No change
+		}
 
 		// Delete before any other processing is done.
 		if ($flags & 0x100 && OreDict::checkExists($fItem, $tag, $mod) != 0) {
@@ -253,14 +264,16 @@ class OreDictEntryManager extends SpecialPage {
 		$form .= Xml::closeElement('fieldset');
 		$form .= "<input type=\"submit\" value=\"".$msgSubmitValue."\">";
 
-		$out = Xml::openElement('form', array('method' => 'get', 'action' => $wgScript, 'id' => 'ext-oredict-manager-form')) .
-			Xml::fieldset($msgFieldsetMain) .
-			Html::hidden('title', $this->getTitle()->getPrefixedText()) .
-			Html::hidden('token', $this->getUser()->getEditToken()) .
-			Html::hidden('update', 1) .
-			Html::hidden('orig_flags', $vFlags) .
-			$form .
-			Xml::closeElement( 'fieldset' ) . Xml::closeElement( 'form' ) . "\n";
+		$out = Xml::openElement('form', array('method' => 'get', 'action' => $wgScript, 'id' => 'ext-oredict-manager-form'))
+			 . Xml::fieldset($msgFieldsetMain)
+			 . Html::hidden('title', $this->getTitle()->getPrefixedText())
+			 . Html::hidden('token', $this->getUser()->getEditToken())
+			 . Html::hidden('update', 1)
+			 . Html::hidden('orig_flags', $vFlags)
+			 . $form
+			 . Xml::closeElement( 'fieldset' )
+			 . Xml::closeElement( 'form' )
+			 . "\n";
 
 		return $out;
 	}

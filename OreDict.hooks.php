@@ -20,9 +20,7 @@ class OreDictHooks {
 	 */
 	public static function SchemaUpdate($updater) {
 		$extDir = __DIR__;
-
 		$updater->addExtensionUpdate(['addTable', 'ext_oredict_items', "{$extDir}/install/sql/ext_oredict_items.sql", true]);
-
 		return true;
 	}
 
@@ -100,16 +98,30 @@ class OreDictHooks {
 		foreach($items as $options) {
 			// Set mode
 			$mode = 0x00;
-			if (isset($options['grid'])) $mode = $mode | OreDict::MODE_GRID;
-			if (isset($options['tag'])) $mode = $mode | OreDict::MODE_TAG;
-			if (isset($options['force'])) $mode = $mode | OreDict::MODE_FORCE;
-			if ($mode == 0x00) $mode = $mode | OreDict::MODE_GRID;
-			if (isset($options['shuffle'])) $mode = $mode | OreDict::CTRL_RAND;
-			if (isset($options['no-oredict'])) $mode = 0x00;
+			if (isset($options['grid'])) {
+				 $mode = $mode | OreDict::MODE_GRID;
+			}
+			if (isset($options['tag'])) {
+				$mode = $mode | OreDict::MODE_TAG;
+			}
+			if (isset($options['force'])) {
+				$mode = $mode | OreDict::MODE_FORCE;
+			}
+			if ($mode == 0x00) {
+				 $mode = $mode | OreDict::MODE_GRID;
+			}
+			if (isset($options['shuffle'])) {
+				$mode = $mode | OreDict::CTRL_RAND;
+			}
+			if (isset($options['no-oredict'])) {
+				$mode = 0x00;
+			}
 
 			// Set mod
 			$mod = '';
-			if (isset($options['mod'])) $mod = $options['mod'];
+			if (isset($options['mod'])) {
+				$mod = $options['mod'];
+			}
 
 			// Call OreDict
 			$dict = new OreDict($options[1], $mod, $mode);
@@ -119,7 +131,9 @@ class OreDictHooks {
 
 		$ret = "";
 		foreach($outs as $out) {
-			if (!isset($out[0])) continue;
+			if (!isset($out[0])) {
+				continue;
+			}
 			$ret .= $out[0];
 		}
 
@@ -142,17 +156,30 @@ class OreDictHooks {
 
 		// Set mode
 		$mode = 0x00;
-		if (isset($options['grid'])) $mode = $mode | OreDict::MODE_GRID;
-		if (isset($options['tag'])) $mode = $mode | OreDict::MODE_TAG;
-		if (isset($options['force'])) $mode = $mode | OreDict::MODE_FORCE;
-		if ($mode == 0x00) $mode = $mode | OreDict::MODE_GRID;
-		if (isset($options['shuffle'])) $mode = $mode | OreDict::CTRL_RAND;
-		if (isset($options['no-oredict'])) $mode = 0x00;
+		if (isset($options['grid'])) {
+			 $mode = $mode | OreDict::MODE_GRID;
+		}
+		if (isset($options['tag'])) {
+			$mode = $mode | OreDict::MODE_TAG;
+		}
+		if (isset($options['force'])) {
+			$mode = $mode | OreDict::MODE_FORCE;
+		}
+		if ($mode == 0x00) {
+			 $mode = $mode | OreDict::MODE_GRID;
+		}
+		if (isset($options['shuffle'])) {
+			$mode = $mode | OreDict::CTRL_RAND;
+		}
+		if (isset($options['no-oredict'])) {
+			$mode = 0x00;
+		}
 
 		// Set mod
 		$mod = '';
-		if (isset($options['mod'])) $mod = $options['mod'];
-
+		if (isset($options['mod'])) {
+			$mod = $options['mod'];
+		}
 		// Call OreDict
 		$dict = new OreDict($options[1], $mod, $mode);
 		$dict->exec(isset($options['tag']));
@@ -188,7 +215,9 @@ class OreDictHooks {
 	 * @return array
 	 */
 	public static function ParseParamString($params) {
-		if ($params === "") return array();
+		if ($params === "") {
+			return [];
+		}
 		return OreDictHooks::ExtractOptions(explode('|', $params));
 	}
 
@@ -203,7 +232,9 @@ class OreDictHooks {
 		foreach($params as $key => $value) {
 			$pairs[] = "$key=$value";
 		}
-		if (!isset($pairs)) return "";
+		if (!isset($pairs)) {
+			return "";
+		}
 		return implode("|", $pairs);
 	}
 

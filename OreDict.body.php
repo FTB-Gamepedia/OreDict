@@ -82,9 +82,11 @@ class OreDict{
 	public function getRawOutput() {
 		$out = "";
 		foreach ($this->mRawArray as $item) {
-			if(is_object($item))
-				if(get_class($item) == "OreDictList")
+			if (is_object($item)) {
+				if (get_class($item) == "OreDictList") {
 					$out .= $item->getItemName() . " \n";
+				}
+			}
 		}
 		return array($out, 'noparse' => true, 'isHTML' => true);
 	}
@@ -127,17 +129,21 @@ class OreDict{
 		$fTableName = $dbr->tableName("ext_oredict_items");
 
 		$sLim = "LIMIT 0,".$this->mOutputLimit;
-		if($mfCtrl & $fType & OreDict::CTRL_RAND) $sRand = "ORDER BY RAND()";
-		else $sRand = "ORDER BY `entry_id`";
+		if ($mfCtrl & $fType & OreDict::CTRL_RAND) {
+			$sRand = "ORDER BY RAND()";
+		}
+		else {
+			$sRand = "ORDER BY `entry_id`";
+		}
 
 		// Generate dummy entry
-		if($fType == 0x00) {
+		if ($fType == 0x00) {
 			self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
 		}
 
 		// Query database
-		if(!isset(self::$mQueries[$fItem][$fMod][$fType])) {
-			if($byTag) {
+		if (!isset(self::$mQueries[$fItem][$fMod][$fType])) {
+			if ($byTag) {
 				OreDictError::notice("Querying the ore dictionary for Tag = $fItem Mod = $fMod (Call type = $fType)");
 				$query = "SELECT * FROM $fTableName WHERE `tag_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
 			} else {
@@ -150,7 +156,7 @@ class OreDict{
 				self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($row);
 			}
 
-			if(!isset(self::$mQueries[$fItem][$fMod][$fType])) {
+			if (!isset(self::$mQueries[$fItem][$fMod][$fType])) {
 				self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
 				OreDictError::notice("OreDict returned an empty set (i.e. 0 rows)! Using provided params as is. Suppressing future identical warnings.");
 			} else {
@@ -160,8 +166,10 @@ class OreDict{
 		}
 
 		// Rotate results if not randomized
-		if(!($mfCtrl & $fType & OreDict::CTRL_RAND) && !$byTag) {
-			while(current(self::$mQueries[$fItem][$fMod][$fType])->getItemName() != $this->mItemName && (empty($this->mItemMod) || current(self::$mQueries[$fItem][$fMod][$fType])->getMod() == $this->mItemMod)) array_push(self::$mQueries[$fItem][$fMod][$fType], array_shift(self::$mQueries[$fItem][$fMod][$fType]));
+		if (!($mfCtrl & $fType & OreDict::CTRL_RAND) && !$byTag) {
+			while (current(self::$mQueries[$fItem][$fMod][$fType])->getItemName() != $this->mItemName && (empty($this->mItemMod) || current(self::$mQueries[$fItem][$fMod][$fType])->getMod() == $this->mItemMod)) {
+				array_push(self::$mQueries[$fItem][$fMod][$fType], array_shift(self::$mQueries[$fItem][$fMod][$fType]));
+			}
 		}
 
 		$this->mRawArray = self::$mQueries[$fItem][$fMod][$fType];
@@ -179,10 +187,14 @@ class OreDict{
 	static public function truncateArray(&$array, $limit) {
 		$i = 0;
 		foreach($array as $key => $value) {
-			if($i++ == $limit) break;
+			if ($i++ == $limit) {
+				break;
+			}
 			$new[$key] = $value;
 		}
-		if(!isset($new)) $new = array();
+		if (!isset($new)) {
+			$new = array();
+		}
 		$array = $new;
 		return true;
 	}
@@ -200,7 +212,7 @@ class OreDict{
 		foreach($keys as $key) {
 			$new[$key] = $array[$key];
 		}
-		if(!isset($new)) $new = array();
+		if (!isset($new)) $new = array();
 		$array = $new;
 		return true;
 	}
@@ -234,19 +246,19 @@ class OreDictItem{
 
 	public function __construct($item, $tag = '', $mod = '', $params = '', $flags = '') {
 		OreDictError::debug("Constructing OreDictItem.");
-		if(is_object($item))
-			if(get_class($item) == "stdClass") {
-				if(isset($item->item_name)) $this->mItemName = $item->item_name;
+		if (is_object($item))
+			if (get_class($item) == "stdClass") {
+				if (isset($item->item_name)) $this->mItemName = $item->item_name;
 				else throw new MWException("Incorrect input format! Missing property \"item_name\" in stdClass.");
-				if(isset($item->mod_name)) $this->mItemMod = $item->mod_name;
+				if (isset($item->mod_name)) $this->mItemMod = $item->mod_name;
 				else throw new MWException("Incorrect input format! Missing property \"mod_name\" in stdClass.");
-				if(isset($item->tag_name)) $this->mTagName = $item->tag_name;
+				if (isset($item->tag_name)) $this->mTagName = $item->tag_name;
 				else throw new MWException("Incorrect input format! Missing property \"tag_name\" in stdClass.");
-				if(isset($item->flags)) $this->mFlags = $item->flags;
+				if (isset($item->flags)) $this->mFlags = $item->flags;
 				else throw new MWException("Incorrect input format! Missing property \"flags\" in stdClass.");
-				if(isset($item->grid_params)) $this->mItemParams = OreDictHooks::ParseParamString($item->grid_params);
+				if (isset($item->grid_params)) $this->mItemParams = OreDictHooks::ParseParamString($item->grid_params);
 				else throw new MWException("Incorrect input format! Missing property \"grid_params\" in stdClass.");
-				if(isset($item->entry_id)) $this->mId = $item->entry_id;
+				if (isset($item->entry_id)) $this->mId = $item->entry_id;
 				else throw new MWException("Incorrect input format! Missing property \"entry_id\" in stdClass.");
 				return 0;
 			}
@@ -270,8 +282,8 @@ class OreDictItem{
 		OreDictError::debug("Joining params: $params.");
 		$input = OreDictHooks::ParseParamString($params);
 		foreach($input as $key => $value) {
-			if(isset($this->mItemParams[$key])) {
-				if($override) $this->mItemParams[$key] = $value;
+			if (isset($this->mItemParams[$key])) {
+				if ($override) $this->mItemParams[$key] = $value;
 			} else {
 				$this->mItemParams[$key] = $value;
 			}
@@ -297,7 +309,7 @@ class OreDictItem{
 	 */
 
 	public function unsetParam($name) {
-		if(isset($this->mItemParams[$name])) unset($this->mItemParams[$name]);
+		if (isset($this->mItemParams[$name])) unset($this->mItemParams[$name]);
 	}
 
 	/**
@@ -359,7 +371,7 @@ class OreDictError{
 	 */
 
 	public function output() {
-		if(!isset(self::$mDebug)) return "";
+		if (!isset(self::$mDebug)) return "";
 
 		$colors = array(
 			"Log" => "#CEFFFD",
@@ -384,13 +396,13 @@ class OreDictError{
 		$html .= "<tr><th style=\"width:10%;\">Type</th><th>Message</th><tr>";
 		$flag = true;
 		foreach(self::$mDebug as $message) {
-			if(!$this->mDebugMode && $message[0] != "Warning" && $message[0] != "Error" && $message[0] != "Notice") {
+			if (!$this->mDebugMode && $message[0] != "Warning" && $message[0] != "Error" && $message[0] != "Notice") {
 				continue;
 			}
 			$html .= "<tr><td style=\"text-align:center; background-color:{$colors[$message[0]]}; color:{$textColors[$message[0]]}; font-weight:bold;\">{$message[0]}</td><td>{$message[1]}</td></tr>";
-			if($message[0] == "Warnings" || $message[0] == "Error") $flag = false;
+			if ($message[0] == "Warnings" || $message[0] == "Error") $flag = false;
 		}
-		if($flag) {
+		if ($flag) {
 			$html .= "<tr><td style=\"text-align:center; background-color:blue; color:white; font-weight:bold;\">Notice</td><td>No warnings.</td></tr>";
 		}
 		$html .= "</table>";
@@ -424,7 +436,7 @@ class OreDictError{
 		global $wgShowSQLErrors;
 
 		// Hide queries if debug option is not set in LocalSettings.php
-		if($wgShowSQLErrors)
+		if ($wgShowSQLErrors)
 			self::debug($query, "Query");
 	}
 

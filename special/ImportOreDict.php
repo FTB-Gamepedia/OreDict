@@ -64,7 +64,9 @@ class ImportOreDict extends SpecialPage {
 				// Parse line
 				// Line format: OreDict name!item name!mod name!params!flags=207
 				$line = trim($line);
-				if ($line == "") continue;
+				if ($line == "") {
+					continue;
+				}
 				$p = explode('!', $line);
 				foreach($p as $key => $opt) {
 					$p[$key] = trim($opt);
@@ -177,19 +179,36 @@ class ImportOreDict extends SpecialPage {
 
 	private function buildForm() {
 		global $wgArticlePath, $wgUser;
-		$form = "<table style=\"width:100%;\">";
-		$form .= "<tr><td>".$this->msg('oredict-import-input')->text()."</td><td></td></td>";
-		$form .= OreDictForm::createInputHint('import', 'input');
-		$form .= "<tr><td colspan=\"2\"><textarea name=\"input\" style=\"width:100%; height: 600px;\"></textarea></td></td>";
-		$form .= "<tr><td colspan=\"2\"><input type=\"submit\" value=\"".$this->msg("oredict-import-submit")->text()."\"><input type=\"checkbox\" value=\"1\" name=\"update_table\" id=\"update_table\"><label for=\"update_table\">".$this->msg("oredict-import-update")->text()."</label><span style=\"font-size: x-small;padding: .2em .5em;color: #666;\">".$this->msg("oredict-import-update-hint")->parse()."</span></td></tr>";
-		$form .= "</table>";
+		$form = "<table style=\"width:100%;\">
+					<tr>
+						<td>".$this->msg('oredict-import-input')->text()."</td>
+						<td></td>
+					</tr>
+					" . OreDictForm::createInputHint('import', 'input') . "
+					<tr>
+						<td colspan=\"2\">
+							<textarea name=\"input\" style=\"width:100%; height: 600px;\"></textarea>
+						</td>
+					</tr>
+					<tr>
+						<td colspan=\"2\">
+							<input type=\"submit\" value=\"".$this->msg("oredict-import-submit")->text()."\">
+							<input type=\"checkbox\" value=\"1\" name=\"update_table\" id=\"update_table\">
+							<label for=\"update_table\">".$this->msg("oredict-import-update")->text()."</label>
+							<span style=\"font-size: x-small;padding: .2em .5em;color: #666;\">
+								".$this->msg("oredict-import-update-hint")->parse()."
+							</span>
+						</td>
+					</tr>
+				</table>";
 
-		$out = Xml::openElement('form', array('method' => 'post', 'action' => str_replace('$1', 'Special:ImportOreDict', $wgArticlePath), 'id' => 'ext-oredict-import-form')) .
-			Xml::fieldset($this->msg('oredict-import-legend')->text()) .
-			Html::hidden('title', $this->getTitle()->getPrefixedText()) .
-			Html::hidden('token', $wgUser->getEditToken()) .
-			$form .
-			Xml::closeElement( 'fieldset' ) . Xml::closeElement( 'form' ) . "\n";
+		$out = Xml::openElement('form', array('method' => 'post', 'action' => str_replace('$1', 'Special:ImportOreDict', $wgArticlePath), 'id' => 'ext-oredict-import-form'))
+			 . Xml::fieldset($this->msg('oredict-import-legend')->text())
+			 . Html::hidden('title', $this->getTitle()->getPrefixedText())
+			 . Html::hidden('token', $wgUser->getEditToken())
+			 . $form
+			 . Xml::closeElement( 'fieldset' )
+			 . Xml::closeElement( 'form' ) . "\n";
 
 		return $out;
 	}
@@ -204,9 +223,9 @@ class ImportOreDict extends SpecialPage {
 
 	private function returnMessage($state, $message) {
 		if ($state) {
-			$out = '<span style="background-color:green; font-weight:bold; color:white;">SUCCESS</span> '.$message."<br>";
+			$out = '<span style="background-color:green; font-weight:bold; color:white;">SUCCESS</span> '.$message."<br />";
 		} else {
-			$out = '<span style="background-color:red; font-weight:bold; color:white;">FAIL</span> '.$message."<br>";
+			$out = '<span style="background-color:red; font-weight:bold; color:white;">FAIL</span> '.$message."<br />";
 		}
 		return $out;
 	}

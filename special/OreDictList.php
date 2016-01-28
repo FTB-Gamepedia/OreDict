@@ -71,7 +71,9 @@ class OreDictList extends SpecialPage {
 			$maxRows = $result->row_count;
 		}
 
-		if (!isset($maxRows)) return;
+		if (!isset($maxRows)) {
+			return;
+		}
 
 		$order = $opts->getValue('start') == '' ? 'entry_id ASC' : 'item_name ASC';
 		$results = $dbr->select(
@@ -117,7 +119,9 @@ class OreDictList extends SpecialPage {
 			}
 			$table .= "| style=\"width:23px; padding-left:5px; padding-right:5px; text-align:center; font-weight:bold;\" | $editLink || $lId || $lTag || $lItem || $lMod || $lParams || $lFlags\n";
 
-			if ($lId > $maxId) $maxId = $lId;
+			if ($lId > $maxId) {
+				$maxId = $lId;
+			}
 		}
 		$table .= "|}\n";
 
@@ -175,11 +179,13 @@ class OreDictList extends SpecialPage {
 		$form .= OreDictForm::createSubmitButton('list');
 		$form .= "</table>";
 
-		$out = Xml::openElement('form', array('method' => 'get', 'action' => $wgScript, 'id' => 'ext-oredict-list-filter')) .
-			Xml::fieldset($this->msg('oredict-list-legend')->text()) .
-			Html::hidden('title', $this->getTitle()->getPrefixedText()) .
-			$form .
-			Xml::closeElement( 'fieldset' ) . Xml::closeElement( 'form' ) . "\n";
+		$out = Xml::openElement('form', array('method' => 'get', 'action' => $wgScript, 'id' => 'ext-oredict-list-filter'))
+			 . Xml::fieldset($this->msg('oredict-list-legend')->text())
+			 . Html::hidden('title', $this->getTitle()->getPrefixedText())
+			 . $form
+			 . Xml::closeElement( 'fieldset' )
+			 . Xml::closeElement( 'form' )
+			 . "\n";
 
 		return $out;
 	}
