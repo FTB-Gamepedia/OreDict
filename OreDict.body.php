@@ -131,7 +131,7 @@ class OreDict{
 		//$fTableName = $dbr->tableName("ext_oredict_items");
 		$fTableName = "ext_oredict_items";
 
-		$sLim = "0,".$this->mOutputLimit;
+		$sLim = $this->mOutputLimit;
 		if ($mfCtrl & $fType & OreDict::CTRL_RAND) {
 			$sRand = "RAND()";
 		} else {
@@ -163,7 +163,8 @@ class OreDict{
 						__METHOD__,
 						[
 							"ORDER BY" => $sRand,
-							"LIMIT" => $sLim
+							"LIMIT" => $sLim,
+							"OFFSET" => 0
 						]
 				);
 
@@ -201,7 +202,8 @@ class OreDict{
 						__METHOD__,
 						[
 							"ORDER BY" => $sRand,
-							"LIMIT" => $sLim
+							"LIMIT" => $sLim,
+							"OFFSET" => 0
 						]
 				);
 
