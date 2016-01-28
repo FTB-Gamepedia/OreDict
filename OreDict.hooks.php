@@ -44,12 +44,12 @@ class OreDictHooks {
 	 */
 	public static function RenderMultiple(Parser &$parser) {
 		$opts = array();
-		for($i = 1; $i < func_num_args(); $i++) {
+		for ($i = 1; $i < func_num_args(); $i++) {
 			$opts[] = func_get_arg($i);
 		}
 
 		// Check if input is in the correct format
-		foreach($opts as $opt) {
+		foreach ($opts as $opt) {
 			if (strpos("{{", $opt) !== false || strpos("}}", $opt) !== false) {
 				OreDictError::error("Incorrect input format in #grid_foreach! Aborting!");
 				return "";
@@ -63,7 +63,7 @@ class OreDictHooks {
 
 		// Check for global parameters
 		$gParams = array();
-		foreach($opts as $option) {
+		foreach ($opts as $option) {
 			$pair = explode('=>', $option);
 			if (count($pair) == 2) {
 				$gParams[trim($pair[0])] = trim($pair[1]);
@@ -72,7 +72,7 @@ class OreDictHooks {
 
 		// Prepare items
 		$items = array();
-		foreach($opts as $option) {
+		foreach ($opts as $option) {
 			if (strpos($option, '=>') === false) {
 				// Pre-load global params
 				$items[] = $gParams;
@@ -81,7 +81,7 @@ class OreDictHooks {
 
 				// Parse string
 				$gridOptions = explode('!', $option);
-				foreach($gridOptions as $key => $gridOption) {
+				foreach ($gridOptions as $key => $gridOption) {
 					$pair = explode('=', $gridOption);
 					if (count($pair) == 2) {
 						$gridOptions[trim($pair[0])] = trim($pair[1]);
@@ -95,7 +95,7 @@ class OreDictHooks {
 
 		// Create grids
 		$outs = array();
-		foreach($items as $options) {
+		foreach ($items as $options) {
 			// Set mode
 			$mode = 0x00;
 			if (isset($options['grid'])) {
@@ -130,7 +130,7 @@ class OreDictHooks {
 		}
 
 		$ret = "";
-		foreach($outs as $out) {
+		foreach ($outs as $out) {
 			if (!isset($out[0])) {
 				continue;
 			}
@@ -149,7 +149,7 @@ class OreDictHooks {
 	 */
 	public static function RenderParser(Parser &$parser) {
 		$opts = array();
-		for($i = 1; $i < func_num_args(); $i++) {
+		for ($i = 1; $i < func_num_args(); $i++) {
 			$opts[] = func_get_arg($i);
 		}
 		$options = OreDictHooks::ExtractOptions($opts);
@@ -194,7 +194,7 @@ class OreDictHooks {
 	 */
 	public static function ExtractOptions($opts) {
 		if (count($opts) == 0) return array();
-		foreach($opts as $key => $option) {
+		foreach ($opts as $key => $option) {
 			$pair = explode('=', $option);
 			if (count($pair) == 2) {
 				$name = trim($pair[0]);
@@ -229,7 +229,7 @@ class OreDictHooks {
 	 */
 
 	public static function BuildParamString($params) {
-		foreach($params as $key => $value) {
+		foreach ($params as $key => $value) {
 			$pairs[] = "$key=$value";
 		}
 		if (!isset($pairs)) {

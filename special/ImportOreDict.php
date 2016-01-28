@@ -60,7 +60,7 @@ class ImportOreDict extends SpecialPage {
 
 			$input = explode("\n", trim($opts->getValue('input')));
 
-			foreach($input as $line) {
+			foreach ($input as $line) {
 				// Parse line
 				// Line format: OreDict name!item name!mod name!params!flags=207
 				$line = trim($line);
@@ -68,7 +68,7 @@ class ImportOreDict extends SpecialPage {
 					continue;
 				}
 				$p = explode('!', $line);
-				foreach($p as $key => $opt) {
+				foreach ($p as $key => $opt) {
 					$p[$key] = trim($opt);
 				}
 				if (count($p) != 5) {
@@ -112,7 +112,7 @@ class ImportOreDict extends SpecialPage {
 							$diff['flags'][] = $flags;
 						}
 						$diffString = "";
-						foreach($diff as $field => $change) {
+						foreach ($diff as $field => $change) {
 							$diffString .= "$field [$change[0] -> $change[1]] ";
 						}
 						if ($diffString == "" || count($diff) == 0) {

@@ -67,7 +67,7 @@ class OreDictList extends SpecialPage {
 				'item_name BETWEEN '.$dbr->addQuotes($opts->getValue('start'))." AND 'zzzzzzzz'"
 			)
 		);
-		foreach($results as $result) {
+		foreach ($results as $result) {
 			$maxRows = $result->row_count;
 		}
 
@@ -162,7 +162,7 @@ class OreDictList extends SpecialPage {
 	public function buildForm(FormOptions $opts) {
 		global $wgScript;
 		$optionTags = "";
-		foreach([20,50,100,250,500,5000] as $lim) {
+		foreach ([20,50,100,250,500,5000] as $lim) {
 			if ($opts->getValue('limit') == $lim) {
 				$optionTags .= "<option selected=\"\" value=\"$lim\">$lim</option>";
 			} else {

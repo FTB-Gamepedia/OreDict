@@ -184,7 +184,7 @@ class OreDictEntryManager extends SpecialPage {
 			$diff['flags'][] = sprintf("0x%03X (0b%09b)",$flags,$flags);
 		}
 		$diffString = "";
-		foreach($diff as $field => $change) {
+		foreach ($diff as $field => $change) {
 			$diffString .= "$field [$change[0] -> $change[1]] ";
 		}
 		if ($diffString == "" || count($diff) == 0) {

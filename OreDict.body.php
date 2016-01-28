@@ -210,7 +210,7 @@ class OreDict{
 			}
 			//OreDictError::query($query);
 			//$result = $dbr->query($query);
-			foreach($result as $row) {
+			foreach ($result as $row) {
 				self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($row);
 			}
 
@@ -244,7 +244,7 @@ class OreDict{
 	static public function shuffleAssocArray(&$array) {
 		$keys = array_keys($array);
 		shuffle($keys);
-		foreach($keys as $key) {
+		foreach ($keys as $key) {
 			$new[$key] = $array[$key];
 		}
 		if (!isset($new)) $new = array();
@@ -342,7 +342,7 @@ class OreDictItem{
 	public function joinParams($params, $override = false) {
 		OreDictError::debug("Joining params: $params.");
 		$input = OreDictHooks::ParseParamString($params);
-		foreach($input as $key => $value) {
+		foreach ($input as $key => $value) {
 			if (isset($this->mItemParams[$key])) {
 				if ($override) $this->mItemParams[$key] = $value;
 			} else {
@@ -456,7 +456,7 @@ class OreDictError{
 		$html .= "<caption>OreDict extension warnings</caption>";
 		$html .= "<tr><th style=\"width:10%;\">Type</th><th>Message</th><tr>";
 		$flag = true;
-		foreach(self::$mDebug as $message) {
+		foreach (self::$mDebug as $message) {
 			if (!$this->mDebugMode && $message[0] != "Warning" && $message[0] != "Error" && $message[0] != "Notice") {
 				continue;
 			}
