@@ -146,7 +146,17 @@ class ImportOreDict extends SpecialPage {
 					continue;
 				}
 				$tableName = $dbw->tableName('ext_oredict_items');
-				$result = $dbw->query("SELECT `entry_id` AS id FROM $tableName ORDER BY `entry_id` DESC LIMIT 1 ");
+				//$result = $dbw->query("SELECT `entry_id` AS id FROM $tableName ORDER BY `entry_id` DESC LIMIT 1 ");
+				$result = $dbw->select(
+									'ext_oredict_items',
+									'`entry_id` AS id',
+									[],
+									__METHOD__,
+									[
+										'ORDER BY' => '`entry_id` DESC',
+										"LIMIT" => 1
+									]
+							);
 				$lastInsert = intval($result->current()->id);
 
 				$tag = $tagName;

@@ -105,7 +105,18 @@ class OreDictEntryManager extends SpecialPage {
 		));
 
 		$tableName = $dbw->tableName('ext_oredict_items');
-		$result = $dbw->query("SELECT `entry_id` AS id FROM $tableName ORDER BY `entry_id` DESC LIMIT 1 ");
+		//$result = $dbw->query("SELECT `entry_id` AS id FROM $tableName ORDER BY `entry_id` DESC LIMIT 1 ");
+
+		$result = $dbw->select(
+							'ext_oredict_items',
+							'`entry_id` AS id',
+							[],
+							__METHOD__,
+							[
+								'ORDER BY' => '`entry_id` DESC',
+								"LIMIT" => 1
+							]
+					);
 
 		$mod = $opts->getValue('mod_name');
 		$tag = $opts->getValue('tag_name');

@@ -71,7 +71,9 @@ class OreDict{
 	 * @param int $limit
 	 */
 
-	public function setOutputLimit($limit) { $this->mOutputLimit = $limit; }
+	public function setOutputLimit($limit) {
+		$this->mOutputLimit = $limit;
+	}
 
 	/**
 	 * Output a list of item names.
@@ -126,14 +128,14 @@ class OreDict{
 		$fItem = $dbr->addQuotes($this->mItemName); // This will be tag name if mode is call by tag
 		$fMod = $dbr->addQuotes($this->mItemMod);
 		$fType = $this->mCallType;
-		$fTableName = $dbr->tableName("ext_oredict_items");
+		//$fTableName = $dbr->tableName("ext_oredict_items");
+		$fTableName = "ext_oredict_items";
 
-		$sLim = "LIMIT 0,".$this->mOutputLimit;
+		$sLim = "0,".$this->mOutputLimit;
 		if ($mfCtrl & $fType & OreDict::CTRL_RAND) {
-			$sRand = "ORDER BY RAND()";
-		}
-		else {
-			$sRand = "ORDER BY `entry_id`";
+			$sRand = "RAND()";
+		} else {
+			$sRand = "entry_id";
 		}
 
 		// Generate dummy entry
@@ -145,13 +147,67 @@ class OreDict{
 		if (!isset(self::$mQueries[$fItem][$fMod][$fType])) {
 			if ($byTag) {
 				OreDictError::notice("Querying the ore dictionary for Tag = $fItem Mod = $fMod (Call type = $fType)");
-				$query = "SELECT * FROM $fTableName WHERE `tag_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
+				//$query = "SELECT * FROM $fTableName WHERE `tag_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
+
+				$result = $dbr->select(
+						$fTableName,
+						"*",
+						[
+							'tag_name' => $fItem,
+							$dbr->makeList([$fMod => '','mod_name' => $fMod], LIST_OR),
+							"($mfTag & $fType & `flags`)",
+							"($mfCall & $fType & `flags`)",
+							"($mfDisp & $fType & `flags`)",
+							"NOT ($fDel & `flags`)"
+					 	],
+						__METHOD__,
+						[
+							"ORDER BY" => $sRand,
+							"LIMIT" => $sLim
+						]
+				);
+
 			} else {
 				OreDictError::notice("Querying the ore dictionary for Item = $fItem Mod = $fMod (Call type = $fType)");
-				$query = "SELECT * FROM $fTableName WHERE `tag_name` IN (SELECT `tag_name` FROM $fTableName WHERE `item_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND NOT($fDel & `flags`)) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
+				//$query = "SELECT * FROM $fTableName WHERE `tag_name` IN (SELECT `tag_name` FROM $fTableName WHERE `item_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND NOT($fDel & `flags`)) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
+
+				$subResult = $dbr->select(
+					$fTableName,
+					'tag_name',
+					[
+						'item_name' => $fItem,
+						$dbr->makeList([$fMod => '','mod_name' => $fMod], LIST_OR),
+						"($mfTag & $fType & `flags`)",
+						"($mfCall & $fType & `flags`)",
+						"NOT($fDel & `flags`)"
+					],
+					__METHOD__
+				);
+
+				$tagNameList = [];
+
+				foreach ($subResult as $r) {
+					$tagNameList[] = $r['tag_name'];
+				}
+
+				$result = $dbr->select(
+						$fTableName,
+						"*",
+						[
+							'`tag_name` IN ('.$dbr->makeList($tagNameList, LIST_COMMA).')',
+							"($mfDisp & $fType & `flags`)",
+							"NOT($fDel & `flags`)"
+					 	],
+						__METHOD__,
+						[
+							"ORDER BY" => $sRand,
+							"LIMIT" => $sLim
+						]
+				);
+
 			}
-			OreDictError::query($query);
-			$result = $dbr->query($query);
+			//OreDictError::query($query);
+			//$result = $dbr->query($query);
 			foreach($result as $row) {
 				self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($row);
 			}
@@ -197,7 +253,15 @@ class OreDict{
 	static public function checkExists($item, $tag, $mod) {
 		$dbr = wfGetDB(DB_SLAVE);
 
-		$result = $dbr->select('ext_oredict_items', 'COUNT(entry_id) AS count', array('item_name' => $item, 'tag_name' => $tag, 'mod_name' => $mod));
+		$result = $dbr->select(
+			'ext_oredict_items',
+			'COUNT(entry_id) AS count',
+			[
+				'item_name' => $item,
+				'tag_name' => $tag,
+				'mod_name' => $mod
+			]
+		);
 		return $result->current()->count;
 	}
 }
