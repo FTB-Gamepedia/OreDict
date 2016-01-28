@@ -177,29 +177,6 @@ class OreDict{
 	}
 
 	/**
-	 * Helper function for removing extra elements from an array.
-	 *
-	 * @param array $array
-	 * @param int $limit
-	 * @return bool
-	 */
-
-	static public function truncateArray(&$array, $limit) {
-		$i = 0;
-		foreach($array as $key => $value) {
-			if ($i++ == $limit) {
-				break;
-			}
-			$new[$key] = $value;
-		}
-		if (!isset($new)) {
-			$new = array();
-		}
-		$array = $new;
-		return true;
-	}
-
-	/**
 	 * Shuffles an associated array.
 	 *
 	 * @param array $array
