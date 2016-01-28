@@ -175,7 +175,14 @@ class OreDictList extends SpecialPage {
 		$form .= OreDictForm::createFormRow('list', 'start', $opts->getValue('start'));
 		$form .= OreDictForm::createFormRow('list', 'tag', $opts->getValue('tag'));
 		$form .= OreDictForm::createFormRow('list', 'mod', $opts->getValue('mod'));
-		$form .= '<tr><td style="text-align:right"><label for="limit">'.$this->msg('oredict-list-limit').'</td><td><select name="limit">'.$optionTags.'</select></td></tr>';
+		$form .= '<tr>
+					<td style="text-align:right">
+						<label for="limit">'.$this->msg('oredict-list-limit').'</label>
+					</td>
+					<td>
+						<select name="limit">'.$optionTags.'</select>
+					</td>
+				  </tr>';
 		$form .= OreDictForm::createSubmitButton('list');
 		$form .= "</table>";
 
