@@ -8,11 +8,12 @@
  * @author Jinbobo <paullee05149745@gmail.com>
  * @license
  */
+
 class ImportOreDict extends SpecialPage {
 	/**
 	 * Calls parent constructor and sets special page title
 	 */
-	public function __construct() {
+	public function __construct(){
 		parent::__construct('ImportOreDict', 'importoredict');
 	}
 
@@ -28,7 +29,7 @@ class ImportOreDict extends SpecialPage {
 	 *
 	 * @param null|string $par Subpage name
 	 */
-	public function execute($par) {
+	public function execute($par){
 		// Restrict access from unauthorized users
 		$this->checkPermissions();
 
@@ -39,18 +40,18 @@ class ImportOreDict extends SpecialPage {
 
 		$opts = new FormOptions();
 
-		$opts->add('input', 0);
-		$opts->add('update_table', 0);
+		$opts->add( 'input', 0 );
+		$opts->add( 'update_table', 0 );
 
-		$opts->fetchValuesFromRequest($this->getRequest());
+		$opts->fetchValuesFromRequest( $this->getRequest() );
 
 		$opts->setValue('input', $this->getRequest()->getText('input'));
 		$opts->setValue('update_table', intval($this->getRequest()->getText('update_table')));
 
 		// Process and save POST data
-		if ($_POST) {
+		if($_POST){
 			// XSRF prevention
-			if (!$this->getUser()->matchEditToken($this->getRequest()->getVal('token'))) {
+			if ( !$this->getUser()->matchEditToken( $this->getRequest()->getVal( 'token' ) ) ) {
 				return;
 			}
 
@@ -59,18 +60,16 @@ class ImportOreDict extends SpecialPage {
 
 			$input = explode("\n", trim($opts->getValue('input')));
 
-			foreach ($input as $line) {
+			foreach($input as $line){
 				// Parse line
 				// Line format: OreDict name!item name!mod name!params!flags=207
 				$line = trim($line);
-				if ($line == "") {
-					continue;
-				}
+				if($line == "") continue;
 				$p = explode('!', $line);
-				foreach ($p as $key => $opt) {
+				foreach($p as $key => $opt){
 					$p[$key] = trim($opt);
 				}
-				if (count($p) != 5) {
+				if(count($p) != 5){
 					$out->addHTML($this->returnMessage(false, "Input is in an unrecognized format: $line."));
 					continue;
 				}
@@ -78,11 +77,11 @@ class ImportOreDict extends SpecialPage {
 				$itemName = $p[1];
 				$modName = $p[2];
 				$params = $p[3];
-				$flags = empty($p[4]) || $p[4] == '' ? 207 : intval($p[4]);
+				$flags = empty($p[4]) || $p[4] == "" ? 207 : intval($p[4]);
 				// Check if entry already exist
-				if (OreDict::checkExists($itemName, $tagName, $modName) != 0) {
+				if(OreDict::checkExists($itemName, $tagName, $modName) != 0){
 					// If updated mode and entry already exist, update
-					if ($opts->getValue('update_table') == 1) {
+					if($opts->getValue('update_table') == 1){
 						$stuff = $dbw->select('ext_oredict_items', '*', array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName));
 
 						$tag = $tagName;
@@ -94,28 +93,28 @@ class ImportOreDict extends SpecialPage {
 						$target = empty($mod) || $mod == "" ? "$tag - $fItem" : "$tag - $fItem ($mod)";
 
 						$diff = array();
-						if ($item->item_name != $fItem) {
+						if($item->item_name != $fItem){
 							$diff['item'][] = $item->item_name;
 							$diff['item'][] = $fItem;
 						}
-						if ($item->mod_name != $mod) {
+						if($item->mod_name != $mod){
 							$diff['mod'][] = $item->mod_name;
 							$diff['mod'][] = $mod;
 						}
-						if ($item->grid_params != $params) {
+						if($item->grid_params != $params){
 							$diff['params'][] = $item->grid_params;
 							$diff['params'][] = $params;
 						}
-						if ($item->flags != $flags) {
+						if($item->flags != $flags){
 							$diff['flags'][] = $item->flags;
 							$diff['flags'][] = $flags;
 						}
 						$diffString = "";
-						foreach($diff as $field => $change) {
+						foreach($diff as $field => $change){
 							$diffString .= "$field [$change[0] -> $change[1]] ";
 						}
-						if ($diffString == "" || count($diff) == 0) {
-							$out->addHTML($this->returnMessage(false, 'Entry already exists and no changes were made!'));
+						if($diffString == "" || count($diff) == 0){
+							$out->addHTML($this->returnMessage(false, "Entry already exists and no changes were made!"));
 							continue; // No change
 						}
 
@@ -124,40 +123,40 @@ class ImportOreDict extends SpecialPage {
 						$logEntry->setPerformer($this->getUser());
 						$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
 						$logEntry->setParameters(array("6::tag" => $tag, "7::item" => $item->item_name, "8::mod" => $item->mod_name, "9::params" => $item->grid_params, "10::flags" => sprintf("0x%03X (0b%09b)",$item->flags,$item->flags), "11::to_item" => $fItem, "12::to_mod" => $mod, "13::to_params" => $params, "14::to_flags" => sprintf("0x%03X (0b%09b)",$flags,$flags),"15::id" => $item->entry_id, "4::diff" => $diffString, "5::diff_json" => json_encode($diff)));
-						$logEntry->setComment('Updating entries using import tool.');
+						$logEntry->setComment("Updating entries using import tool.");
 						$logId = $logEntry->insert();
 						$logEntry->publish($logId);
 						// End log
 
 						$dbw->update('ext_oredict_items', array('grid_params' => $params, 'flags' => $flags), array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName));
-						$out->addHTML($this->returnMessage(true, 'Successfully updated entry!'));
+						$out->addHTML($this->returnMessage(true, "Successfully updated entry!"));
 						continue;
 					} else {
 						// Otherwise display error
-						$out->addHTML($this->returnMessage(false, 'Entry already exists!'));
+						$out->addHTML($this->returnMessage(false, "Entry already exists!"));
 						continue;
 					}
 				}
 				// Add entry
 				$result = $dbw->insert('ext_oredict_items', array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName, 'grid_params' => $params, 'flags' => $flags));
-				if ($result == false) {
-					$out->addHTML($this->returnMessage(false, 'Insert failed!'));
+				if($result == false){
+					$out->addHTML($this->returnMessage(false, "Insert failed!"));
 					continue;
 				}
 				$tableName = $dbw->tableName('ext_oredict_items');
-				$result = $dbw->query('SELECT `entry_id` AS id FROM $tableName ORDER BY `entry_id` DESC LIMIT 1 ');
+				$result = $dbw->query("SELECT `entry_id` AS id FROM $tableName ORDER BY `entry_id` DESC LIMIT 1 ");
 				$lastInsert = intval($result->current()->id);
 
 				$tag = $tagName;
 				$item = $itemName;
 				$mod = $modName;
-				$target = empty($mod) || $mod == '' ? "$tag - $item" : "$tag - $item ($mod)";
+				$target = empty($mod) || $mod == "" ? "$tag - $item" : "$tag - $item ($mod)";
 				// Start log
 				$logEntry = new ManualLogEntry('oredict', 'createentry');
 				$logEntry->setPerformer($this->getUser());
 				$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
-				$logEntry->setParameters(array('4::id' => $lastInsert, '5::tag' => $tag, '6::item' => $item, '7::mod' => $mod, '8::params' => $params, '9::flags' => sprintf('0x%03X (0b%09b)',$flags,$flags)));
-				$logEntry->setComment('Importing entries.');
+				$logEntry->setParameters(array("4::id" => $lastInsert, "5::tag" => $tag, "6::item" => $item, "7::mod" => $mod, "8::params" => $params, "9::flags" => sprintf("0x%03X (0b%09b)",$flags,$flags)));
+				$logEntry->setComment("Importing entries.");
 				$logId = $logEntry->insert();
 				$logEntry->publish($logId);
 				// End log
@@ -175,7 +174,8 @@ class ImportOreDict extends SpecialPage {
 	 *
 	 * @return string
 	 */
-	private function buildForm() {
+
+	private function buildForm(){
 		global $wgArticlePath, $wgUser;
 		$form = "<table style=\"width:100%;\">";
 		$form .= "<tr><td>".$this->msg('oredict-import-input')->text()."</td><td></td></td>";
@@ -189,7 +189,7 @@ class ImportOreDict extends SpecialPage {
 			Html::hidden('title', $this->getTitle()->getPrefixedText()) .
 			Html::hidden('token', $wgUser->getEditToken()) .
 			$form .
-			Xml::closeElement('fieldset') . Xml::closeElement('form') . "\n";
+			Xml::closeElement( 'fieldset' ) . Xml::closeElement( 'form' ) . "\n";
 
 		return $out;
 	}
@@ -201,8 +201,9 @@ class ImportOreDict extends SpecialPage {
 	 * @param string $message Message to display
 	 * @return string
 	 */
-	private function returnMessage($state, $message) {
-		if ($state) {
+
+	private function returnMessage($state, $message){
+		if($state){
 			$out = '<span style="background-color:green; font-weight:bold; color:white;">SUCCESS</span> '.$message."<br>";
 		} else {
 			$out = '<span style="background-color:red; font-weight:bold; color:white;">FAIL</span> '.$message."<br>";

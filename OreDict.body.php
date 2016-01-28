@@ -8,7 +8,8 @@
  * @author Jinbobo <paullee05149745@gmail.com>
  * @license
  */
-class OreDict {
+
+class OreDict{
 	private $mOutputLimit;
 	private $mItemName;
 	private $mItemMod;
@@ -56,7 +57,8 @@ class OreDict {
 	 * @param string $itemMod
 	 * @param int $callType
 	 */
-	public function __construct($itemName, $itemMod = '', $callType = OreDict::CALL_GRID) {
+
+	public function __construct($itemName, $itemMod = '', $callType = OreDict::CALL_GRID){
 		$this->mItemName = $itemName;
 		$this->mOutputLimit = 20;
 		$this->mCallType = $callType;
@@ -68,23 +70,21 @@ class OreDict {
 	 *
 	 * @param int $limit
 	 */
-	public function setOutputLimit($limit) {
-		$this->mOutputLimit = $limit;
-	}
+
+	public function setOutputLimit($limit){ $this->mOutputLimit = $limit; }
 
 	/**
 	 * Output a list of item names.
 	 *
 	 * @return array
 	 */
-	public function getRawOutput() {
+
+	public function getRawOutput(){
 		$out = "";
 		foreach ($this->mRawArray as $item) {
-			if (is_object($item)) {
-				if (get_class($item) == 'OreDictList') {
+			if(is_object($item))
+				if(get_class($item) == "OreDictList")
 					$out .= $item->getItemName() . " \n";
-				}
-			}
 		}
 		return array($out, 'noparse' => true, 'isHTML' => true);
 	}
@@ -95,7 +95,8 @@ class OreDict {
 	 * @param string $params
 	 * @return array
 	 */
-	public function runHooks($params = "") {
+
+	public function runHooks($params = ""){
 		$out = "";
 		wfRunHooks("OreDictOutput", array(&$out, $this->mRawArray, $params));
 		return array($out, 'noparse' => false, 'isHTML' => false);
@@ -107,7 +108,9 @@ class OreDict {
 	 * @param bool $byTag
 	 * @return bool
 	 */
-	public function exec($byTag = false) {
+
+	public function exec($byTag = false){
+		// Get db object
 		$dbr = wfGetDB(DB_SLAVE);
 
 		// Masks
@@ -121,23 +124,20 @@ class OreDict {
 		$fItem = $dbr->addQuotes($this->mItemName); // This will be tag name if mode is call by tag
 		$fMod = $dbr->addQuotes($this->mItemMod);
 		$fType = $this->mCallType;
-		$fTableName = $dbr->tableName('ext_oredict_items');
+		$fTableName = $dbr->tableName("ext_oredict_items");
 
-		$sLim = "LIMIT 0,$this->mOutputLimit";
-		if ($mfCtrl & $fType & OreDict::CTRL_RAND) {
-			$sRand = 'ORDER BY RAND()';
-		} else {
-			$sRand = 'ORDER BY `entry_id`';
-		}
+		$sLim = "LIMIT 0,".$this->mOutputLimit;
+		if($mfCtrl & $fType & OreDict::CTRL_RAND) $sRand = "ORDER BY RAND()";
+		else $sRand = "ORDER BY `entry_id`";
 
 		// Generate dummy entry
-		if ($fType == 0x00) {
+		if($fType == 0x00){
 			self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
 		}
 
 		// Query database
-		if (!isset(self::$mQueries[$fItem][$fMod][$fType])) {
-			if ($byTag) {
+		if(!isset(self::$mQueries[$fItem][$fMod][$fType])){
+			if($byTag){
 				OreDictError::notice("Querying the ore dictionary for Tag = $fItem Mod = $fMod (Call type = $fType)");
 				$query = "SELECT * FROM $fTableName WHERE `tag_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
 			} else {
@@ -146,13 +146,13 @@ class OreDict {
 			}
 			OreDictError::query($query);
 			$result = $dbr->query($query);
-			foreach($result as $row) {
+			foreach($result as $row){
 				self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($row);
 			}
 
-			if (!isset(self::$mQueries[$fItem][$fMod][$fType])) {
+			if(!isset(self::$mQueries[$fItem][$fMod][$fType])){
 				self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
-				OreDictError::notice('OreDict returned an empty set (i.e. 0 rows)! Using provided params as is. Suppressing future identical warnings.');
+				OreDictError::notice("OreDict returned an empty set (i.e. 0 rows)! Using provided params as is. Suppressing future identical warnings.");
 			} else {
 				$rows = $result->numRows();
 				OreDictError::notice("OreDict returned $rows rows. ");
@@ -160,10 +160,8 @@ class OreDict {
 		}
 
 		// Rotate results if not randomized
-		if (!($mfCtrl & $fType & OreDict::CTRL_RAND) && !$byTag) {
-			while(current(self::$mQueries[$fItem][$fMod][$fType])->getItemName() != $this->mItemName && (empty($this->mItemMod) || current(self::$mQueries[$fItem][$fMod][$fType])->getMod() == $this->mItemMod)) {
-				array_push(self::$mQueries[$fItem][$fMod][$fType], array_shift(self::$mQueries[$fItem][$fMod][$fType]));
-			}
+		if(!($mfCtrl & $fType & OreDict::CTRL_RAND) && !$byTag){
+			while(current(self::$mQueries[$fItem][$fMod][$fType])->getItemName() != $this->mItemName && (empty($this->mItemMod) || current(self::$mQueries[$fItem][$fMod][$fType])->getMod() == $this->mItemMod)) array_push(self::$mQueries[$fItem][$fMod][$fType], array_shift(self::$mQueries[$fItem][$fMod][$fType]));
 		}
 
 		$this->mRawArray = self::$mQueries[$fItem][$fMod][$fType];
@@ -177,15 +175,14 @@ class OreDict {
 	 * @param int $limit
 	 * @return bool
 	 */
-	static public function truncateArray(&$array, $limit) {
+
+	static public function truncateArray(&$array, $limit){
 		$i = 0;
-		foreach ($array as $key => $value) {
+		foreach($array as $key => $value){
 			if($i++ == $limit) break;
 			$new[$key] = $value;
 		}
-		if (!isset($new)) {
-			$new = array();
-		}
+		if(!isset($new)) $new = array();
 		$array = $new;
 		return true;
 	}
@@ -196,20 +193,19 @@ class OreDict {
 	 * @param array $array
 	 * @return bool
 	 */
-	static public function shuffleAssocArray(&$array) {
+
+	static public function shuffleAssocArray(&$array){
 		$keys = array_keys($array);
 		shuffle($keys);
-		foreach ($keys as $key) {
+		foreach($keys as $key){
 			$new[$key] = $array[$key];
 		}
-		if (!isset($new)) {
-			$new = array();
-		}
+		if(!isset($new)) $new = array();
 		$array = $new;
 		return true;
 	}
 
-	static public function checkExists($item, $tag, $mod) {
+	static public function checkExists($item, $tag, $mod){
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$result = $dbr->select('ext_oredict_items', 'COUNT(entry_id) AS count', array('item_name' => $item, 'tag_name' => $tag, 'mod_name' => $mod));
@@ -217,7 +213,7 @@ class OreDict {
 	}
 }
 
-class OreDictItem {
+class OreDictItem{
 	private $mTagName;
 	private $mItemName;
 	private $mItemMod;
@@ -226,7 +222,7 @@ class OreDictItem {
 	private $mFlags;
 
 	/**
-	 * Constructor, inits properties
+	 * Contsructor, inits properties
 	 *
 	 * @param string|stdClass $item
 	 * @param string $tag
@@ -235,43 +231,25 @@ class OreDictItem {
 	 * @param string $flags
 	 * @throws MWException Throws and MWException when input format is incorrect.
 	 */
+
 	public function __construct($item, $tag = '', $mod = '', $params = '', $flags = ''){
 		OreDictError::debug("Constructing OreDictItem.");
-		if (is_object($item)) {
-			if (get_class($item) == "stdClass") {
-				if (isset($item->item_name)) {
-					$this->mItemName = $item->item_name;
-				} else {
-					throw new MWException("Incorrect input format! Missing property \"item_name\" in stdClass.");
-				}
-				if (isset($item->mod_name)) {
-					$this->mItemMod = $item->mod_name;
-				} else {
-					throw new MWException("Incorrect input format! Missing property \"mod_name\" in stdClass.");
-				}
-				if (isset($item->tag_name)) {
-					$this->mTagName = $item->tag_name;
-				} else {
-					throw new MWException("Incorrect input format! Missing property \"tag_name\" in stdClass.");
-				}
-				if (isset($item->flags)) {
-					$this->mFlags = $item->flags;
-				} else {
-					throw new MWException("Incorrect input format! Missing property \"flags\" in stdClass.");
-				}
-				if (isset($item->grid_params)) {
-					$this->mItemParams = OreDictHooks::ParseParamString($item->grid_params);
-				} else {
-					throw new MWException("Incorrect input format! Missing property \"grid_params\" in stdClass.");
-				}
-				if (isset($item->entry_id)) {
-					$this->mId = $item->entry_id;
-				} else {
-					throw new MWException("Incorrect input format! Missing property \"entry_id\" in stdClass.");
-				}
+		if(is_object($item))
+			if(get_class($item) == "stdClass"){
+				if(isset($item->item_name)) $this->mItemName = $item->item_name;
+				else throw new MWException("Incorrect input format! Missing property \"item_name\" in stdClass.");
+				if(isset($item->mod_name)) $this->mItemMod = $item->mod_name;
+				else throw new MWException("Incorrect input format! Missing property \"mod_name\" in stdClass.");
+				if(isset($item->tag_name)) $this->mTagName = $item->tag_name;
+				else throw new MWException("Incorrect input format! Missing property \"tag_name\" in stdClass.");
+				if(isset($item->flags)) $this->mFlags = $item->flags;
+				else throw new MWException("Incorrect input format! Missing property \"flags\" in stdClass.");
+				if(isset($item->grid_params)) $this->mItemParams = OreDictHooks::ParseParamString($item->grid_params);
+				else throw new MWException("Incorrect input format! Missing property \"grid_params\" in stdClass.");
+				if(isset($item->entry_id)) $this->mId = $item->entry_id;
+				else throw new MWException("Incorrect input format! Missing property \"entry_id\" in stdClass.");
 				return 0;
 			}
-		}
 		$this->mItemName = $item;
 		$this->mTagName = $tag;
 		$this->mItemMod = $mod;
@@ -287,14 +265,13 @@ class OreDictItem {
 	 * @param string $params
 	 * @param bool $override
 	 */
-	public function joinParams($params, $override = false) {
+
+	public function joinParams($params, $override = false){
 		OreDictError::debug("Joining params: $params.");
 		$input = OreDictHooks::ParseParamString($params);
-		foreach ($input as $key => $value) {
-			if (isset($this->mItemParams[$key])) {
-				if ($override) {
-					$this->mItemParams[$key] = $value;
-				}
+		foreach($input as $key => $value){
+			if(isset($this->mItemParams[$key])){
+				if($override) $this->mItemParams[$key] = $value;
 			} else {
 				$this->mItemParams[$key] = $value;
 			}
@@ -308,7 +285,8 @@ class OreDictItem {
 	 * @param string $name
 	 * @param string $value
 	 */
-	public function setParam($name, $value) {
+
+	public function setParam($name, $value){
 		$this->mItemParams[$name] = $value;
 	}
 
@@ -317,44 +295,36 @@ class OreDictItem {
 	 *
 	 * @param string $name
 	 */
-	public function unsetParam($name) {
-		if (isset($this->mItemParams[$name])) {
-			unset($this->mItemParams[$name]);
-		}
+
+	public function unsetParam($name){
+		if(isset($this->mItemParams[$name])) unset($this->mItemParams[$name]);
 	}
 
 	/**
 	 * @return mixed
 	 */
-	public function getMod() {
-		return $this->mItemMod;
-	}
+	public function getMod(){ return $this->mItemMod; }
 
 	/**
 	 * @return mixed
 	 */
-	public function getItem() {
-		return $this->mItemName;
-	}
+	public function getItem(){ return $this->mItemName; }
 
 	/**
 	 * @return mixed
 	 */
-	public function getItemName() {
-		return $this->mItemName;
-	}
+	public function getItemName(){ return $this->mItemName; }
 
 	/**
 	 * @return mixed
 	 */
-	public function getName() {
-		return $this->mItemName;
-	}
+	public function getName(){ return $this->mItemName; }
 
 	/**
 	 * Sets parameters that are not to be overwritten, is called every time join params is called.
 	 */
-	public function setMainParams() {
+
+	public function setMainParams(){
 		$this->mItemParams[1] = $this->mItemName;
 		$this->mItemParams['mod'] = $this->mItemMod;
 		$this->mItemParams['ore-dict-name'] = $this->mTagName;
@@ -364,19 +334,21 @@ class OreDictItem {
 	/**
 	 * @return string
 	 */
-	public function getParamString() {
+
+	public function getParamString(){
 		return OreDictHooks::BuildParamString($this->mItemParams);
 	}
 }
 
-class OreDictError {
+class OreDictError{
 	static private $mDebug;
 	private $mDebugMode;
 
 	/**
 	 * @param $debugMode
 	 */
-	public function __construct($debugMode) {
+
+	public function __construct($debugMode){
 		$this->mDebugMode = $debugMode;
 	}
 
@@ -385,41 +357,40 @@ class OreDictError {
 	 *
 	 * @return string
 	 */
-	public function output() {
-		if(!isset(self::$mDebug)) return '';
+
+	public function output(){
+		if(!isset(self::$mDebug)) return "";
 
 		$colors = array(
-			'Log' => '#CEFFFD',
-			'Warning' => '#FFFFB5',
-			'Deprecated' => '#CCF',
-			'Query' => '#D1FFB3',
-			'Error' => '#FFCECE',
-			'Notice' => 'blue'
+			"Log" => "#CEFFFD",
+			"Warning" => "#FFFFB5",
+			"Deprecated" => "#CCF",
+			"Query" => "#D1FFB3",
+			"Error" => "#FFCECE",
+			"Notice" => "blue"
 		);
 
 		$textColors = array(
-			'Log' => 'black',
-			'Warning' => 'black',
-			'Deprecated' => 'black',
-			'Query' => 'black',
-			'Error' => 'black',
-			'Notice' => 'white'
+			"Log" => "black",
+			"Warning" => "black",
+			"Deprecated" => "black",
+			"Query" => "black",
+			"Error" => "black",
+			"Notice" => "white"
 		);
 
 		$html = "<table class=\"wikitable\" style=\"width:100%;\">";
 		$html .= "<caption>OreDict extension warnings</caption>";
 		$html .= "<tr><th style=\"width:10%;\">Type</th><th>Message</th><tr>";
 		$flag = true;
-		foreach (self::$mDebug as $message) {
-			if (!$this->mDebugMode && $message[0] != 'Warning' && $message[0] != 'Error' && $message[0] != 'Notice') {
+		foreach(self::$mDebug as $message){
+			if(!$this->mDebugMode && $message[0] != "Warning" && $message[0] != "Error" && $message[0] != "Notice"){
 				continue;
 			}
 			$html .= "<tr><td style=\"text-align:center; background-color:{$colors[$message[0]]}; color:{$textColors[$message[0]]}; font-weight:bold;\">{$message[0]}</td><td>{$message[1]}</td></tr>";
-			if ($message[0] == 'Warnings' || $message[0] == 'Error'){
-				$flag = false;
-			}
+			if($message[0] == "Warnings" || $message[0] == "Error") $flag = false;
 		}
-		if ($flag) {
+		if($flag){
 			$html .= "<tr><td style=\"text-align:center; background-color:blue; color:white; font-weight:bold;\">Notice</td><td>No warnings.</td></tr>";
 		}
 		$html .= "</table>";
@@ -431,59 +402,65 @@ class OreDictError {
 	 * @param $message
 	 * @param string $type
 	 */
-	public static function debug($message, $type = 'Log') {
+
+	public static function debug($message, $type = "Log"){
 		self::$mDebug[] = array($type, $message);
 	}
 
 	/**
 	 * @param $message
 	 */
-	public static function deprecated($message) {
-		MWDebug::deprecated("(OreDict) $message");
-		self::debug($message, 'Deprecated');
+
+	public static function deprecated($message){
+		MWDebug::deprecated("(OreDict) ".$message);
+		self::debug($message, "Deprecated");
 	}
 
 	/**
 	 * @param $query
 	 */
-	public static function query($query) {
+
+	public static function query($query){
 		global $wgShowSQLErrors;
 
 		// Hide queries if debug option is not set in LocalSettings.php
-		if($wgShowSQLErrors) {
-			self::debug($query, 'Query');
-		}
+		if($wgShowSQLErrors)
+			self::debug($query, "Query");
 	}
 
 	/**
 	 * @param $message
 	 */
-	public static function log($message) {
-		MWDebug::log("(OreDict) $message");
+
+	public static function log($message){
+		MWDebug::log("(OreDict) ".$message);
 		self::debug($message);
 	}
 
 	/**
 	 * @param $message
 	 */
-	public static function warn($message) {
-		MWDebug::warning("(OreDict) $message");
-		self::debug($message, 'Warning');
+
+	public static function warn($message){
+		MWDebug::warning("(OreDict) ".$message);
+		self::debug($message, "Warning");
 	}
 
 	/**
 	 * @param $message
 	 */
-	public static function error($message) {
-		MWDebug::warning("(OreDict) Error: $message");
-		self::debug($message, 'Error');
+
+	public static function error($message){
+		MWDebug::warning("(OreDict) "."Error: ".$message);
+		self::debug($message, "Error");
 	}
 
 	/**
 	 * @param $message
 	 */
-	public static function notice($message) {
-		MWDebug::warning("(OreDict) Notice: $message");
-		self::debug($message, 'Notice');
+
+	public static function notice($message){
+		MWDebug::warning("(OreDict) "."Notice: ".$message);
+		self::debug($message, "Notice");
 	}
 }
