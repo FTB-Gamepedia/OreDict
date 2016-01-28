@@ -225,18 +225,36 @@ class OreDictItem{
 		OreDictError::debug("Constructing OreDictItem.");
 		if (is_object($item))
 			if (get_class($item) == "stdClass") {
-				if (isset($item->item_name)) $this->mItemName = $item->item_name;
-				else throw new MWException("Incorrect input format! Missing property \"item_name\" in stdClass.");
-				if (isset($item->mod_name)) $this->mItemMod = $item->mod_name;
-				else throw new MWException("Incorrect input format! Missing property \"mod_name\" in stdClass.");
-				if (isset($item->tag_name)) $this->mTagName = $item->tag_name;
-				else throw new MWException("Incorrect input format! Missing property \"tag_name\" in stdClass.");
-				if (isset($item->flags)) $this->mFlags = $item->flags;
-				else throw new MWException("Incorrect input format! Missing property \"flags\" in stdClass.");
-				if (isset($item->grid_params)) $this->mItemParams = OreDictHooks::ParseParamString($item->grid_params);
-				else throw new MWException("Incorrect input format! Missing property \"grid_params\" in stdClass.");
-				if (isset($item->entry_id)) $this->mId = $item->entry_id;
-				else throw new MWException("Incorrect input format! Missing property \"entry_id\" in stdClass.");
+				if (isset($item->item_name)) {
+					$this->mItemName = $item->item_name;
+				} else {
+					throw new MWException("Incorrect input format! Missing property \"item_name\" in stdClass.");
+				}
+				if (isset($item->mod_name)) {
+					$this->mItemMod = $item->mod_name;
+				} else {
+					throw new MWException("Incorrect input format! Missing property \"mod_name\" in stdClass.");
+				}
+				if (isset($item->tag_name)) {
+					 $this->mTagName = $item->tag_name;
+				} else {
+					throw new MWException("Incorrect input format! Missing property \"tag_name\" in stdClass.");
+				}
+				if (isset($item->flags)) {
+					$this->mFlags = $item->flags;
+				} else {
+					throw new MWException("Incorrect input format! Missing property \"flags\" in stdClass.");
+				}
+				if (isset($item->grid_params)) {
+					$this->mItemParams = OreDictHooks::ParseParamString($item->grid_params);
+				} else {
+					throw new MWException("Incorrect input format! Missing property \"grid_params\" in stdClass.");
+				}
+				if (isset($item->entry_id)) {
+					$this->mId = $item->entry_id;
+				} else {
+					throw new MWException("Incorrect input format! Missing property \"entry_id\" in stdClass.");
+				}
 				return 0;
 			}
 		$this->mItemName = $item;
