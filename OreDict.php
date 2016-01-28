@@ -9,9 +9,8 @@
  * @license
  */
 
-if(!defined('MEDIAWIKI')) {
-	die('This file is a MediaWiki extension, it is not a valid entry point');
-}
+if( !defined( 'MEDIAWIKI' ) )
+	die( 'This file is a MediaWiki extension, it is not a valid entry point' );
 
 $wgShowExceptionDetails = true;
 
@@ -29,22 +28,22 @@ $wgLogTypes[] = 'oredict';
 $wgLogActionsHandlers['oredict/*'] = 'LogFormatter';
 
 $wgMessagesDirs['OreDict'] = __DIR__ .'/i18n';
-$wgExtensionMessagesFiles['OreDict'] = dirname(__FILE__).'/OreDict.i18n.php';
-$wgExtensionMessagesFiles['OreDictMagic'] = dirname(__FILE__).'/OreDict.i18n.magic.php';
+$wgExtensionMessagesFiles['OreDict'] = dirname(__FILE__)."/OreDict.i18n.php";
+$wgExtensionMessagesFiles['OreDictMagic'] = dirname(__FILE__)."/OreDict.i18n.magic.php";
 
-$wgAutoloadClasses['OreDict'] = dirname(__FILE__).'/OreDict.body.php';
-$wgAutoloadClasses['OreDictItem'] = dirname(__FILE__).'/OreDict.body.php';
-$wgAutoloadClasses['OreDictError'] = dirname(__FILE__).'/OreDict.body.php';
-$wgAutoloadClasses['OreDictHooks'] = dirname(__FILE__).'/OreDict.hooks.php';
-$wgAutoloadClasses['OreDictForm'] = dirname(__FILE__).'/classes/OreDictForm.php';
+$wgAutoloadClasses['OreDict'] = dirname(__FILE__)."/OreDict.body.php";
+$wgAutoloadClasses['OreDictItem'] = dirname(__FILE__)."/OreDict.body.php";
+$wgAutoloadClasses['OreDictError'] = dirname(__FILE__)."/OreDict.body.php";
+$wgAutoloadClasses['OreDictHooks'] = dirname(__FILE__)."/OreDict.hooks.php";
+$wgAutoloadClasses['OreDictForm'] = dirname(__FILE__)."/classes/OreDictForm.php";
 
-$wgAutoloadClasses['OreDictEntryManager'] = dirname(__FILE__).'/special/OreDictEntryManager.php';
-$wgAutoloadClasses['OreDictList'] = dirname(__FILE__).'/special/OreDictList.php';
-$wgAutoloadClasses['ImportOreDict'] = dirname(__FILE__).'/special/ImportOreDict.php';
+$wgAutoloadClasses['OreDictEntryManager'] = dirname(__FILE__)."/special/OreDictEntryManager.php";
+$wgAutoloadClasses['OreDictList'] = dirname(__FILE__)."/special/OreDictList.php";
+$wgAutoloadClasses['ImportOreDict'] = dirname(__FILE__)."/special/ImportOreDict.php";
 
-$wgSpecialPages['OreDictEntryManager'] = 'OreDictEntryManager';
-$wgSpecialPages['OreDictList'] = 'OreDictList';
-$wgSpecialPages['ImportOreDict'] = 'ImportOreDict';
+$wgSpecialPages['OreDictEntryManager'] = "OreDictEntryManager";
+$wgSpecialPages['OreDictList'] = "OreDictList";
+$wgSpecialPages['ImportOreDict'] = "ImportOreDict";
 
 $wgHooks['ParserFirstCallInit'][] = 'OreDictHooks::SetupParser';
 $wgHooks['EditPage::showEditForm:initial'][] = 'OreDictHooks::OutputWarnings';

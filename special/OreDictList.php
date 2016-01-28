@@ -12,7 +12,7 @@
 class OreDictList extends SpecialPage {
 	protected $opts;
 
-	public function __construct() {
+	public function __construct(){
 		parent::__construct('OreDictList');
 	}
 
@@ -26,7 +26,7 @@ class OreDictList extends SpecialPage {
 		return 'oredict';
 	}
 
-	public function execute($par) {
+	public function execute($par){
 		global $wgQueryPageDefaultLimit;
 		$out = $this->getOutput();
 
@@ -35,19 +35,19 @@ class OreDictList extends SpecialPage {
 
 		$opts = new FormOptions();
 
-		$opts->add('limit', $wgQueryPageDefaultLimit);
-		$opts->add('mod', '');
-		$opts->add('tag', '');
-		$opts->add('start', '');
-		$opts->add('from', 1);
-		$opts->add('page', 0);
+		$opts->add( 'limit', $wgQueryPageDefaultLimit );
+		$opts->add( 'mod', '' );
+		$opts->add( 'tag', '' );
+		$opts->add( 'start', '' );
+		$opts->add( 'from', 1 );
+		$opts->add( 'page', 0 );
 
-		$opts->fetchValuesFromRequest($this->getRequest());
-		$opts->validateIntBounds('limit', 0, 5000);
+		$opts->fetchValuesFromRequest( $this->getRequest() );
+		$opts->validateIntBounds( 'limit', 0, 5000 );
 
 		// Give precedence to subpage syntax
-		if (isset($par)) {
-			$opts->setValue('from', $par);
+		if ( isset($par) ) {
+			$opts->setValue( 'from', $par );
 		}
 
 		// Bind to member variable
@@ -67,11 +67,11 @@ class OreDictList extends SpecialPage {
 				'item_name BETWEEN '.$dbr->addQuotes($opts->getValue('start'))." AND 'zzzzzzzz'"
 			)
 		);
-		foreach ($results as $result) {
+		foreach($results as $result) {
 			$maxRows = $result->row_count;
 		}
 
-		if (!isset($maxRows)) return;
+		if(!isset($maxRows)) return;
 
 		$order = $opts->getValue('start') == '' ? 'entry_id ASC' : 'item_name ASC';
 		$results = $dbr->select(
@@ -117,7 +117,7 @@ class OreDictList extends SpecialPage {
 			}
 			$table .= "| style=\"width:23px; padding-left:5px; padding-right:5px; text-align:center; font-weight:bold;\" | $editLink || $lId || $lTag || $lItem || $lMod || $lParams || $lFlags\n";
 
-			if ($lId > $maxId) $maxId = $lId;
+			if($lId > $maxId) $maxId = $lId;
 		}
 		$table .= "|}\n";
 
@@ -152,13 +152,13 @@ class OreDictList extends SpecialPage {
 		$out->addWikitext($table);
 
 		// Add modules
-		$out->addModules('ext.oredict.list');
+		$out->addModules( 'ext.oredict.list' );
 	}
 
-	public function buildForm(FormOptions $opts) {
+	public function buildForm(FormOptions $opts){
 		global $wgScript;
 		$optionTags = "";
-		foreach ([20,50,100,250,500,5000] as $lim) {
+		foreach([20,50,100,250,500,5000] as $lim){
 			if ($opts->getValue('limit') == $lim) {
 				$optionTags .= "<option selected=\"\" value=\"$lim\">$lim</option>";
 			} else {
@@ -179,7 +179,7 @@ class OreDictList extends SpecialPage {
 			Xml::fieldset($this->msg('oredict-list-legend')->text()) .
 			Html::hidden('title', $this->getTitle()->getPrefixedText()) .
 			$form .
-			Xml::closeElement('fieldset') . Xml::closeElement('form') . "\n";
+			Xml::closeElement( 'fieldset' ) . Xml::closeElement( 'form' ) . "\n";
 
 		return $out;
 	}
