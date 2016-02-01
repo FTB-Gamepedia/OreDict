@@ -54,6 +54,10 @@ class OreDictList extends SpecialPage {
 		$this->opts = $opts;
 
 		$limit = intval($opts->getValue('limit'));
+		$mod = $opts->getValue('mod');
+		$tag = $opts->getValue('tag');
+		$start = $opts->getValue('start');
+		$from = intval($opts->getValue('from'));
 		$page = intval($opts->getValue('page'));
 
 		// Load data
@@ -62,9 +66,11 @@ class OreDictList extends SpecialPage {
 			'ext_oredict_items',
 			'COUNT(`entry_id`) AS row_count',
 			array(
-				'entry_id >= '.intval($opts->getValue('from')),
-				'mod_name LIKE '.$dbr->addQuotes($opts->getValue('mod')),
-				'item_name BETWEEN '.$dbr->addQuotes($opts->getValue('start'))." AND 'zzzzzzzz'"
+				'entry_id >= '.$from,
+				'(mod_name = '.$dbr->addQuotes($mod).' OR '.$dbr->addQuotes($mod).' = \'\' OR (',
+				$dbr->addQuotes($mod).' = \'none\' AND mod_name = \'\'))',
+				'(tag_name = '.$dbr->addQuotes($tag).' OR '.$dbr->addQuotes($tag).' = \'\')',
+				'item_name BETWEEN '.$dbr->addQuotes($start)." AND 'zzzzzzzz'"
 			)
 		);
 		foreach ($results as $result) {
@@ -75,26 +81,28 @@ class OreDictList extends SpecialPage {
 			return;
 		}
 
-		$order = $opts->getValue('start') == '' ? 'entry_id ASC' : 'item_name ASC';
+		$begin = $page * limit;
+		$end = min($begin + $limit, $maxRows);
+		$order = $start == '' ? 'entry_id ASC' : 'item_name ASC';
 		$results = $dbr->select(
 			'ext_oredict_items',
 			'*',
 			array(
-				'entry_id >= '.intval($opts->getValue('from')),
-				'(mod_name = '.$dbr->addQuotes($opts->getValue('mod')).' OR '.$dbr->addQuotes($opts->getValue('mod')).' = \'\')',
-				'(tag_name = '.$dbr->addQuotes($opts->getValue('tag')).' OR '.$dbr->addQuotes($opts->getValue('tag')).' = \'\')',
-				'item_name BETWEEN '.$dbr->addQuotes($opts->getValue('start'))." AND 'zzzzzzzz'"
+				'entry_id >= '.$from,
+				'(mod_name = '.$dbr->addQuotes($mod).' OR '.$dbr->addQuotes($mod).' = \'\' OR ('.
+				$dbr->addQuotes($mod).' = \'none\' AND mod_name = \'\'))',
+				'(tag_name = '.$dbr->addQuotes($tag).' OR '.$dbr->addQuotes($tag).' = \'\')',
+				'item_name BETWEEN '.$dbr->addQuotes($start)." AND 'zzzzzzzz'"
 			),
 			__METHOD__,
 			array(
 				'ORDER BY' => $order,
-				'LIMIT' => intval($opts->getValue('limit')),
-				'OFFSET' => $page * $limit
+				'LIMIT' => $limit,
+				'OFFSET' => $begin
 			)
 		);
 
 		// Output table
-		$maxId = 0;
 		$table = "{| class=\"mw-datatable\" style=\"width:100%\"\n";
 		$msgTagName = wfMessage('oredict-tag-name');
 		$msgItemName = wfMessage('oredict-item-name');
@@ -118,41 +126,40 @@ class OreDictList extends SpecialPage {
 				$editLink = "";
 			}
 			$table .= "| style=\"width:23px; padding-left:5px; padding-right:5px; text-align:center; font-weight:bold;\" | $editLink || $lId || $lTag || $lItem || $lMod || $lParams || $lFlags\n";
-
-			if ($lId > $maxId) {
-				$maxId = $lId;
-			}
 		}
 		$table .= "|}\n";
 
 		// Page nav stuff
-		// TODO possibly replace with our own pagination code?
-		$page = $opts->getValue('page');
 		$pPage = $page-1;
 		$nPage = $page+1;
-		$lPage = floor($maxRows / $limit);
+		$lPage = max(floor(($maxRows - 1) / $limit), 0);
+		$settings = 'start='.$start.'&mod='.$mod.'&limit='.$limit.'&tag='.$tag.'&from='.$from;
 		if ($page == 0) {
 			$prevPage = "'''First Page'''";
 		} else {
 			if ($page == 1) {
-				$prevPage = "[{{fullurl:{{FULLPAGENAME}}|start=".$opts->getValue('start')."&mod=".$opts->getValue('mod')."&limit=".$opts->getValue('limit')."}} &laquo; First Page]";
+				$prevPage = '[{{fullurl:{{FULLPAGENAME}}|'.$settings.'}} &laquo; First Page]';
 			} else {
-				$prevPage = "[{{fullurl:{{FULLPAGENAME}}|start=".$opts->getValue('start')."&mod=".$opts->getValue('mod')."&limit=".$opts->getValue('limit')."}} &laquo; First Page] [{{fullurl:{{FULLPAGENAME}}|page={$pPage}&start=".$opts->getValue('start')."&mod=".$opts->getValue('mod')."&limit=".$opts->getValue('limit')."}} &lsaquo; Previous Page]";
+				$prevPage = '[{{fullurl:{{FULLPAGENAME}}|'.$settings.
+					"}} &laquo; First Page] [{{fullurl:{{FULLPAGENAME}}|page={$pPage}&".$settings.
+					'}} &lsaquo; Previous Page]';
 			}
 		}
-		if ($lPage == $page - 1) {
+		if ($lPage == $page) {
 			$nextPage = "'''Last Page'''";
 		} else {
-			if ($lPage == $page) {
-				$nextPage = "[{{fullurl:{{FULLPAGENAME}}|page={$nPage}&start=".$opts->getValue('start')."&mod=".$opts->getValue('mod')."&limit=".$opts->getValue('limit')."}} Last Page &raquo;]";
+			if ($lPage == $page + 1) {
+				$nextPage = "[{{fullurl:{{FULLPAGENAME}}|page={$nPage}&".$settings.'}} Last Page &raquo;]';
 			} else {
-				$nextPage = "[{{fullurl:{{FULLPAGENAME}}|page={$nPage}&start=".$opts->getValue('start')."&mod=".$opts->getValue('mod')."&limit=".$opts->getValue('limit')."}} Next Page &rsaquo;] [{{fullurl:{{FULLPAGENAME}}|page={$lPage}&start=".$opts->getValue('start')."&mod=".$opts->getValue('mod')."&limit=".$opts->getValue('limit')."}} Last Page &raquo;]";
+				$nextPage = "[{{fullurl:{{FULLPAGENAME}}|page={$nPage}&".$settings.
+					"}} Next Page &rsaquo;] [{{fullurl:{{FULLPAGENAME}}|page={$lPage}&".$settings.
+					'}} Last Page &raquo;]';
 			}
 		}
-		$pageSelection = "<div style=\"text-align:center;\" class=\"plainlinks\">$prevPage | $nextPage</div>";
+		$pageSelection = '<div style="text-align:center;" class="plainlinks">'.$prevPage.' | '.$nextPage.'</div>';
 
 		$out->addHtml($this->buildForm($opts));
-		$out->addWikitext('Displaying entries from #'.$opts->getValue('from').' to #'.$maxId.'.'." $pageSelection\n");
+		$out->addWikitext('Displaying entries from #'.$begin.' to #'.$end.' out of #'.$maxRows.' total.'." $pageSelection\n");
 		$out->addWikitext($table);
 
 		// Add modules

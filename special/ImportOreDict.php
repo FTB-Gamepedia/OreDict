@@ -81,7 +81,7 @@ class ImportOreDict extends SpecialPage {
 				$params = $p[3];
 				$flags = empty($p[4]) || $p[4] == "" ? 207 : intval($p[4]);
 				// Check if entry already exist
-				if (OreDict::checkExists($itemName, $tagName, $modName) != 0) {
+				if (OreDict::entryExists($itemName, $tagName, $modName)) {
 					// If updated mode and entry already exist, update
 					if ($opts->getValue('update_table') == 1) {
 						$stuff = $dbw->select('ext_oredict_items', '*', array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName));

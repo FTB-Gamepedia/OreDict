@@ -92,7 +92,7 @@ class OreDictEntryManager extends SpecialPage {
 		$dbw = wfGetDB(DB_MASTER);
 
 		// Check if exists
-		if (OreDict::checkExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'))) {
+		if (OreDict::entryExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'))) {
 			return -2;
 		}
 
