@@ -252,7 +252,13 @@ class OreDict{
 		return true;
 	}
 
-	static public function checkExists($item, $tag, $mod) {
+	/**
+	 * @param string $item
+	 * @param string $tag
+	 * @param string $mod
+	 * @return bool
+	 */
+	static public function entryExists($item, $tag, $mod) {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$result = $dbr->select(
@@ -264,7 +270,16 @@ class OreDict{
 				'mod_name' => $mod
 			]
 		);
-		return $result->current()->count;
+		return $result->current()->count != 0;
+	}
+
+	static public function addEntry($item, $tag, $mod) {
+		if (OreDict::entryExists($item, $tag, $mod)) {
+			return false;
+		}
+
+		$dbr = wfGetDB(DB_SLAVE);
+		return $dbr->insert('ext_oredict_items', array('item_name' => $item, 'tag_name' => $tag, 'mod_name' => $mod));
 	}
 }
 
