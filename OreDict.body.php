@@ -291,23 +291,21 @@ class OreDict{
 	static public function deleteEntry($id, $user) {
 		$dbw = wfGetDB(DB_MASTER);
 		$res = $dbw->select('ext_oredict_items', array('tag_name', 'item_name', 'mod_name'), array('entry_id' => $id));
+		$row = $res->current();
+		$tag = $row->tag_name;
+		$item = $row->item_name;
+		$mod = $row->mod_name;
+		$target = empty($mod) || $mod == '' ? "$tag - $item" : "$tag - $item ($mod)";
 
-		foreach ($res as $row) {
-			$tag = $row->tag_name;
-			$item = $row->item_name;
-			$mod = $row->mod_name;
-			$target = empty($mod) || $mod == '' ? "$tag - $item" : "$tag - $item ($mod)";
+		$result = $dbw->delete('ext_oredict_items', array('entry_id' => $id));
 
-			$result = $dbw->delete('ext_oredict_items', array('entry_id' => $id));
-
-			$logEntry = new ManualLogEntry('oredict', 'delete');
-			$logEntry->setPerformer($user);
-			$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
-			$logEntry->setParameters(array("6::tag" => $tag, "7::item" => $item, "8::mod" => $mod, "15::id" => $id));
-			$logId = $logEntry->insert();
-			$logEntry->publish($logId);
-			return $result;
-		}
+		$logEntry = new ManualLogEntry('oredict', 'delete');
+		$logEntry->setPerformer($user);
+		$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
+		$logEntry->setParameters(array("6::tag" => $tag, "7::item" => $item, "8::mod" => $mod, "15::id" => $id));
+		$logId = $logEntry->insert();
+		$logEntry->publish($logId);
+		return $result;
 	}
 }
 

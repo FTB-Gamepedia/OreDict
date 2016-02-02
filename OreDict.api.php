@@ -49,6 +49,7 @@ class OreDictApi extends ApiBase {
 			'oredict-search-prefix' => 'Limits the search results returned to those having a name with the given prefix.',
 			'oredict-search-tag' => 'Limits the search results returned to those having a given tag.',
 			'oredict-search-mod' => 'Limits the search results returned to those belonging to a given mod.',
+			'oredict-get' => 'Gets the tag, item, mod, grid params, and flags for the provided pipe separated entry IDs',
 		];
 	}
 
@@ -90,6 +91,12 @@ class OreDictApi extends ApiBase {
 			'oredict-search-mod' => [
 				ApiBase::PARAM_TYPE => 'string',
 			],
+			'oredict-get' => [
+				ApiBase::PARAM_TYPE => 'integer',
+				ApiBase::PARAM_ISMULTI => true,
+				ApiBase::PARAM_ALLOW_DUPLICATES => false,
+				ApiBase::PARAM_MIN => 1,
+			],
 		];
 	}
 
@@ -109,12 +116,24 @@ class OreDictApi extends ApiBase {
 	 * Returns true when a searching action is being attempted
 	 */
 	private function isSearchAction() {
-		$searchParams = ['oredict-search-prefix', 'oredict-search-tag', 'oredict-search-mod'];
+		$searchParams = ['oredict-search-prefix', 'oredict-search-tag', 'oredict-search-mod', 'oredict-search-name'];
 		foreach ($searchParams as $param) {
 			$val = $this->getRequest()->getVal($param);
 			if (!empty($val)) return true;
 		}
 		return false;
+	}
+
+	/**
+	 * @return bool		Whether the basic get-by-ID action is being attempted
+	 */
+	private function isGetByIDAction() {
+		$val = $this->getRequest()->getVal('oredict-get');
+		if (empty($val)) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	public function needsToken() {
@@ -149,6 +168,10 @@ class OreDictApi extends ApiBase {
 			$results = $this->doSearch();
 			$this->getResult()->setIndexedTagName($results, 'entry');
 			$this->getResult()->addValue($this->getModuleName(), 'entries', $results);
+		}
+
+		if ($this->isGetByIDAction()) {
+			$this->doGet();
 		}
 	}
 
@@ -197,10 +220,40 @@ class OreDictApi extends ApiBase {
 		$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'add', $result);
 	}
 
+	protected function doGet() {
+		$ids = $this->getParameter('oredict-get');
+		if (empty($ids)) {
+			return;
+		}
+		$dbr = wfGetDB(DB_SLAVE);
+
+		$ret = array();
+
+		foreach ($ids as $id) {
+			$results = $dbr->select('ext_oredict_items', '*', array('entry_id' => $id));
+			if ($results->numRows() > 0) {
+				$row = $results->current();
+				$ret[$id] = [
+					'tag_name' => $row->tag_name,
+					'mod_name' => $row->mod_name,
+					'item_name' => $row->item_name,
+					'grid_params' => $row->grid_params,
+					'flags' => $row->flags
+				];
+			} else {
+				$ret[$id] = null;
+			}
+		}
+
+		$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'get', $ret);
+	}
+
 	protected function doSearch() {
 		$prefix = $this->getMain()->getVal('oredict-search-prefix');
 		$tag = $this->getMain()->getVal('oredict-search-tag');
 		$mod = $this->getMain()->getVal('oredict-search-mod');
+		$name = $this->getMain()->getVal('oredict-search-name');
+
 		// TODO perform search and return an array of matching entries
 
 		// TODO remove this demo data when properly implemented above
