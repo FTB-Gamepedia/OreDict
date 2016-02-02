@@ -91,6 +91,9 @@ class OreDictApi extends ApiBase {
 			'oredict-search-mod' => [
 				ApiBase::PARAM_TYPE => 'string',
 			],
+			'oredict-search-name' => [
+				ApiBase::PARAM_TYPE => 'string',
+			],
 			'oredict-get' => [
 				ApiBase::PARAM_TYPE => 'integer',
 				ApiBase::PARAM_ISMULTI => true,
@@ -166,7 +169,7 @@ class OreDictApi extends ApiBase {
 
 		if ($this->isSearchAction()) {
 			$results = $this->doSearch();
-			$this->getResult()->setIndexedTagName($results, 'entry');
+//			$this->getResult()->setIndexedTagName($results, 'entry');
 			$this->getResult()->addValue($this->getModuleName(), 'entries', $results);
 		}
 
@@ -220,6 +223,20 @@ class OreDictApi extends ApiBase {
 		$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'add', $result);
 	}
 
+	/**
+	 * @param $row Row?		The row to get the data from.
+	 * @return array		An array containing the tag, mod, item, grid params, and flags for use throughout the API.
+	 */
+	private function getArrayFromRow($row) {
+		return array(
+			'tag_name' => $row->tag_name,
+			'mod_name' => $row->mod_name,
+			'item_name' => $row->item_name,
+			'grid_params' => $row->grid_params,
+			'flags' => $row->flags,
+		);
+	}
+
 	protected function doGet() {
 		$ids = $this->getParameter('oredict-get');
 		if (empty($ids)) {
@@ -233,13 +250,7 @@ class OreDictApi extends ApiBase {
 			$results = $dbr->select('ext_oredict_items', '*', array('entry_id' => $id));
 			if ($results->numRows() > 0) {
 				$row = $results->current();
-				$ret[$id] = [
-					'tag_name' => $row->tag_name,
-					'mod_name' => $row->mod_name,
-					'item_name' => $row->item_name,
-					'grid_params' => $row->grid_params,
-					'flags' => $row->flags
-				];
+				$ret[$id] = $this->getArrayFromRow($row);
 			} else {
 				$ret[$id] = null;
 			}
@@ -253,43 +264,39 @@ class OreDictApi extends ApiBase {
 		$tag = $this->getMain()->getVal('oredict-search-tag');
 		$mod = $this->getMain()->getVal('oredict-search-mod');
 		$name = $this->getMain()->getVal('oredict-search-name');
+		$dbr = wfGetDB(DB_SLAVE);
 
-		// TODO perform search and return an array of matching entries
+		$resultPrefix = $dbr->select('ext_oredict_items', '*', array('item_name BETWEEN '.$dbr->addQuotes($prefix)." AND 'zzzzzzzz'"));
+		$resultTag = $dbr->select('ext_oredict_items', '*', array('tag_name' => $tag));
+		$resultMod = $dbr->select('ext_oredict_items', '*', array('mod_name' => $mod));
+		$resultName = $dbr->select('ext_oredict_items', '*', array('item_name' => $name));
 
-		// TODO remove this demo data when properly implemented above
-		return [
-			[
-				'entry_id' => 1,
-				'tag_name' => 'logWood',
-				'item_name' => 'Oak Wood',
-				'mod_name' => 'V',
-				'grid_params' => '',
-				'flags' => 207
-			],
-			[
-				'entry_id' => 2,
-				'tag_name' => 'logWood',
-				'item_name' => 'Spruce Wood',
-				'mod_name' => 'V',
-				'grid_params' => '',
-				'flags' => 207
-			],
-			[
-				'entry_id' => 3,
-				'tag_name' => 'logWood',
-				'item_name' => 'Birch Wood',
-				'mod_name' => 'V',
-				'grid_params' => '',
-				'flags' => 207
-			],
-			[
-				'entry_id' => 4,
-				'tag_name' => 'logWood',
-				'item_name' => 'Jungle Wood',
-				'mod_name' => 'V',
-				'grid_params' => '',
-				'flags' => 207
-			],
-		];
+		$ret = array();
+
+		if ($resultTag->numRows() > 0) {
+			foreach ($resultTag as $row) {
+				$ret[$row->entry_id] = $this->getArrayFromRow($row);
+			}
+		}
+
+		if ($resultMod->numRows() > 0) {
+			foreach ($resultMod as $row) {
+				$ret[$row->entry_id] = $this->getArrayFromRow($row);
+			}
+		}
+
+		if ($resultName->numRows() > 0) {
+			foreach ($resultName as $row) {
+				$ret[$row->entry_id] = $this->getArrayFromRow($row);
+			}
+		}
+
+		if ($resultPrefix->numRows() > 0) {
+			foreach ($resultPrefix as $row) {
+				$ret[$row->entry_id] = $this->getArrayFromRow($row);
+			}
+		}
+
+		return $ret;
 	}
 }
