@@ -191,18 +191,11 @@ class OreDictEntryManager extends SpecialPage {
 			return; // No change
 		}
 
+		$entryId = intval($opts->getValue('entry_id'));
+
 		// Delete before any other processing is done.
 		if ($flags & 0x100 && OreDict::checkExists($fItem, $tag, $mod) != 0) {
-			$dbw->delete('ext_oredict_items', array('entry_id' => $opts->getValue('entry_id')));
-
-			// Start log
-			$logEntry = new ManualLogEntry('oredict', 'delete');
-			$logEntry->setPerformer($this->getUser());
-			$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
-			$logEntry->setParameters(array("6::tag" => $tag, "7::item" => $item->item_name, "8::mod" => $item->mod_name, "15::id" => $item->entry_id));
-			$logId = $logEntry->insert();
-			$logEntry->publish($logId);
-			// End log
+			OreDict::deleteEntry($entryId, $this->getUser());
 			return;
 		}
 
@@ -218,7 +211,6 @@ class OreDictEntryManager extends SpecialPage {
 		$toggleFlag = 0xc0 & (intval($opts->getValue('orig_flags')) ^ intval($opts->getValue('flags')));
 		if ($toggleFlag) {
 			$tagName = $dbw->addQuotes($opts->getValue('tag_name'));
-			$entryId = intval($opts->getValue('entry_id'));
 			$dbw->query("UPDATE $tableName SET `flags` = `flags` ^ $toggleFlag WHERE `tag_name` = $tagName AND `entry_id` != $entryId");
 
 			// Start log

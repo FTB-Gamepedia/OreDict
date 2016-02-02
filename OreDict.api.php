@@ -154,17 +154,27 @@ class OreDictApi extends ApiBase {
 
 	/**
 	 * Delete the entries given by the IDs in the oredict-del parameter
-	 *
-	 * @return	boolean		true for success or false for failure
 	 */
 	protected function doDelete() {
 		$entryIds = $this->getParameter('oredict-del');
-		if (empty($entryIds)) return;
-		// TODO delete entries with given ids
+		if (empty($entryIds)) {
+			return;
+		}
+		$dbr = wfGetDB(DB_SLAVE);
 
-		// add success/fail result to the returned data
-		$result = true;
-		$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'delete', $result);
+		$ret = array();
+
+		foreach ($entryIds as $id) {
+			$results = $dbr->select('ext_oredict_items', '*', array('entry_id' => $id));
+			if ($results->numRows() > 0) {
+				$result = OreDict::deleteEntry($id, $this->getUser());
+				$ret[$id] = $result;
+			} else {
+				$ret[$id] = false;
+			}
+		}
+
+		$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'delete', $ret);
 	}
 
 	protected function doEdit() {
