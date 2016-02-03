@@ -273,13 +273,15 @@ class OreDict{
 		return $result->current()->count != 0;
 	}
 
-	static public function addEntry($item, $tag, $mod) {
-		if (OreDict::entryExists($item, $tag, $mod)) {
-			return false;
-		}
-
+	/**
+	 * @param $id	Int		The entry ID
+	 * @return mixed		See checkExists.
+	 */
+	static public function checkExistsByID($id) {
 		$dbr = wfGetDB(DB_SLAVE);
-		return $dbr->insert('ext_oredict_items', array('item_name' => $item, 'tag_name' => $tag, 'mod_name' => $mod));
+		$res = $dbr->select('ext_oredict_items', array('item_name', 'tag_name', 'mod_name'), array('entry_id' => $id));
+		$row = $res->current();
+		return OreDict::entryExists($row->item_name, $row->tag_name, $row->mod_name);
 	}
 
 	/**
@@ -321,7 +323,12 @@ class OreDict{
 	static public function addEntry($mod, $name, $tag, $user, $params = '', $flags = OreDict::FLAG_DEFAULT) {
 		$dbw = wfGetDB(DB_MASTER);
 		$flags = intval($flags);
-		$result = $dbw->insert('ext_oredict_items', array('item_name' => $name, 'tag_name' => $tag, 'mod_name' => $mod, 'grid_params' => $params, 'flags' => $flags));
+		$result = $dbw->insert('ext_oredict_items', array(
+			'item_name' => $name,
+			'tag_name' => $tag,
+			'mod_name' => $mod,
+			'grid_params' => $params,
+			'flags' => $flags));
 		if ($result == false) {
 			return false;
 		}
@@ -341,12 +348,91 @@ class OreDict{
 		$logEntry = new ManualLogEntry('oredict', 'createentry');
 		$logEntry->setPerformer($user);
 		$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
-		$logEntry->setParameters(array("4::id" => $lastInsert, "5::tag" => $tag, "6::item" => $name, "7::mod" => $mod, "8::params" => $params, "9::flags" => sprintf("0x%03X (0b%09b)",$flags,$flags)));
+		$logEntry->setParameters(array(
+			"4::id" => $lastInsert,
+			"5::tag" => $tag,
+			"6::item" => $name,
+			"7::mod" => $mod,
+			"8::params" => $params,
+			"9::flags" => sprintf("0x%03X (0b%09b)",$flags,$flags)));
 		$logEntry->setComment("Importing entries.");
 		$logId = $logEntry->insert();
 		$logEntry->publish($logId);
 		// End log
 		return $lastInsert;
+	}
+
+	/**
+	 * Edits an entry based on the data given in the first parameter.
+	 * @param $update	array	An array essentially identical to a row. This contains the new data.
+	 * @param $id		Int		The entry ID.
+	 * @param $user		User	The user performing this edit.
+	 * @return int				1 if the update query failed, 2 if there was no change, or 0 if successful.
+	 * @throws MWException		See Database#query.
+	 */
+	static public function editEntry($update, $id, $user) {
+		$dbw = wfGetDB(DB_MASTER);
+		$stuff = $dbw->select('ext_oredict_items', '*', array('entry_id' => $id));
+		$row = $stuff->current();
+		$result = $dbw->update('ext_oredict_items', $update, array('entry_id' => $id));
+
+		if ($result == false) {
+			return 1;
+		}
+
+		$tag = empty($update['tag_name']) ? $row->tag_name : $update['tag_name'];
+		$item = empty($update['item_name']) ? $row->item_name : $update['item_name'];
+		$mod = empty($update['mod_name']) ? $row->mod_name : $update['mod_name'];
+		$params = empty($update['grid_params']) ? $row->grid_params : $update['grid_params'];
+		$flags = empty($update['flags']) ? $row->flags : $update['flags'];
+
+		// Prepare log vars
+		$target = empty($mod) ? "$tag - $item" : "$tag - $item ($mod)";
+
+		$diff = array();
+		if ($row->item_name != $item) {
+			$diff['item'][] = $row->item_name;
+			$diff['item'][] = $item;
+		}
+		if ($row->mod_name != $mod) {
+			$diff['mod'][] = $row->mod_name;
+			$diff['mod'][] = $mod;
+		}
+		if ($row->grid_params != $params) {
+			$diff['params'][] = $row->grid_params;
+			$diff['params'][] = $params;
+		}
+		if ($row->flags != $flags) {
+			$diff['flags'][] = sprintf("0x%03X (0b%09b)", $row->flags, $row->flags);
+			$diff['flags'][] = sprintf("0x%03X (0b%09b)", $flags, $flags);
+		}
+		$diffString = "";
+		foreach ($diff as $field => $change) {
+			$diffString .= "$field [$change[0] -> $change[1]] ";
+		}
+		if ($diffString == "" || count($diff) == 0) {
+			return 2;
+		}
+
+		$logEntry = new ManualLogEntry('oredict', 'editentry');
+		$logEntry->setPerformer($user);
+		$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
+		$logEntry->setParameters(array(
+			"6::tag" => $tag,
+			"7::item" => $row->item_name,
+			"8::mod" => $row->mod_name,
+			"9::params" => $row->grid_params,
+			"10::flags" => sprintf("0x%03X (0b%09b)", $row->flags, $row->flags),
+			"11::to_item" => $item,
+			"12::to_mod" => $mod,
+			"13::to_params" => $params,
+			"14::to_flags" => sprintf("0x%03X (0b%09b)", $flags, $flags),
+			"15::id" => $id,
+			"4::diff" => $diffString,
+			"5::diff_json" => json_encode($diff)));
+		$logId = $logEntry->insert();
+		$logEntry->publish($logId);
+		return 0;
 	}
 }
 

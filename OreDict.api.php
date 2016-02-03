@@ -84,15 +84,14 @@ class OreDictApi extends ApiBase {
 				ApiBase::PARAM_TYPE => 'boolean',
 			],
 			'oredict-edit' => [
-				ApiBase::PARAM_TYPE => 'string',  # same encoding format as add, but with an id
-				ApiBase::PARAM_ISMULTI => true,
-				ApiBase::PARAM_ALLOW_DUPLICATES => false,
+				ApiBase::PARAM_TYPE => 'integer',
+				ApiBase::PARAM_MIN => 1,
 			],
 			'oredict-del' => [
-				ApiBase::PARAM_TYPE => 'integer', # id of an entry to delete
+				ApiBase::PARAM_TYPE => 'integer',
 				ApiBase::PARAM_ISMULTI => true,
 				ApiBase::PARAM_ALLOW_DUPLICATES => false,
-				ApiBase::PARAM_MIN => 1,          # id < 1 is invalid
+				ApiBase::PARAM_MIN => 1,
 			],
 			# searching filters
 			'oredict-search-prefix' => [
@@ -198,13 +197,11 @@ class OreDictApi extends ApiBase {
 		if (empty($entryIds)) {
 			return;
 		}
-		$dbr = wfGetDB(DB_SLAVE);
 
 		$ret = array();
 
 		foreach ($entryIds as $id) {
-			$results = $dbr->select('ext_oredict_items', '*', array('entry_id' => $id));
-			if ($results->numRows() > 0) {
+			if (OreDict::checkExistsByID($id)) {
 				$result = OreDict::deleteEntry($id, $this->getUser());
 				$ret[$id] = $result;
 			} else {
@@ -216,13 +213,51 @@ class OreDictApi extends ApiBase {
 	}
 
 	protected function doEdit() {
-		$editData = $this->getParameter('oredict-edit');
-		if (empty($editData)) return;
-		// TODO edit entries with given data
+		$id = $this->getParameter('oredict-edit');
+		if (empty($id)) {
+			return;
+		}
 
-		// add success/fail result to the returned data
-		$result = true;
-		$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'edit', $result);
+		if (!OreDict::checkExistsByID($id)) {
+			$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'edit', array('error' => "Entry $id does not exists."));
+			return;
+		}
+
+		// These aren't all required, but the edit code will check if they are empty anyway.
+		$mod = $this->getParameter('mod');
+		$item = $this->getParameter('item');
+		$tag = $this->getParameter('tag');
+		$params = $this->getParameter('params');
+		$flags = $this->getParameter('flags');
+
+		$update = array(
+			'mod_name' => $mod,
+			'item_name' => $item,
+			'tag_name' => $tag,
+			'grid_params' => $params,
+			'flags' => $flags
+		);
+
+		$result = OreDict::editEntry($update, $id, $this->getUser());
+		$ret = array();
+		switch ($result) {
+			case 0: {
+				$ret = array($id => true);
+				break;
+			}
+			case 1: {
+				$ret = array($id => false, 'error' => 'Failed to edit the database.');
+				break;
+			}
+			case 2: {
+				$ret = array($id => false, 'error' => 'There was no change.');
+				break;
+			}
+			default: {
+				$ret = array('?' => $result);
+			}
+		}
+		$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'edit', $ret);
 	}
 
 	protected function doAdd() {
@@ -239,9 +274,13 @@ class OreDictApi extends ApiBase {
 		if (empty($mod) || empty($item) || empty($tag)) {
 			$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'add', array('error' => 'Mod, item, and tag must be provided.'));
 		} else {
-			$result = OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params, $flags);
-			$ret = array('result' => $result);
-			$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'add', $ret);
+			if (OreDict::checkExists($item, $tag, $mod)) {
+				$result = OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params, $flags);
+				$ret = array('result' => $result);
+				$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'add', $ret);
+			} else {
+				$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'add', array('error' => 'Entry already exists.'));
+			}
 		}
 	}
 
