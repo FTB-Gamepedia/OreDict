@@ -90,49 +90,18 @@ class OreDictEntryManager extends SpecialPage {
 
 	private function createEntry(FormOptions $opts) {
 		$dbw = wfGetDB(DB_MASTER);
+		$item = $opts->getValue('item_name');
+		$tag = $opts->getValue('tag_name');
+		$mod = $opts->getValue('mod_name');
+		$params = $opts->getValue('grid_params');
+		$flags = $opts->getValue('flags');
 
 		// Check if exists
 		if (OreDict::entryExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'))) {
 			return -2;
 		}
 
-		$dbw->insert('ext_oredict_items', array(
-			'tag_name' => $opts->getValue('tag_name'),
-			'item_name' => $opts->getValue('item_name'),
-			'mod_name' => $opts->getValue('mod_name'),
-			'grid_params' => $opts->getValue('grid_params'),
-			'flags' => $opts->getValue('flags')
-		));
-
-		$tableName = $dbw->tableName('ext_oredict_items');
-		//$result = $dbw->query("SELECT `entry_id` AS id FROM $tableName ORDER BY `entry_id` DESC LIMIT 1 ");
-
-		$result = $dbw->select(
-							'ext_oredict_items',
-							'`entry_id` AS id',
-							[],
-							__METHOD__,
-							[
-								'ORDER BY' => '`entry_id` DESC',
-								"LIMIT" => 1
-							]
-					);
-
-		$mod = $opts->getValue('mod_name');
-		$tag = $opts->getValue('tag_name');
-		$item = $opts->getValue('item_name');
-
-		$target = empty($mod) || $mod == "" ? "$tag - $item" : "$tag - $item ($mod)";
-		// Start log
-		$logEntry = new ManualLogEntry('oredict', 'createentry');
-		$logEntry->setPerformer($this->getUser());
-		$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
-		$logEntry->setParameters(array("4::id" => $result->current()->id, "5::tag" => $opts->getValue('tag_name'), "6::item" => $opts->getValue('item_name'), "7::mod" => $opts->getValue('mod_name'), "8::params" => $opts->getValue('grid_params'), "9::flags" => sprintf("0x%03X (0b%09b)",$opts->getValue('flags'),$opts->getValue('flags'))));
-		$logId = $logEntry->insert();
-		$logEntry->publish($logId);
-		// End log
-
-		return intval($result->current()->id);
+		return OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params, $flags);
 	}
 
 	private function updateEntry(FormOptions $opts) {

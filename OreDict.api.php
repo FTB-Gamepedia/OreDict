@@ -64,11 +64,24 @@ class OreDictApi extends ApiBase {
 			'token' => [
 				ApiBase::PARAM_TYPE => 'string',
 			],
+			'mod' => [
+				ApiBase::PARAM_TYPE => 'string',
+			],
+			'tag' => [
+				ApiBase::PARAM_TYPE => 'string',
+			],
+			'item' => [
+				ApiBase::PARAM_TYPE => 'string',
+			],
+			'params' => [
+				ApiBase::PARAM_TYPE => 'string',
+			],
+			'flags' => [
+				ApiBase::PARAM_TYPE => 'integer',
+			],
 			# editing actions
 			'oredict-add' => [
-				ApiBase::PARAM_TYPE => 'string',  # objects aren't supported types, so we have to agree on an encoding format
-				ApiBase::PARAM_ISMULTI => true,   # accepts multiple values (separated by a pipe character)
-				ApiBase::PARAM_ALLOW_DUPLICATES => false,
+				ApiBase::PARAM_TYPE => 'boolean',
 			],
 			'oredict-edit' => [
 				ApiBase::PARAM_TYPE => 'string',  # same encoding format as add, but with an id
@@ -144,7 +157,6 @@ class OreDictApi extends ApiBase {
 	}
 
 	public function mustBePosted() {
-		return false;
 		return $this->isEditAction();
 	}
 
@@ -215,16 +227,26 @@ class OreDictApi extends ApiBase {
 
 	protected function doAdd() {
 		$newEntries = $this->getParameter('oredict-add');
-		if (empty($newEntries)) return;
-		// TODO create entries with given data
+		if (empty($newEntries)) {
+			return;
+		}
+		$mod = $this->getParameter('mod');
+		$item = $this->getParameter('item');
+		$tag = $this->getParameter('tag');
+		$params = empty($this->getParameter('params')) ? '' : $this->getParameter('params');
+		$flags = empty($this->getParameter('flags')) ? OreDict::FLAG_DEFAULT : $this->getParameter('flags');
 
-		// add success/fail result to the returned data
-		$result = true;
-		$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'add', $result);
+		if (empty($mod) || empty($item) || empty($tag)) {
+			$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'add', array('error' => 'Mod, item, and tag must be provided.'));
+		} else {
+			$result = OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params, $flags);
+			$ret = array('result' => $result);
+			$this->getResult()->addValue([$this->getModuleName(), 'actionresult'], 'add', $ret);
+		}
 	}
 
 	/**
-	 * @param $row Row?		The row to get the data from.
+	 * @param $row ?        The row to get the data from.
 	 * @return array		An array containing the tag, mod, item, grid params, and flags for use throughout the API.
 	 */
 	private function getArrayFromRow($row) {

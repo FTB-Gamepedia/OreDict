@@ -307,6 +307,47 @@ class OreDict{
 		$logEntry->publish($logId);
 		return $result;
 	}
+
+	/**
+	 * Adds an entry.
+	 * @param string $mod Mod name
+	 * @param string $name Item name
+	 * @param string $tag Tag name
+	 * @param User $user User performing the addition
+	 * @param string $params Grid parameters
+	 * @param int $flags Flags
+	 * @return bool|int False if it failed to add, or the new ID.
+	 */
+	static public function addEntry($mod, $name, $tag, $user, $params = '', $flags = OreDict::FLAG_DEFAULT) {
+		$dbw = wfGetDB(DB_MASTER);
+		$flags = intval($flags);
+		$result = $dbw->insert('ext_oredict_items', array('item_name' => $name, 'tag_name' => $tag, 'mod_name' => $mod, 'grid_params' => $params, 'flags' => $flags));
+		if ($result == false) {
+			return false;
+		}
+		$result = $dbw->select(
+			'ext_oredict_items',
+			'`entry_id` AS id',
+			[],
+			__METHOD__,
+			[
+				'ORDER BY' => '`entry_id` DESC',
+				"LIMIT" => 1
+			]
+		);
+		$lastInsert = intval($result->current()->id);
+		$target = $mod == "" ? "$tag - $name" : "$tag - $name ($mod)";
+		// Start log
+		$logEntry = new ManualLogEntry('oredict', 'createentry');
+		$logEntry->setPerformer($user);
+		$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
+		$logEntry->setParameters(array("4::id" => $lastInsert, "5::tag" => $tag, "6::item" => $name, "7::mod" => $mod, "8::params" => $params, "9::flags" => sprintf("0x%03X (0b%09b)",$flags,$flags)));
+		$logEntry->setComment("Importing entries.");
+		$logId = $logEntry->insert();
+		$logEntry->publish($logId);
+		// End log
+		return $lastInsert;
+	}
 }
 
 class OreDictItem{
