@@ -434,6 +434,20 @@ class OreDict{
 		$logEntry->publish($logId);
 		return 0;
 	}
+
+	/**
+	 * @param $row ?        The row to get the data from.
+	 * @return array		An array containing the tag, mod, item, grid params, and flags for use throughout the API.
+	 */
+	static public function getArrayFromRow($row) {
+		return array(
+			'tag_name' => $row->tag_name,
+			'mod_name' => $row->mod_name,
+			'item_name' => $row->item_name,
+			'grid_params' => $row->grid_params,
+			'flags' => $row->flags,
+		);
+	}
 }
 
 class OreDictItem{
