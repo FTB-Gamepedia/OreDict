@@ -70,6 +70,10 @@ class OreDictEditEntryApi extends ApiBase {
     }
 
     public function execute() {
+        if (!in_array('editoredict', $this->getUser()->getRights())) {
+            $this->dieUsage('You do not have the permission to add OreDict entries', 'permissiondenied');
+        }
+        
         $id = $this->getParameter('id');
 
         if (!OreDict::checkExistsByID($id)) {

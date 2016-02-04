@@ -52,6 +52,9 @@ class OreDictDeleteEntryApi extends ApiBase {
     }
 
     public function execute() {
+        if (!in_array('editoredict', $this->getUser()->getRights())) {
+            $this->dieUsage('You do not have the permission to add OreDict entries', 'permissiondenied');
+        }
         $entryIds = $this->getParameter('ids');
         $ret = array();
 
