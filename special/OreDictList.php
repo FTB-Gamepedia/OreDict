@@ -67,11 +67,13 @@ class OreDictList extends SpecialPage {
 			'COUNT(`entry_id`) AS row_count',
 			array(
 				'entry_id >= '.$from,
-				'(mod_name = '.$dbr->addQuotes($mod).' OR '.$dbr->addQuotes($mod).' = \'\' OR (',
-				$dbr->addQuotes($mod).' = \'none\' AND mod_name = \'\'))',
+				'(mod_name = '.$dbr->addQuotes($mod).' OR '.$dbr->addQuotes($mod).' = \'\' OR'.
+				'('.$dbr->addQuotes($mod).' = \'none\' AND mod_name = \'\'))',
 				'(tag_name = '.$dbr->addQuotes($tag).' OR '.$dbr->addQuotes($tag).' = \'\')',
 				'item_name BETWEEN '.$dbr->addQuotes($start)." AND 'zzzzzzzz'"
-			)
+			),
+			__METHOD__,
+			array('LIMIT' => $limit)
 		);
 		foreach ($results as $result) {
 			$maxRows = $result->row_count;
@@ -81,7 +83,7 @@ class OreDictList extends SpecialPage {
 			return;
 		}
 
-		$begin = $page * limit;
+		$begin = $page * $limit;
 		$end = min($begin + $limit, $maxRows);
 		$order = $start == '' ? 'entry_id ASC' : 'item_name ASC';
 		$results = $dbr->select(

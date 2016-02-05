@@ -89,7 +89,6 @@ class OreDictEntryManager extends SpecialPage {
 	}
 
 	private function createEntry(FormOptions $opts) {
-		$dbw = wfGetDB(DB_MASTER);
 		$item = $opts->getValue('item_name');
 		$tag = $opts->getValue('tag_name');
 		$mod = $opts->getValue('mod_name');
@@ -113,20 +112,18 @@ class OreDictEntryManager extends SpecialPage {
 			'item_name' => $opts->getValue('item_name'),
 			'mod_name' => $opts->getValue('mod_name'),
 			'grid_params' => $opts->getValue('grid_params'),
-			'flags' => $opts->getValue('flags')
+			'flags' => intval($opts->getValue('flags')),
 		);
-		$tableName = $dbw->tableName('ext_oredict_items');
+		$tableName = 'ext_oredict_items';
 		if ($stuff->numRows() == 0) {
 			return;
 		}
 
 		$tag = $ary['tag_name'];
-		$fItem = $ary['item_name'];
-		$mod = $ary['mod_name'];
 		$flags = $ary['flags'];
 
 		// Delete before any other processing is done.
-		if ($flags & 0x100 && OreDict::checkExists($fItem, $tag, $mod)) {
+		if ($flags & 0x100 && OreDict::checkExistsByID($entryId)) {
 			OreDict::deleteEntry($entryId, $this->getUser());
 			return;
 		}

@@ -287,7 +287,7 @@ class OreDict{
 	/**
 	 * Deletes the entry by its ID, and logs it as the user.
 	 * @param $id	Int		The entry ID
-	 * @param $user String	The user
+	 * @param $user User	The user
 	 * @return mixed		The first deletion.
 	 */
 	static public function deleteEntry($id, $user) {
