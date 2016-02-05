@@ -36,7 +36,23 @@
 		"OreDictForm": "classes/OreDictForm.php",
 		"OreDictEntryManager": "special/OreDictEntryManager.php",
 		"OreDictList": "special/OreDictList.php",
-		"ImportOreDict": "special/ImportOreDict.php"
+		"ImportOreDict": "special/ImportOreDict.php",
+		"OreDictAddEntryApi": "api/OreDictAddEntryApi.php",
+		"OreDictDeleteEntryApi": "api/OreDictDeleteEntryApi.php",
+		"OreDictEditEntryApi": "api/OreDictEditEntryApi.php",
+		"OreDictQueryEntryApi": "api/OreDictQueryEntryApi.php",
+		"OreDictQuerySearchApi": "api/OreDictQuerySearchApi.php"
+	},
+	"APIModules": {
+		"neworedict": "OreDictAddEntryApi",
+		"deleteoredict": "OreDictDeleteEntryApi",
+		"editoredict": "OreDictEditEntryApi"
+	},
+	"APIPropModules": {
+		"oredictentry": "OreDictQueryEntryApi"
+	},
+	"APIListModules": {
+		"oredictsearch": "OreDictQuerySearchApi"
 	},
 	"ResourceModules": {
 		"ext.oredict.list": {

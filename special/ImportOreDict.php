@@ -140,40 +140,13 @@ class ImportOreDict extends SpecialPage {
 					}
 				}
 				// Add entry
-				$result = $dbw->insert('ext_oredict_items', array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName, 'grid_params' => $params, 'flags' => $flags));
+				$result = OreDict::addEntry($modName, $itemName, $tagName, $this->getUser(), $params, $flags);
 				if ($result == false) {
 					$out->addHTML($this->returnMessage(false, "Insert failed!"));
 					continue;
 				}
-				$tableName = $dbw->tableName('ext_oredict_items');
-				//$result = $dbw->query("SELECT `entry_id` AS id FROM $tableName ORDER BY `entry_id` DESC LIMIT 1 ");
-				$result = $dbw->select(
-									'ext_oredict_items',
-									'`entry_id` AS id',
-									[],
-									__METHOD__,
-									[
-										'ORDER BY' => '`entry_id` DESC',
-										"LIMIT" => 1
-									]
-							);
-				$lastInsert = intval($result->current()->id);
 
-				$tag = $tagName;
-				$item = $itemName;
-				$mod = $modName;
-				$target = empty($mod) || $mod == "" ? "$tag - $item" : "$tag - $item ($mod)";
-				// Start log
-				$logEntry = new ManualLogEntry('oredict', 'createentry');
-				$logEntry->setPerformer($this->getUser());
-				$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
-				$logEntry->setParameters(array("4::id" => $lastInsert, "5::tag" => $tag, "6::item" => $item, "7::mod" => $mod, "8::params" => $params, "9::flags" => sprintf("0x%03X (0b%09b)",$flags,$flags)));
-				$logEntry->setComment("Importing entries.");
-				$logId = $logEntry->insert();
-				$logEntry->publish($logId);
-				// End log
-
-				$out->addHTML($this->returnMessage(true, "Successfully inserted entry to ID: $lastInsert!"));
+				$out->addHTML($this->returnMessage(true, "Successfully inserted entry to ID: $result!"));
 			}
 			$out->addHtml('</tt>');
 		} else {

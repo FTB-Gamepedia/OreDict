@@ -31,6 +31,17 @@ $wgMessagesDirs['OreDict'] = __DIR__ .'/i18n';
 $wgExtensionMessagesFiles['OreDict'] = dirname(__FILE__)."/OreDict.i18n.php";
 $wgExtensionMessagesFiles['OreDictMagic'] = dirname(__FILE__)."/OreDict.i18n.magic.php";
 
+$wgAutoloadClasses['OreDictAddEntryApi'] = __DIR__ . '/api/OreDictAddEntryApi.php';
+$wgAPIModules['neworedict'] = 'OreDictAddEntryApi';
+$wgAutoloadClasses['OreDictDeleteEntryApi'] = __DIR__ . '/api/OreDictDeleteEntryApi.php';
+$wgAPIModules['deleteoredict'] = 'OreDictDeleteEntryApi';
+$wgAutoloadClasses['OreDictEditEntryApi'] = __DIR__ . '/api/OreDictEditEntryApi.php';
+$wgAPIModules['editoredict'] = 'OreDictEditEntryApi';
+$wgAutoloadClasses['OreDictQueryEntryApi'] = __DIR__ . '/api/OreDictQueryEntryApi.php';
+$wgAPIPropModules['oredictentry'] = 'OreDictQueryEntryApi';
+$wgAutoloadClasses['OreDictQuerySearchApi'] = __DIR__ . '/api/OreDictQuerySearchApi.php';
+$wgApiListClasses['oredictsearch'] = 'OreDictQuerySearchApi';
+
 $wgAutoloadClasses['OreDict'] = dirname(__FILE__)."/OreDict.body.php";
 $wgAutoloadClasses['OreDictItem'] = dirname(__FILE__)."/OreDict.body.php";
 $wgAutoloadClasses['OreDictError'] = dirname(__FILE__)."/OreDict.body.php";

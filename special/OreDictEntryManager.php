@@ -90,135 +90,55 @@ class OreDictEntryManager extends SpecialPage {
 
 	private function createEntry(FormOptions $opts) {
 		$dbw = wfGetDB(DB_MASTER);
+		$item = $opts->getValue('item_name');
+		$tag = $opts->getValue('tag_name');
+		$mod = $opts->getValue('mod_name');
+		$params = $opts->getValue('grid_params');
+		$flags = $opts->getValue('flags');
 
 		// Check if exists
 		if (OreDict::entryExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'))) {
 			return -2;
 		}
 
-		$dbw->insert('ext_oredict_items', array(
-			'tag_name' => $opts->getValue('tag_name'),
-			'item_name' => $opts->getValue('item_name'),
-			'mod_name' => $opts->getValue('mod_name'),
-			'grid_params' => $opts->getValue('grid_params'),
-			'flags' => $opts->getValue('flags')
-		));
-
-		$tableName = $dbw->tableName('ext_oredict_items');
-		//$result = $dbw->query("SELECT `entry_id` AS id FROM $tableName ORDER BY `entry_id` DESC LIMIT 1 ");
-
-		$result = $dbw->select(
-							'ext_oredict_items',
-							'`entry_id` AS id',
-							[],
-							__METHOD__,
-							[
-								'ORDER BY' => '`entry_id` DESC',
-								"LIMIT" => 1
-							]
-					);
-
-		$mod = $opts->getValue('mod_name');
-		$tag = $opts->getValue('tag_name');
-		$item = $opts->getValue('item_name');
-
-		$target = empty($mod) || $mod == "" ? "$tag - $item" : "$tag - $item ($mod)";
-		// Start log
-		$logEntry = new ManualLogEntry('oredict', 'createentry');
-		$logEntry->setPerformer($this->getUser());
-		$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
-		$logEntry->setParameters(array("4::id" => $result->current()->id, "5::tag" => $opts->getValue('tag_name'), "6::item" => $opts->getValue('item_name'), "7::mod" => $opts->getValue('mod_name'), "8::params" => $opts->getValue('grid_params'), "9::flags" => sprintf("0x%03X (0b%09b)",$opts->getValue('flags'),$opts->getValue('flags'))));
-		$logId = $logEntry->insert();
-		$logEntry->publish($logId);
-		// End log
-
-		return intval($result->current()->id);
+		return OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params, $flags);
 	}
 
 	private function updateEntry(FormOptions $opts) {
 		$dbw = wfGetDB(DB_MASTER);
-		$stuff = $dbw->select('ext_oredict_items', '*', array('entry_id' => $opts->getValue('entry_id')));
+		$entryId = intval($opts->getValue('entry_id'));
+		$stuff = $dbw->select('ext_oredict_items', '*', array('entry_id' => $entryId));
 		$ary = array(
-			//'tag_name' => $opts->getValue('tag_name'),
+			'tag_name' => $opts->getValue('tag_name'),
 			'item_name' => $opts->getValue('item_name'),
 			'mod_name' => $opts->getValue('mod_name'),
 			'grid_params' => $opts->getValue('grid_params'),
 			'flags' => $opts->getValue('flags')
 		);
 		$tableName = $dbw->tableName('ext_oredict_items');
-		$result = $dbw->update('ext_oredict_items', $ary, array('entry_id' => $opts->getValue('entry_id')));
-
 		if ($stuff->numRows() == 0) {
 			return;
 		}
 
-		if ($result == false) {
-			return;
-		}
-
-		$tag = $opts->getValue('tag_name');
-		$fItem = $opts->getValue('item_name');
-		$mod = $opts->getValue('mod_name');
-		$params = $opts->getValue('grid_params');
-		$flags = $opts->getValue('flags');
-		$item = $stuff->current();
-
-		// Prepare log vars
-		$target = empty($mod) || $mod == "" ? "$tag - $fItem" : "$tag - $fItem ($mod)";
-
-		$diff = array();
-		if ($item->item_name != $fItem) {
-			$diff['item'][] = $item->item_name;
-			$diff['item'][] = $fItem;
-		}
-		if ($item->mod_name != $mod) {
-			$diff['mod'][] = $item->mod_name;
-			$diff['mod'][] = $mod;
-		}
-		if ($item->grid_params != $params) {
-			$diff['params'][] = $item->grid_params;
-			$diff['params'][] = $params;
-		}
-		if ($item->flags != $flags) {
-			$diff['flags'][] = sprintf("0x%03X (0b%09b)",$item->flags,$item->flags);
-			$diff['flags'][] = sprintf("0x%03X (0b%09b)",$flags,$flags);
-		}
-		$diffString = "";
-		foreach ($diff as $field => $change) {
-			$diffString .= "$field [$change[0] -> $change[1]] ";
-		}
-		if ($diffString == "" || count($diff) == 0) {
-			return; // No change
-		}
+		$tag = $ary['tag_name'];
+		$fItem = $ary['item_name'];
+		$mod = $ary['mod_name'];
+		$flags = $ary['flags'];
 
 		// Delete before any other processing is done.
-		if ($flags & 0x100 && OreDict::checkExists($fItem, $tag, $mod) != 0) {
-			$dbw->delete('ext_oredict_items', array('entry_id' => $opts->getValue('entry_id')));
-
-			// Start log
-			$logEntry = new ManualLogEntry('oredict', 'delete');
-			$logEntry->setPerformer($this->getUser());
-			$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
-			$logEntry->setParameters(array("6::tag" => $tag, "7::item" => $item->item_name, "8::mod" => $item->mod_name, "15::id" => $item->entry_id));
-			$logId = $logEntry->insert();
-			$logEntry->publish($logId);
-			// End log
+		if ($flags & 0x100 && OreDict::checkExists($fItem, $tag, $mod)) {
+			OreDict::deleteEntry($entryId, $this->getUser());
 			return;
 		}
 
-		// Start log
-		$logEntry = new ManualLogEntry('oredict', 'editentry');
-		$logEntry->setPerformer($this->getUser());
-		$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
-		$logEntry->setParameters(array("6::tag" => $tag, "7::item" => $item->item_name, "8::mod" => $item->mod_name, "9::params" => $item->grid_params, "10::flags" => sprintf("0x%03X (0b%09b)",$item->flags,$item->flags), "11::to_item" => $fItem, "12::to_mod" => $mod, "13::to_params" => $params, "14::to_flags" => sprintf("0x%03X (0b%09b)",$flags,$flags),"15::id" => $item->entry_id, "4::diff" => $diffString, "5::diff_json" => json_encode($diff)));
-		$logId = $logEntry->insert();
-		$logEntry->publish($logId);
-		// End log
+		$result = OreDict::editEntry($ary, $entryId, $this->getUser());
+		if ($result != 0) {
+			return;
+		}
 
 		$toggleFlag = 0xc0 & (intval($opts->getValue('orig_flags')) ^ intval($opts->getValue('flags')));
 		if ($toggleFlag) {
 			$tagName = $dbw->addQuotes($opts->getValue('tag_name'));
-			$entryId = intval($opts->getValue('entry_id'));
 			$dbw->query("UPDATE $tableName SET `flags` = `flags` ^ $toggleFlag WHERE `tag_name` = $tagName AND `entry_id` != $entryId");
 
 			// Start log
