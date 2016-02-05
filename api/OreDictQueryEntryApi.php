@@ -42,7 +42,7 @@ class OreDictQueryEntryApi extends ApiQueryBase {
             $results = $dbr->select('ext_oredict_items', '*', array('entry_id' => $id));
             if ($results->numRows() > 0) {
                 $row = $results->current();
-                $ret[$id] = $this->getArrayFromRow($row);
+                $ret[$id] = OreDict::getArrayFromRow($row);
             } else {
                 $ret[$id] = null;
             }
