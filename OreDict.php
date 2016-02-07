@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @version 1.1.0
+ * @version 2.0.0
  * @author Jinbobo <paullee05149745@gmail.com>
  * @license
  */

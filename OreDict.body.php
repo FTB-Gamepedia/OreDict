@@ -85,7 +85,7 @@ class OreDict{
 		$out = "";
 		foreach ($this->mRawArray as $item) {
 			if (is_object($item)) {
-				if (get_class($item) == "OreDictList") {
+				if (get_class($item) == "OreDictItem") {
 					$out .= $item->getItemName() . " \n";
 				}
 			}
@@ -102,7 +102,7 @@ class OreDict{
 
 	public function runHooks($params = "") {
 		$out = "";
-		wfRunHooks("OreDictOutput", array(&$out, $this->mRawArray, $params));
+		Hooks::run("OreDictOutput", array(&$out, $this->mRawArray, $params));
 		return array($out, 'noparse' => false, 'isHTML' => false);
 	}
 
@@ -114,7 +114,6 @@ class OreDict{
 	 */
 
 	public function exec($byTag = false) {
-		// Get db object
 		$dbr = wfGetDB(DB_SLAVE);
 
 		// Masks
@@ -147,27 +146,25 @@ class OreDict{
 		if (!isset(self::$mQueries[$fItem][$fMod][$fType])) {
 			if ($byTag) {
 				OreDictError::notice("Querying the ore dictionary for Tag = $fItem Mod = $fMod (Call type = $fType)");
-				//$query = "SELECT * FROM $fTableName WHERE `tag_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
+//				$query = "SELECT * FROM $fTableName WHERE `tag_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
 
 				$result = $dbr->select(
 					$fTableName,
 					"*",
 					[
-						'tag_name' => $fItem,
-						$dbr->makeList([$fMod => '','mod_name' => $fMod], LIST_OR),
-						"($mfTag & $fType & `flags`)",
-						"($mfCall & $fType & `flags`)",
-						"($mfDisp & $fType & `flags`)",
-						"NOT ($fDel & `flags`)"
+						"tag_name = $fItem",
+						"($fMod = '' OR mod_name = $fMod)",
+						"($mfTag & $fType & flags)",
+						"($mfCall & $fType & flags)",
+						"($mfDisp & $fType & flags)",
+						"NOT ($fDel & flags)"
 				 	],
 					__METHOD__,
 					[
 						"ORDER BY" => $sRand,
 						"LIMIT" => $sLim,
-						"OFFSET" => 0
 					]
 				);
-
 			} else {
 				OreDictError::notice("Querying the ore dictionary for Item = $fItem Mod = $fMod (Call type = $fType)");
 				//$query = "SELECT * FROM $fTableName WHERE `tag_name` IN (SELECT `tag_name` FROM $fTableName WHERE `item_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND NOT($fDel & `flags`)) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
@@ -176,11 +173,11 @@ class OreDict{
 					$fTableName,
 					'tag_name',
 					[
-						'item_name' => $fItem,
-						$dbr->makeList([$fMod => '','mod_name' => $fMod], LIST_OR),
-						"($mfTag & $fType & `flags`)",
-						"($mfCall & $fType & `flags`)",
-						"NOT($fDel & `flags`)"
+						"item_name = $fItem",
+						"($fMod = '' OR mod_name = $fMod)",
+						"($mfTag & $fType & flags)",
+						"($mfCall & $fType & flags)",
+						"NOT ($fDel & flags)"
 					],
 					__METHOD__
 				);
@@ -188,14 +185,14 @@ class OreDict{
 				$tagNameList = [];
 
 				foreach ($subResult as $r) {
-					$tagNameList[] = $r['tag_name'];
+					$tagNameList[] = "'$r->tag_name'";
 				}
 
 				$result = $dbr->select(
 					$fTableName,
 					"*",
 					[
-						'`tag_name` IN ('.$dbr->makeList($tagNameList, LIST_COMMA).')',
+						'`tag_name` IN ('.implode(',', $tagNameList).')',
 						"($mfDisp & $fType & `flags`)",
 						"NOT($fDel & `flags`)"
 				 	],
@@ -203,10 +200,8 @@ class OreDict{
 					[
 						"ORDER BY" => $sRand,
 						"LIMIT" => $sLim,
-						"OFFSET" => 0
 					]
 				);
-
 			}
 			//OreDictError::query($query);
 			//$result = $dbr->query($query);
