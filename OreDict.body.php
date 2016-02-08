@@ -127,8 +127,6 @@ class OreDict{
 		$fItem = $dbr->addQuotes($this->mItemName); // This will be tag name if mode is call by tag
 		$fMod = $dbr->addQuotes($this->mItemMod);
 		$fType = $this->mCallType;
-		//$fTableName = $dbr->tableName("ext_oredict_items");
-		$fTableName = "ext_oredict_items";
 
 		$sLim = $this->mOutputLimit;
 		if ($mfCtrl & $fType & OreDict::CTRL_RAND) {
@@ -146,19 +144,19 @@ class OreDict{
 		if (!isset(self::$mQueries[$fItem][$fMod][$fType])) {
 			if ($byTag) {
 				OreDictError::notice("Querying the ore dictionary for Tag = $fItem Mod = $fMod (Call type = $fType)");
-//				$query = "SELECT * FROM $fTableName WHERE `tag_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
+				//$query = "SELECT * FROM $fTableName WHERE `tag_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
 
 				$result = $dbr->select(
-					$fTableName,
-					"*",
+					"ext_oredict_items",
+					["*"],
 					[
-						"tag_name = $fItem",
+						'tag_name' => $fItem,
 						"($fMod = '' OR mod_name = $fMod)",
 						"($mfTag & $fType & flags)",
 						"($mfCall & $fType & flags)",
 						"($mfDisp & $fType & flags)",
 						"NOT ($fDel & flags)"
-				 	],
+					],
 					__METHOD__,
 					[
 						"ORDER BY" => $sRand,
@@ -170,10 +168,10 @@ class OreDict{
 				//$query = "SELECT * FROM $fTableName WHERE `tag_name` IN (SELECT `tag_name` FROM $fTableName WHERE `item_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND NOT($fDel & `flags`)) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
 
 				$subResult = $dbr->select(
-					$fTableName,
-					'tag_name',
+					"ext_oredict_items",
+					['tag_name'],
 					[
-						"item_name = $fItem",
+						'item_name' => $fItem,
 						"($fMod = '' OR mod_name = $fMod)",
 						"($mfTag & $fType & flags)",
 						"($mfCall & $fType & flags)",
@@ -185,17 +183,20 @@ class OreDict{
 				$tagNameList = [];
 
 				foreach ($subResult as $r) {
-					$tagNameList[] = "'$r->tag_name'";
+					$tagNameList[] = $r->tag_name;
+				}
+				$where = [
+					"($mfDisp & $fType & `flags`)",
+					"NOT($fDel & `flags`)"
+				];
+				if (!empty($tagNameList)) {
+					$where['tag_name'] = $tagNameList;
 				}
 
 				$result = $dbr->select(
-					$fTableName,
-					"*",
-					[
-						'`tag_name` IN ('.implode(',', $tagNameList).')',
-						"($mfDisp & $fType & `flags`)",
-						"NOT($fDel & `flags`)"
-				 	],
+					"ext_oredict_items",
+					["*"],
+					$where,
 					__METHOD__,
 					[
 						"ORDER BY" => $sRand,
@@ -220,9 +221,7 @@ class OreDict{
 
 		// Rotate results if not randomized
 		if (!($mfCtrl & $fType & OreDict::CTRL_RAND) && !$byTag) {
-			while (current(self::$mQueries[$fItem][$fMod][$fType])->getItemName() != $this->mItemName && (empty($this->mItemMod) || current(self::$mQueries[$fItem][$fMod][$fType])->getMod() == $this->mItemMod)) {
-				array_push(self::$mQueries[$fItem][$fMod][$fType], array_shift(self::$mQueries[$fItem][$fMod][$fType]));
-			}
+			shuffle(self::$mQueries[$fItem][$fMod][$fType]);
 		}
 
 		$this->mRawArray = self::$mQueries[$fItem][$fMod][$fType];
@@ -242,7 +241,9 @@ class OreDict{
 		foreach ($keys as $key) {
 			$new[$key] = $array[$key];
 		}
-		if (!isset($new)) $new = array();
+		if (!isset($new)) {
+			$new = [];
+		}
 		$array = $new;
 		return true;
 	}
@@ -258,14 +259,15 @@ class OreDict{
 
 		$result = $dbr->select(
 			'ext_oredict_items',
-			'COUNT(entry_id) AS count',
+			'COUNT(entry_id) AS total',
 			[
 				'item_name' => $item,
 				'tag_name' => $tag,
 				'mod_name' => $mod
-			]
+			],
+			__METHOD__
 		);
-		return $result->current()->count != 0;
+		return $result->current()->total != 0;
 	}
 
 	/**
@@ -274,7 +276,16 @@ class OreDict{
 	 */
 	static public function checkExistsByID($id) {
 		$dbr = wfGetDB(DB_SLAVE);
-		$res = $dbr->select('ext_oredict_items', array('item_name', 'tag_name', 'mod_name'), array('entry_id' => $id));
+		$res = $dbr->select(
+			'ext_oredict_items',
+			array(
+				'item_name',
+				'tag_name',
+				'mod_name'
+			),
+			array('entry_id' => $id),
+			__METHOD__
+		);
 		$row = $res->current();
 		return OreDict::entryExists($row->item_name, $row->tag_name, $row->mod_name);
 	}
@@ -294,7 +305,11 @@ class OreDict{
 		$mod = $row->mod_name;
 		$target = empty($mod) || $mod == '' ? "$tag - $item" : "$tag - $item ($mod)";
 
-		$result = $dbw->delete('ext_oredict_items', array('entry_id' => $id));
+		$result = $dbw->delete(
+			'ext_oredict_items',
+			array('entry_id' => $id),
+			__METHOD__
+		);
 
 		$logEntry = new ManualLogEntry('oredict', 'delete');
 		$logEntry->setPerformer($user);
@@ -318,18 +333,26 @@ class OreDict{
 	static public function addEntry($mod, $name, $tag, $user, $params = '', $flags = OreDict::FLAG_DEFAULT) {
 		$dbw = wfGetDB(DB_MASTER);
 		$flags = intval($flags);
-		$result = $dbw->insert('ext_oredict_items', array(
-			'item_name' => $name,
-			'tag_name' => $tag,
-			'mod_name' => $mod,
-			'grid_params' => $params,
-			'flags' => $flags));
+
+		$result = $dbw->insert(
+			'ext_oredict_items',
+			[
+				'item_name' => $name,
+				'tag_name' => $tag,
+				'mod_name' => $mod,
+				'grid_params' => $params,
+				'flags' => $flags
+			],
+			__METHOD__
+		);
+
 		if ($result == false) {
 			return false;
 		}
+
 		$result = $dbw->select(
 			'ext_oredict_items',
-			'`entry_id` AS id',
+			['`entry_id` AS id'],
 			[],
 			__METHOD__,
 			[
@@ -338,7 +361,8 @@ class OreDict{
 			]
 		);
 		$lastInsert = intval($result->current()->id);
-		$target = $mod == "" ? "$tag - $name" : "$tag - $name ($mod)";
+		$target = ($mod == "" ? "$tag - $name" : "$tag - $name ($mod)");
+
 		// Start log
 		$logEntry = new ManualLogEntry('oredict', 'createentry');
 		$logEntry->setPerformer($user);
@@ -367,9 +391,19 @@ class OreDict{
 	 */
 	static public function editEntry($update, $id, $user) {
 		$dbw = wfGetDB(DB_MASTER);
-		$stuff = $dbw->select('ext_oredict_items', '*', array('entry_id' => $id));
+		$stuff = $dbw->select(
+			'ext_oredict_items',
+			array('*'),
+			array('entry_id' => $id),
+			__METHOD__
+		);
 		$row = $stuff->current();
-		$result = $dbw->update('ext_oredict_items', $update, array('entry_id' => $id));
+		$result = $dbw->update(
+			'ext_oredict_items',
+			$update,
+			array('entry_id' => $id),
+			__METHOD__
+		);
 
 		if ($result == false) {
 			return 1;
@@ -431,7 +465,7 @@ class OreDict{
 	}
 
 	/**
-	 * @param $row ?        The row to get the data from.
+	 * @param $row ?		The row to get the data from.
 	 * @return array		An array containing the tag, mod, item, grid params, and flags for use throughout the API.
 	 */
 	static public function getArrayFromRow($row) {
