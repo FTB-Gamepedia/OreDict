@@ -180,7 +180,7 @@ class OreDict{
 					__METHOD__
 				);
 
-				$tagNameList = array();
+				$tagNameList = [];
 
 				foreach ($subResult as $r) {
 					$tagNameList[] = $r->tag_name;
@@ -239,7 +239,7 @@ class OreDict{
 			$new[$key] = $array[$key];
 		}
 		if (!isset($new)) {
-			$new = array();
+			$new = [];
 		}
 		$array = $new;
 		return true;
