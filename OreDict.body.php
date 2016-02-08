@@ -218,9 +218,7 @@ class OreDict{
 
 		// Rotate results if not randomized
 		if (!($mfCtrl & $fType & OreDict::CTRL_RAND) && !$byTag) {
-			while (current(self::$mQueries[$fItem][$fMod][$fType])->getItemName() != $this->mItemName && (empty($this->mItemMod) || current(self::$mQueries[$fItem][$fMod][$fType])->getMod() == $this->mItemMod)) {
-				array_push(self::$mQueries[$fItem][$fMod][$fType], array_shift(self::$mQueries[$fItem][$fMod][$fType]));
-			}
+			shuffle(self::$mQueries[$fItem][$fMod][$fType]);
 		}
 
 		$this->mRawArray = self::$mQueries[$fItem][$fMod][$fType];
