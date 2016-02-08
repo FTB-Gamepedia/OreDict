@@ -148,20 +148,20 @@ class OreDict{
 
 				$result = $dbr->select(
 					"ext_oredict_items",
-					"*",
-					array(
+					["*"],
+					[
 						'tag_name' => $fItem,
 						"($fMod = '' OR mod_name = $fMod)",
 						"($mfTag & $fType & flags)",
 						"($mfCall & $fType & flags)",
 						"($mfDisp & $fType & flags)",
 						"NOT ($fDel & flags)"
-					),
+					],
 					__METHOD__,
-					array(
+					[
 						"ORDER BY" => $sRand,
 						"LIMIT" => $sLim,
-					)
+					]
 				);
 			} else {
 				OreDictError::notice("Querying the ore dictionary for Item = $fItem Mod = $fMod (Call type = $fType)");
@@ -169,14 +169,14 @@ class OreDict{
 
 				$subResult = $dbr->select(
 					"ext_oredict_items",
-					'tag_name',
-					array(
+					['tag_name'],
+					[
 						'item_name' => $fItem,
 						"($fMod = '' OR mod_name = $fMod)",
 						"($mfTag & $fType & flags)",
 						"($mfCall & $fType & flags)",
 						"NOT ($fDel & flags)"
-					),
+					],
 					__METHOD__
 				);
 
@@ -188,17 +188,17 @@ class OreDict{
 
 				$result = $dbr->select(
 					"ext_oredict_items",
-					"*",
-					array(
+					["*"],
+					[
 						'tag_name' => $tagNameList,
 						"($mfDisp & $fType & `flags`)",
 						"NOT($fDel & `flags`)"
-				 	),
+					],
 					__METHOD__,
-					array(
+					[
 						"ORDER BY" => $sRand,
 						"LIMIT" => $sLim,
-					)
+					]
 				);
 			}
 			//OreDictError::query($query);
@@ -462,7 +462,7 @@ class OreDict{
 	}
 
 	/**
-	 * @param $row ?        The row to get the data from.
+	 * @param $row ?		The row to get the data from.
 	 * @return array		An array containing the tag, mod, item, grid params, and flags for use throughout the API.
 	 */
 	static public function getArrayFromRow($row) {
