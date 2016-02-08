@@ -257,11 +257,11 @@ class OreDict{
 		$result = $dbr->select(
 			'ext_oredict_items',
 			'COUNT(entry_id) AS total',
-			array(
+			[
 				'item_name' => $item,
 				'tag_name' => $tag,
 				'mod_name' => $mod
-			),
+			],
 			__METHOD__
 		);
 		return $result->current()->total != 0;
@@ -333,13 +333,13 @@ class OreDict{
 
 		$result = $dbw->insert(
 			'ext_oredict_items',
-			array(
+			[
 				'item_name' => $name,
 				'tag_name' => $tag,
 				'mod_name' => $mod,
 				'grid_params' => $params,
 				'flags' => $flags
-			),
+			],
 			__METHOD__
 		);
 
@@ -349,13 +349,13 @@ class OreDict{
 
 		$result = $dbw->select(
 			'ext_oredict_items',
-			'`entry_id` AS id',
-			array(),
+			['`entry_id` AS id'],
+			[],
 			__METHOD__,
-			array(
+			[
 				'ORDER BY' => '`entry_id` DESC',
 				"LIMIT" => 1
-			)
+			]
 		);
 		$lastInsert = intval($result->current()->id);
 		$target = ($mod == "" ? "$tag - $name" : "$tag - $name ($mod)");
