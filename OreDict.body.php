@@ -185,15 +185,18 @@ class OreDict{
 				foreach ($subResult as $r) {
 					$tagNameList[] = $r->tag_name;
 				}
+				$where = [
+					"($mfDisp & $fType & `flags`)",
+					"NOT($fDel & `flags`)"
+				];
+				if (!empty($tagNameList)) {
+					$where['tag_name'] = $tagNameList;
+				}
 
 				$result = $dbr->select(
 					"ext_oredict_items",
 					["*"],
-					[
-						'tag_name' => $tagNameList,
-						"($mfDisp & $fType & `flags`)",
-						"NOT($fDel & `flags`)"
-					],
+					$where,
 					__METHOD__,
 					[
 						"ORDER BY" => $sRand,
