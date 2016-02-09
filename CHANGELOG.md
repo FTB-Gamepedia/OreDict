@@ -3,6 +3,9 @@ This changelog only shows recent version history, because of the lack of documen
 
 ## Version 2
 ### 2.0.0
+* Fix OreDict entry shuffling and page loading issues related to that.
+* Database sanitization issues that could later turn into security holes.
+* Some general code style clean up.
 * Fix OreDictList database error and limit error (#27).
 * Fix some database queries resulted in 0 rows in exec (#dict) (#26).
 * Implement a web API with the following (#1):
