@@ -124,8 +124,7 @@ class OreDict{
 		$fDel = OreDict::FLAG_DEL;
 
 		// Vars
-		$fItem = $dbr->addQuotes($this->mItemName); // This will be tag name if mode is call by tag
-		$fMod = $dbr->addQuotes($this->mItemMod);
+		$itemModEscaped = $dbr->addQuotes($this->mItemMod);
 		$fType = $this->mCallType;
 
 		$sLim = $this->mOutputLimit;
@@ -137,21 +136,20 @@ class OreDict{
 
 		// Generate dummy entry
 		if ($fType == 0x00) {
-			self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
+			self::$mQueries[$this->mItemName][$this->mItemMod][$fType][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
 		}
 
 		// Query database
-		if (!isset(self::$mQueries[$fItem][$fMod][$fType])) {
+		if (!isset(self::$mQueries[$this->mItemName][$this->mItemMod][$fType])) {
 			if ($byTag) {
-				OreDictError::notice("Querying the ore dictionary for Tag = $fItem Mod = $fMod (Call type = $fType)");
-				//$query = "SELECT * FROM $fTableName WHERE `tag_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
+				OreDictError::notice("Querying the ore dictionary for Tag = $this->mItemName Mod = $this->mItemMod (Call type = $fType)");
 
 				$result = $dbr->select(
 					"ext_oredict_items",
 					["*"],
 					[
-						'tag_name' => $fItem,
-						"($fMod = '' OR mod_name = $fMod)",
+						'tag_name' => $this->mItemName,
+						"($itemModEscaped = '' OR mod_name = $itemModEscapedd)",
 						"($mfTag & $fType & flags)",
 						"($mfCall & $fType & flags)",
 						"($mfDisp & $fType & flags)",
@@ -164,15 +162,14 @@ class OreDict{
 					]
 				);
 			} else {
-				OreDictError::notice("Querying the ore dictionary for Item = $fItem Mod = $fMod (Call type = $fType)");
-				//$query = "SELECT * FROM $fTableName WHERE `tag_name` IN (SELECT `tag_name` FROM $fTableName WHERE `item_name` = $fItem AND ($fMod = '' OR `mod_name` = $fMod) AND ($mfTag & $fType & `flags`) AND ($mfCall & $fType & `flags`) AND NOT($fDel & `flags`)) AND ($mfDisp & $fType & `flags`) AND NOT($fDel & `flags`) $sRand $sLim";
+				OreDictError::notice("Querying the ore dictionary for Item = $this->mItemName Mod = $this->mItemMod (Call type = $fType)");
 
 				$subResult = $dbr->select(
 					"ext_oredict_items",
 					['tag_name'],
 					[
-						'item_name' => $fItem,
-						"($fMod = '' OR mod_name = $fMod)",
+						'item_name' => $this->mItemName,
+						"($itemModEscaped = '' OR mod_name = $itemModEscaped)",
 						"($mfTag & $fType & flags)",
 						"($mfCall & $fType & flags)",
 						"NOT ($fDel & flags)"
@@ -207,11 +204,11 @@ class OreDict{
 			//OreDictError::query($query);
 			//$result = $dbr->query($query);
 			foreach ($result as $row) {
-				self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($row);
+				self::$mQueries[$this->mItemName][$this->mItemMod][$fType][] = new OreDictItem($row);
 			}
 
-			if (!isset(self::$mQueries[$fItem][$fMod][$fType])) {
-				self::$mQueries[$fItem][$fMod][$fType][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
+			if (!isset(self::$mQueries[$this->mItemName][$this->mItemMod][$fType])) {
+				self::$mQueries[$this->mItemName][$this->mItemMod][$fType][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
 				OreDictError::notice("OreDict returned an empty set (i.e. 0 rows)! Using provided params as is. Suppressing future identical warnings.");
 			} else {
 				$rows = $result->numRows();
@@ -221,10 +218,10 @@ class OreDict{
 
 		// Rotate results if not randomized
 		if (!($mfCtrl & $fType & OreDict::CTRL_RAND) && !$byTag) {
-			shuffle(self::$mQueries[$fItem][$fMod][$fType]);
+			shuffle(self::$mQueries[$this->mItemName][$this->mItemMod][$fType]);
 		}
 
-		$this->mRawArray = self::$mQueries[$fItem][$fMod][$fType];
+		$this->mRawArray = self::$mQueries[$this->mItemName][$this->mItemMod][$fType];
 		return true;
 	}
 
