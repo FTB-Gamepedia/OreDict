@@ -150,7 +150,7 @@ class OreDict{
 					"ext_oredict_items",
 					["*"],
 					[
-						'tag_name' => $fItem,
+						"tag_name = $fItem",
 						"($fMod = '' OR mod_name = $fMod)",
 						"($mfTag & $fType & flags)",
 						"($mfCall & $fType & flags)",
@@ -171,7 +171,7 @@ class OreDict{
 					"ext_oredict_items",
 					['tag_name'],
 					[
-						'item_name' => $fItem,
+						"item_name = $fItem",
 						"($fMod = '' OR mod_name = $fMod)",
 						"($mfTag & $fType & flags)",
 						"($mfCall & $fType & flags)",
