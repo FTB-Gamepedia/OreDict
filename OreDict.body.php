@@ -149,7 +149,7 @@ class OreDict{
 					["*"],
 					[
 						'tag_name' => $this->mItemName,
-						"($itemModEscaped = '' OR mod_name = $itemModEscapedd)",
+						"($itemModEscaped = '' OR mod_name = $itemModEscaped)",
 						"($mfTag & $fType & flags)",
 						"($mfCall & $fType & flags)",
 						"($mfDisp & $fType & flags)",
