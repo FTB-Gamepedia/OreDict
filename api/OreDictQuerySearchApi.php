@@ -30,6 +30,11 @@ class OreDictQuerySearchApi extends ApiQueryBase {
                 ApiBase::PARAM_TYPE => 'string',
                 ApiBase::PARAM_DFLT => '',
             ),
+            'offset' => array(
+                ApiBase::PARAM_TYPE => 'integer',
+                ApiBase::PARAM_DFLT => 0,
+                ApiBase::PARAM_MIN => 0,
+            )
         );
     }
 
@@ -40,6 +45,7 @@ class OreDictQuerySearchApi extends ApiQueryBase {
             'mod' => 'Restricts results to this mod',
             'tag' => 'Restricts results to this tag name',
             'name' => 'Restricts results to this item name',
+            'offset' => 'The query offset, like a continue param.'
         );
     }
 
@@ -60,6 +66,7 @@ class OreDictQuerySearchApi extends ApiQueryBase {
         $mod = $this->getParameter('mod');
         $name = $this->getParameter('name');
         $limit = $this->getParameter('limit');
+        $offset = $this->getParameter('offset');
         $dbr = wfGetDB(DB_SLAVE);
 
         $conditions = array();
@@ -80,18 +87,31 @@ class OreDictQuerySearchApi extends ApiQueryBase {
             'ext_oredict_items',
             '*',
             $conditions,
-            __METHOD__,
-            array('LIMIT' => $limit)
+            __METHOD__
         );
 
         $ret = array();
 
+        $i = 0;
+        $more = $results->numRows() - $offset > $limit;
         if ($results->numRows() > 0) {
             foreach ($results as $row) {
-                $ret[] = OreDict::getArrayFromRow($row);
+                if ($i < $offset) {
+                    $i++;
+                    continue;
+                }
+                if (count($ret) < $limit) {
+                    $i++;
+                    $ret[] = OreDict::getArrayFromRow($row);
+                }
             }
         }
 
+        if ($more) {
+            $this->getResult()->addValue('continue', 'offset', $i);
+        }
+
+        $this->getResult()->addValue('query', 'totalhits', $results->numRows());
         $this->getResult()->addValue('query', 'oredictentries', $ret);
     }
 }
