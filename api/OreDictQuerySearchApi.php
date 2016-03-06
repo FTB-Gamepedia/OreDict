@@ -62,58 +62,33 @@ class OreDictQuerySearchApi extends ApiQueryBase {
         $limit = $this->getParameter('limit');
         $dbr = wfGetDB(DB_SLAVE);
 
-        $resultPrefix = $dbr->select(
+        $conditions = array();
+        if ($prefix != '') {
+            $conditions[] = 'item_name BETWEEN ' . $dbr->addQuotes($prefix) . " AND 'zzzzzzzzz'";
+        }
+        if ($tag != '') {
+            $conditions['tag_name'] = $tag;
+        }
+        if ($mod != '') {
+            $conditions['mod_name'] = $mod;
+        }
+        if ($name != '') {
+            $conditions['item_name'] = $name;
+        }
+
+        $results = $dbr->select(
             'ext_oredict_items',
             '*',
-            array('item_name BETWEEN '.$dbr->addQuotes($prefix)." AND 'zzzzzzzz'"),
-            __METHOD__,
-            array('LIMIT' => $limit)
-        );
-        $resultTag = $dbr->select(
-            'ext_oredict_items',
-            '*',
-            array('tag_name' => $tag),
-            __METHOD__,
-            array('LIMIT' => $limit)
-        );
-        $resultMod = $dbr->select(
-            'ext_oredict_items',
-            '*',
-            array('mod_name' => $mod),
-            __METHOD__,
-            array('Limit' => $limit)
-        );
-        $resultName = $dbr->select(
-            'ext_oredict_items',
-            '*',
-            array('item_name' => $name),
+            $conditions,
             __METHOD__,
             array('LIMIT' => $limit)
         );
 
         $ret = array();
 
-        if ($resultTag->numRows() > 0) {
-            foreach ($resultTag as $row) {
-                $ret[$row->entry_id] = OreDict::getArrayFromRow($row);
-            }
-        }
-
-        if ($resultMod->numRows() > 0) {
-            foreach ($resultMod as $row) {
-                $ret[$row->entry_id] = OreDict::getArrayFromRow($row);
-            }
-        }
-
-        if ($resultName->numRows() > 0) {
-            foreach ($resultName as $row) {
-                $ret[$row->entry_id] = OreDict::getArrayFromRow($row);
-            }
-        }
-
-        if ($resultPrefix->numRows() > 0) {
-            foreach ($resultPrefix as $row) {
-                $ret[$row->entry_id] = OreDict::getArrayFromRow($row);
+        if ($results->numRows() > 0) {
+            foreach ($results as $row) {
+                $ret[] = OreDict::getArrayFromRow($row);
             }
         }
 

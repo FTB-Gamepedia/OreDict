@@ -472,6 +472,7 @@ class OreDict{
 			'item_name' => $row->item_name,
 			'grid_params' => $row->grid_params,
 			'flags' => $row->flags,
+			'id' => $row->entry_id
 		);
 	}
 }

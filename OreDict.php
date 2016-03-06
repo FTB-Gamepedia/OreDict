@@ -40,7 +40,7 @@ $wgAPIModules['editoredict'] = 'OreDictEditEntryApi';
 $wgAutoloadClasses['OreDictQueryEntryApi'] = __DIR__ . '/api/OreDictQueryEntryApi.php';
 $wgAPIPropModules['oredictentry'] = 'OreDictQueryEntryApi';
 $wgAutoloadClasses['OreDictQuerySearchApi'] = __DIR__ . '/api/OreDictQuerySearchApi.php';
-$wgApiListClasses['oredictsearch'] = 'OreDictQuerySearchApi';
+$wgAPIListModules['oredictsearch'] = 'OreDictQuerySearchApi';
 
 $wgAutoloadClasses['OreDict'] = dirname(__FILE__)."/OreDict.body.php";
 $wgAutoloadClasses['OreDictItem'] = dirname(__FILE__)."/OreDict.body.php";
