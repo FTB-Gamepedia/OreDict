@@ -1,7 +1,9 @@
 {
 	"@metadata": {
 		"authors": [
-			"Jinbobo <paullee05149745@gmail.com>\r"
+			"Jinbobo <paullee05149745@gmail.com>\r",
+			"Eli Foster <elifosterwy@gmail.com>",
+			"Eric Schneider (Xbony2)"
 		]
 	},
 	"oredictentrymanager": "Entry Manager",
