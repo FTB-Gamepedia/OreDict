@@ -2,6 +2,16 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 2
+### 2.0.1
+* New offset parameter in oredictsearch for continuation (#34).
+* oredictsearch no longer sorts by entry ID as the key; it is now an array of hashes.
+* oredictentry and oredictsearch now return the entry ID with the rest of the data.
+* Fix oredictsearch registration in the entry point (not the extension.json)
+* Improve oredictsearch API query.
+* Fix oredictsearch limit issues (#35).
+* Fix oredictsearch
+* Clean up database things and improve security.
+
 ### 2.0.0
 * Fix OreDict entry shuffling and page loading issues related to that.
 * Database sanitization issues that could later turn into security holes.

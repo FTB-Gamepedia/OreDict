@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @version 2.0.0
+ * @version 2.0.1
  * @author Jinbobo <paullee05149745@gmail.com>
  * @license
  */
@@ -18,7 +18,7 @@ $wgExtensionCredits['parserhooks'][] = array(
 	'path' => __FILE__,
 	'name' => 'OreDict',
 	'descriptionmsg' => 'oredict-desc',
-	'version' => '2.0.0',
+	'version' => '2.0.1',
 	'author' => '[http://ftb.gamepedia.com/User:Jinbobo Jinbobo], Telshin, [http://ftb.gamepedia.com/User:Retep998 Retep998], [http://ftb.gamepedia.com/User:TheSatanicSanta SatanicSanta], noahm',
 	'url' => 'http://help.gamepedia.com/Extension:OreDict'
 );
@@ -40,7 +40,7 @@ $wgAPIModules['editoredict'] = 'OreDictEditEntryApi';
 $wgAutoloadClasses['OreDictQueryEntryApi'] = __DIR__ . '/api/OreDictQueryEntryApi.php';
 $wgAPIPropModules['oredictentry'] = 'OreDictQueryEntryApi';
 $wgAutoloadClasses['OreDictQuerySearchApi'] = __DIR__ . '/api/OreDictQuerySearchApi.php';
-$wgApiListClasses['oredictsearch'] = 'OreDictQuerySearchApi';
+$wgAPIListModules['oredictsearch'] = 'OreDictQuerySearchApi';
 
 $wgAutoloadClasses['OreDict'] = dirname(__FILE__)."/OreDict.body.php";
 $wgAutoloadClasses['OreDictItem'] = dirname(__FILE__)."/OreDict.body.php";

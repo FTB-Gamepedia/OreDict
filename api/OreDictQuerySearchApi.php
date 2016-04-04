@@ -30,6 +30,11 @@ class OreDictQuerySearchApi extends ApiQueryBase {
                 ApiBase::PARAM_TYPE => 'string',
                 ApiBase::PARAM_DFLT => '',
             ),
+            'offset' => array(
+                ApiBase::PARAM_TYPE => 'integer',
+                ApiBase::PARAM_DFLT => 0,
+                ApiBase::PARAM_MIN => 0,
+            )
         );
     }
 
@@ -40,6 +45,7 @@ class OreDictQuerySearchApi extends ApiQueryBase {
             'mod' => 'Restricts results to this mod',
             'tag' => 'Restricts results to this tag name',
             'name' => 'Restricts results to this item name',
+            'offset' => 'The query offset, like a continue param.'
         );
     }
 
@@ -60,63 +66,52 @@ class OreDictQuerySearchApi extends ApiQueryBase {
         $mod = $this->getParameter('mod');
         $name = $this->getParameter('name');
         $limit = $this->getParameter('limit');
+        $offset = $this->getParameter('offset');
         $dbr = wfGetDB(DB_SLAVE);
 
-        $resultPrefix = $dbr->select(
+        $conditions = array();
+        if ($prefix != '') {
+            $conditions[] = 'item_name BETWEEN ' . $dbr->addQuotes($prefix) . " AND 'zzzzzzzzz'";
+        }
+        if ($tag != '') {
+            $conditions['tag_name'] = $tag;
+        }
+        if ($mod != '') {
+            $conditions['mod_name'] = $mod;
+        }
+        if ($name != '') {
+            $conditions['item_name'] = $name;
+        }
+
+        $results = $dbr->select(
             'ext_oredict_items',
             '*',
-            array('item_name BETWEEN '.$dbr->addQuotes($prefix)." AND 'zzzzzzzz'"),
-            __METHOD__,
-            array('LIMIT' => $limit)
-        );
-        $resultTag = $dbr->select(
-            'ext_oredict_items',
-            '*',
-            array('tag_name' => $tag),
-            __METHOD__,
-            array('LIMIT' => $limit)
-        );
-        $resultMod = $dbr->select(
-            'ext_oredict_items',
-            '*',
-            array('mod_name' => $mod),
-            __METHOD__,
-            array('Limit' => $limit)
-        );
-        $resultName = $dbr->select(
-            'ext_oredict_items',
-            '*',
-            array('item_name' => $name),
-            __METHOD__,
-            array('LIMIT' => $limit)
+            $conditions,
+            __METHOD__
         );
 
         $ret = array();
 
-        if ($resultTag->numRows() > 0) {
-            foreach ($resultTag as $row) {
-                $ret[$row->entry_id] = OreDict::getArrayFromRow($row);
+        $i = 0;
+        $more = $results->numRows() - $offset > $limit;
+        if ($results->numRows() > 0) {
+            foreach ($results as $row) {
+                if ($i < $offset) {
+                    $i++;
+                    continue;
+                }
+                if (count($ret) < $limit) {
+                    $i++;
+                    $ret[] = OreDict::getArrayFromRow($row);
+                }
             }
         }
 
-        if ($resultMod->numRows() > 0) {
-            foreach ($resultMod as $row) {
-                $ret[$row->entry_id] = OreDict::getArrayFromRow($row);
-            }
+        if ($more) {
+            $this->getResult()->addValue('continue', 'offset', $i);
         }
 
-        if ($resultName->numRows() > 0) {
-            foreach ($resultName as $row) {
-                $ret[$row->entry_id] = OreDict::getArrayFromRow($row);
-            }
-        }
-
-        if ($resultPrefix->numRows() > 0) {
-            foreach ($resultPrefix as $row) {
-                $ret[$row->entry_id] = OreDict::getArrayFromRow($row);
-            }
-        }
-
+        $this->getResult()->addValue('query', 'totalhits', $results->numRows());
         $this->getResult()->addValue('query', 'oredictentries', $ret);
     }
 }
