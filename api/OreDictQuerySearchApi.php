@@ -30,10 +30,10 @@ class OreDictQuerySearchApi extends ApiQueryBase {
                 ApiBase::PARAM_TYPE => 'string',
                 ApiBase::PARAM_DFLT => '',
             ),
-            'offset' => array(
+            'from' => array(
                 ApiBase::PARAM_TYPE => 'integer',
-                ApiBase::PARAM_DFLT => 0,
                 ApiBase::PARAM_MIN => 0,
+                ApiBase::PARAM_DFLT => 0,
             )
         );
     }
@@ -45,7 +45,7 @@ class OreDictQuerySearchApi extends ApiQueryBase {
             'mod' => 'Restricts results to this mod',
             'tag' => 'Restricts results to this tag name',
             'name' => 'Restricts results to this item name',
-            'offset' => 'The query offset, like a continue param.'
+            'from' => 'The entry ID to start listing at.',
         );
     }
 
@@ -66,10 +66,13 @@ class OreDictQuerySearchApi extends ApiQueryBase {
         $mod = $this->getParameter('mod');
         $name = $this->getParameter('name');
         $limit = $this->getParameter('limit');
-        $offset = $this->getParameter('offset');
+        $from = $this->getParameter('from');
         $dbr = wfGetDB(DB_SLAVE);
 
-        $conditions = array();
+        $conditions = array(
+            "entry_id >= $from"
+        );
+
         if ($prefix != '') {
             $conditions[] = 'item_name BETWEEN ' . $dbr->addQuotes($prefix) . " AND 'zzzzzzzzz'";
         }
@@ -87,28 +90,22 @@ class OreDictQuerySearchApi extends ApiQueryBase {
             'ext_oredict_items',
             '*',
             $conditions,
-            __METHOD__
+            __METHOD__,
+            array(
+                'LIMIT' => $limit + 1,
+            )
         );
 
         $ret = array();
 
-        $i = 0;
-        $more = $results->numRows() - $offset > $limit;
-        if ($results->numRows() > 0) {
-            foreach ($results as $row) {
-                if ($i < $offset) {
-                    $i++;
-                    continue;
-                }
-                if (count($ret) < $limit) {
-                    $i++;
-                    $ret[] = OreDict::getArrayFromRow($row);
-                }
+        $count = 0;
+        foreach ($results as $res) {
+            $count++;
+            if ($count > $limit) {
+                $this->setContinueEnumParameter('from', $res->entry_id);
+                break;
             }
-        }
-
-        if ($more) {
-            $this->getResult()->addValue('continue', 'offset', $i);
+            $ret[] = OreDict::getArrayFromRow($res);
         }
 
         $this->getResult()->addValue('query', 'totalhits', $results->numRows());
