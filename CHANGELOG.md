@@ -2,6 +2,9 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 2
+### 2.1.0
+* Use query continue API for the OreDictSearch query API (#38)
+
 ### 2.0.1
 * New offset parameter in oredictsearch for continuation (#34).
 * oredictsearch no longer sorts by entry ID as the key; it is now an array of hashes.
