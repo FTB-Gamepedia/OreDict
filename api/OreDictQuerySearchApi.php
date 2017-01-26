@@ -38,21 +38,6 @@ class OreDictQuerySearchApi extends ApiQueryBase {
         );
     }
 
-    public function getParamDescription() {
-        return array(
-            'limit' => 'The maximum number of entries to list',
-            'prefix' => 'Restricts results to those that have a tag alphabetically after the prefix',
-            'mod' => 'Restricts results to this mod',
-            'tag' => 'Restricts results to this tag name',
-            'name' => 'Restricts results to this item name',
-            'from' => 'The entry ID to start listing at.',
-        );
-    }
-
-    public function getDescription() {
-        return 'Searches for OreDict entries that meet specific criteria defined by the optional parameters';
-    }
-
     public function getExamples() {
         return array(
             'api.php?action=query&list=oredictsearch&odmod=V&odtag=logWood',

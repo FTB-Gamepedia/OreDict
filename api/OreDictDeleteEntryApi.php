@@ -34,17 +34,6 @@ class OreDictDeleteEntryApi extends ApiBase {
         return true;
     }
 
-    public function getParamDescription() {
-        return array(
-            'ids' => 'A list of IDS to delete separated by pipe characters',
-            'token' => 'The edit token',
-        );
-    }
-
-    public function getDescription() {
-        return 'Deletes an OreDict entry from the table by its ID';
-    }
-
     public function getExamples() {
         return array(
             'api.php?action=deleteoredict&odids=1|2|3',

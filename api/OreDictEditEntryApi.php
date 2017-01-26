@@ -31,22 +31,6 @@ class OreDictEditEntryApi extends ApiBase {
         );
     }
 
-    public function getParamDescription() {
-        return array(
-            'token' => 'The edit token for the user',
-            'mod' => 'The new mod abbreviation for the entry',
-            'tag' => 'The new tag name for the entry',
-            'item' => 'The new item name for the entry',
-            'params' => 'The new grid parameters for the entry',
-            'flags' => 'The new flags for the entry',
-            'id' => 'The entry ID, to determine which entry to update',
-        );
-    }
-
-    public function getDescription() {
-        return 'Updates the mod, tag, name, params, and/or flags for a given entry';
-    }
-
     public function needsToken() {
         return 'csrf';
     }

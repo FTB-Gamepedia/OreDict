@@ -17,16 +17,6 @@ class OreDictQueryEntryApi extends ApiQueryBase {
         );
     }
 
-    public function getParamDescription() {
-        return array(
-            'ids' => 'The IDs to get. Allows multiple IDs separated by a pipe character.',
-        );
-    }
-
-    public function getDescription() {
-        return 'Get OreDict entry data.';
-    }
-
     public function getExamples() {
         return array(
             'api.php?action=query&prop=oredictentry&odids=1|2|3|4',

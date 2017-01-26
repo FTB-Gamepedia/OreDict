@@ -47,21 +47,6 @@ class OreDictAddEntryApi extends ApiBase {
         return true;
     }
 
-    public function getParamDescription() {
-        return array(
-            'mod' => 'The mod abbreviation for the new entry',
-            'tag' => 'The tag name for the new entry',
-            'item' => 'The item name for the new entry',
-            'params' => 'The grid parameters for the new entry',
-            'flags' => 'The flags for the new entry',
-            'token' => 'The edit token',
-        );
-    }
-
-    public function getDescription() {
-        return 'Creates a new OreDict entry.';
-    }
-
     public function getExamples() {
         return array(
             'api.php?action=neworedict&odmod=V&odtag=logWood&oditem=Oak Wood Log',
