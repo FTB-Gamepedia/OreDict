@@ -25,6 +25,7 @@
 	"oredict-import-fail-nochange": "Entry already exists and no changes were made!",
 	"oredict-import-fail-exists": "Entry already exists!",
 	"oredict-import-fail-insert": "Insert failed!",
+	"oredict-import-comment": "Importing entries.",
 	"oredict-tag-name": "Ore dictionary name",
 	"oredict-item-name": "Item name",
 	"oredict-mod-name": "Mod name",

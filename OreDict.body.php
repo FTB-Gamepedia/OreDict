@@ -371,7 +371,7 @@ class OreDict{
 			"7::mod" => $mod,
 			"8::params" => $params,
 			"9::flags" => sprintf("0x%03X (0b%09b)",$flags,$flags)));
-		$logEntry->setComment("Importing entries.");
+		$logEntry->setComment(wfMessage('oredict-import-comment')->text());
 		$logId = $logEntry->insert();
 		$logEntry->publish($logId);
 		// End log
