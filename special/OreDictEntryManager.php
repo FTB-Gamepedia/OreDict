@@ -76,10 +76,10 @@ class OreDictEntryManager extends SpecialPage {
 		$results = $dbr->select('ext_oredict_items','*',array('entry_id' => $opts->getValue('entry_id')));
 
 		if ($results->numRows() == 0 && $opts->getValue('entry_id') != -1 && $opts->getValue('entry_id') != -2) {
-			$out->addWikitext('Query returned an empty set (i.e. zero rows).');
+			$out->addWikiText(wfMessage('oredict-manager-fail-norows')->text());
 			// $out->addHtml($this->outputUpdateForm());
 		} else if ($opts->getValue('entry_id') == -2) {
-			$out->addWikitext('Insert failed!');
+			$out->addWikiText(wfMessage('oredict-manager-fail-insert')->text());
 			$out->addHtml($this->outputUpdateForm());
 		} else if ($results->numRows() == 1) {
 			$out->addHtml($this->outputUpdateForm($results->current()));

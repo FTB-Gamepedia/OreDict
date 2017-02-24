@@ -60,6 +60,8 @@
 	"oredict-manager-update": "Save",
 	"oredict-manager-create": "Create",
 	"oredict-manager-submit": "Go",
+	"oredict-manager-fail-insert": "Insert failed!",
+	"oredict-manager-fail-norows": "Query returned empty set (i.e., zero rows).",
 	"log-name-oredict": "OreDict log",
 	"log-description-oredict": "Here you can find a list of changes made to OreDict entries.",
 	"logentry-oredict-editentry": "$1 edited entry #$15 ($7{{#if:$8|&nbsp;from $8}}). Changes: $4;",
