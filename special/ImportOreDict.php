@@ -206,10 +206,10 @@ class ImportOreDict extends SpecialPage {
 	private function returnMessage($state, $message) {
 		if ($state) {
 			$bgColor = 'green';
-			$resultMsg = wfMessage('oredict-import-success');
+			$resultMsg = wfMessage('oredict-import-success')->text();
 		} else {
 			$bgColor = 'red';
-			$resultMsg = wfMessage('oredict-import-fail');
+			$resultMsg = wfMessage('oredict-import-fail')->text();
 		}
 
 		return "<span style=\"background-color: $bgColor; font-weight: bold; color: white;\">$resultMsg</span> $message<br />";
