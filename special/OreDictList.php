@@ -123,7 +123,8 @@ class OreDictList extends SpecialPage {
 			$table .= "|-\n";
 			// Check user rights
 			if ($canEdit) {
-				$editLink = "[[Special:OreDictEntryManager/$lId|Edit]]";
+				$msgEdit = wfMessage('oredict-list-edit')->text();
+				$editLink = "[[Special:OreDictEntryManager/$lId|$msgEdit]]";
 			} else {
 				$editLink = "";
 			}
@@ -137,31 +138,33 @@ class OreDictList extends SpecialPage {
 		$lPage = max(floor(($maxRows - 1) / $limit), 0);
 		$settings = 'start='.$start.'&mod='.$mod.'&limit='.$limit.'&tag='.$tag.'&from='.$from;
 		if ($page == 0) {
-			$prevPage = "'''First Page'''";
+			$prevPage = "'''" . wfMessage('oredict-list-first')->text() . "'''";
 		} else {
+			$firstPageArrow = wfMessage('oredict-list-first-arrow')->text();
 			if ($page == 1) {
-				$prevPage = '[{{fullurl:{{FULLPAGENAME}}|'.$settings.'}} &laquo; First Page]';
+				$prevPage = '[{{fullurl:{{FULLPAGENAME}}|'.$settings.'}} ' . $firstPageArrow . ']';
 			} else {
 				$prevPage = '[{{fullurl:{{FULLPAGENAME}}|'.$settings.
-					"}} &laquo; First Page] [{{fullurl:{{FULLPAGENAME}}|page={$pPage}&".$settings.
-					'}} &lsaquo; Previous Page]';
+					"}} $firstPageArrow] [{{fullurl:{{FULLPAGENAME}}|page={$pPage}&".$settings.
+					'}} ' . wfMessage('oredict-list-prev')->text() . ']';
 			}
 		}
 		if ($lPage == $page) {
-			$nextPage = "'''Last Page'''";
+			$nextPage = "'''" . wfMessage('oredict-list-last')->text() . "'''";
 		} else {
+			$lastPageArrow = wfMessage('oredict-list-last-arrow')->text();
 			if ($lPage == $page + 1) {
-				$nextPage = "[{{fullurl:{{FULLPAGENAME}}|page={$nPage}&".$settings.'}} Last Page &raquo;]';
+				$nextPage = "[{{fullurl:{{FULLPAGENAME}}|page={$nPage}&".$settings.'}} ' . $lastPageArrow . ']';
 			} else {
 				$nextPage = "[{{fullurl:{{FULLPAGENAME}}|page={$nPage}&".$settings.
-					"}} Next Page &rsaquo;] [{{fullurl:{{FULLPAGENAME}}|page={$lPage}&".$settings.
-					'}} Last Page &raquo;]';
+					'}} ' . wfMessage('oredict-list-next')->text() . "] [{{fullurl:{{FULLPAGENAME}}|page={$lPage}&".$settings.
+					'}} ' . $lastPageArrow . ']';
 			}
 		}
 		$pageSelection = '<div style="text-align:center;" class="plainlinks">'.$prevPage.' | '.$nextPage.'</div>';
 
 		$out->addHtml($this->buildForm($opts));
-		$out->addWikitext('Displaying entries from #'.$begin.' to #'.$end.' out of #'.$maxRows.' total.'." $pageSelection\n");
+		$out->addWikiText(wfMessage('oredict-list-displaying', $begin, $end, $maxRows)->text() . " $pageSelection\n");
 		$out->addWikitext($table);
 
 		// Add modules
