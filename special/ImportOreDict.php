@@ -72,7 +72,7 @@ class ImportOreDict extends SpecialPage {
 					$p[$key] = trim($opt);
 				}
 				if (count($p) != 5) {
-					$out->addHTML($this->returnMessage(false, "Input is in an unrecognized format: $line."));
+					$out->addHTML($this->returnMessage(false, wfMessage('oredict-import-fail-format', $line)->text()));
 					continue;
 				}
 				$tagName = $p[0];
@@ -116,7 +116,7 @@ class ImportOreDict extends SpecialPage {
 							$diffString .= "$field [$change[0] -> $change[1]] ";
 						}
 						if ($diffString == "" || count($diff) == 0) {
-							$out->addHTML($this->returnMessage(false, "Entry already exists and no changes were made!"));
+							$out->addHTML($this->returnMessage(false, wfMessage('oredict-import-fail-nochange')->text()));
 							continue; // No change
 						}
 
@@ -131,22 +131,22 @@ class ImportOreDict extends SpecialPage {
 						// End log
 
 						$dbw->update('ext_oredict_items', array('grid_params' => $params, 'flags' => $flags), array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName));
-						$out->addHTML($this->returnMessage(true, "Successfully updated entry!"));
+						$out->addHTML($this->returnMessage(true, wfMessage('oredict-import-success-update')->text()));
 						continue;
 					} else {
 						// Otherwise display error
-						$out->addHTML($this->returnMessage(false, "Entry already exists!"));
+						$out->addHTML($this->returnMessage(false, wfMessage('oredict-import-fail-exists')->text()));
 						continue;
 					}
 				}
 				// Add entry
 				$result = OreDict::addEntry($modName, $itemName, $tagName, $this->getUser(), $params, $flags);
 				if ($result == false) {
-					$out->addHTML($this->returnMessage(false, "Insert failed!"));
+					$out->addHTML($this->returnMessage(false, wfMessage('oredict-import-fail-insert')->text()));
 					continue;
 				}
 
-				$out->addHTML($this->returnMessage(true, "Successfully inserted entry to ID: $result!"));
+				$out->addHTML($this->returnMessage(true, wfMessage('oredict-import-success-new', $result)->text()));
 			}
 			$out->addHtml('</tt>');
 		} else {
@@ -203,13 +203,15 @@ class ImportOreDict extends SpecialPage {
 	 * @param string $message Message to display
 	 * @return string
 	 */
-
 	private function returnMessage($state, $message) {
 		if ($state) {
-			$out = '<span style="background-color:green; font-weight:bold; color:white;">SUCCESS</span> '.$message."<br />";
+			$bgColor = 'green';
+			$resultMsg = wfMessage('oredict-import-success');
 		} else {
-			$out = '<span style="background-color:red; font-weight:bold; color:white;">FAIL</span> '.$message."<br />";
+			$bgColor = 'red';
+			$resultMsg = wfMessage('oredict-import-fail');
 		}
-		return $out;
+
+		return "<span style=\"background-color: $bgColor; font-weight: bold; color: white;\">$resultMsg</span> $message<br />";
 	}
 }
