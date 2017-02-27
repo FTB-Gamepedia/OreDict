@@ -23,10 +23,6 @@ class OreDictAddEntryApi extends ApiBase {
                 ApiBase::PARAM_TYPE => 'string',
                 ApiBase::PARAM_DFLT => '',
             ),
-            'flags' => array(
-                ApiBase::PARAM_TYPE => 'integer',
-                ApiBase::PARAM_DFLT => OreDict::FLAG_DEFAULT,
-            ),
             'token' => null,
         );
     }
@@ -62,10 +58,9 @@ class OreDictAddEntryApi extends ApiBase {
         $item = $this->getParameter('item');
         $tag = $this->getParameter('tag');
         $params = $this->getParameter('params');
-        $flags = $this->getParameter('flags');
 
         if (!OreDict::entryExists($item, $tag, $mod)) {
-            $result = OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params, $flags);
+            $result = OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params);
             $ret = array('result' => $result);
             $this->getResult()->addValue('edit', 'neworedict', $ret);
         } else {

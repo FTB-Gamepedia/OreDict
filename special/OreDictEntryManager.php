@@ -43,8 +43,6 @@ class OreDictEntryManager extends SpecialPage {
 		$opts->add( 'item_name', '' );
 		$opts->add( 'mod_name', '' );
 		$opts->add( 'grid_params', '' );
-		$opts->add( 'flags', 0 );
-		$opts->add( 'orig_flags', 0);
 		$opts->add( 'update', 0 );
 
 		$opts->fetchValuesFromRequest( $this->getRequest() );
@@ -93,14 +91,13 @@ class OreDictEntryManager extends SpecialPage {
 		$tag = $opts->getValue('tag_name');
 		$mod = $opts->getValue('mod_name');
 		$params = $opts->getValue('grid_params');
-		$flags = $opts->getValue('flags');
 
 		// Check if exists
 		if (OreDict::entryExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'))) {
 			return -2;
 		}
 
-		return OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params, $flags);
+		return OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params);
 	}
 
 	private function updateEntry(FormOptions $opts) {
@@ -112,41 +109,12 @@ class OreDictEntryManager extends SpecialPage {
 			'item_name' => $opts->getValue('item_name'),
 			'mod_name' => $opts->getValue('mod_name'),
 			'grid_params' => $opts->getValue('grid_params'),
-			'flags' => intval($opts->getValue('flags')),
 		);
-		$tableName = 'ext_oredict_items';
 		if ($stuff->numRows() == 0) {
 			return;
 		}
 
-		$tag = $ary['tag_name'];
-		$flags = $ary['flags'];
-
-		// Delete before any other processing is done.
-		if ($flags & 0x100 && OreDict::checkExistsByID($entryId)) {
-			OreDict::deleteEntry($entryId, $this->getUser());
-			return;
-		}
-
-		$result = OreDict::editEntry($ary, $entryId, $this->getUser());
-		if ($result != 0) {
-			return;
-		}
-
-		$toggleFlag = 0xc0 & (intval($opts->getValue('orig_flags')) ^ intval($opts->getValue('flags')));
-		if ($toggleFlag) {
-			$tagName = $dbw->addQuotes($opts->getValue('tag_name'));
-			$dbw->query("UPDATE $tableName SET `flags` = `flags` ^ $toggleFlag WHERE `tag_name` = $tagName AND `entry_id` != $entryId");
-
-			// Start log
-			$logEntry = new ManualLogEntry('oredict', 'edittag');
-			$logEntry->setPerformer($this->getUser());
-			$logEntry->setTarget(Title::newFromText("Tag/{$opts->getValue('tag_name')}", NS_SPECIAL));
-			$logEntry->setParameters(array("4::tag" => $tag, "5::toggle" => sprintf("0x%03X (0b%09b)",$toggleFlag,$toggleFlag)));
-			$logId = $logEntry->insert();
-			$logEntry->publish($logId);
-			// End log
-		}
+		OreDict::editEntry($ary, $entryId, $this->getUser());
 	}
 
 	private function outputUpdateForm(stdClass $opts = NULL) {
@@ -157,11 +125,7 @@ class OreDictEntryManager extends SpecialPage {
 		$vItemName = is_object($opts) ? $opts->item_name : '';
 		$vModName = is_object($opts) ? $opts->mod_name : '';
 		$vGridParams = is_object($opts) ? $opts->grid_params : '';
-		$vFlags = is_object($opts) ? $opts->flags : 0xcf;
 		$msgFieldsetMain = is_object($opts) ? wfMessage('oredict-manager-edit-legend') : wfMessage('oredict-manager-create-legend');
-		$msgFieldsetEntryFlags = wfMessage('oredict-manager-entry-flags-legend');
-		$msgFieldsetTagFlags = wfMessage('oredict-manager-tag-flags-legend');
-		$msgFieldsetSpecialFlags = wfMessage('oredict-manager-special-flags-legend');
 		$msgSubmitValue = is_object($opts) ? wfMessage('oredict-manager-update') : wfMessage('oredict-manager-create');
 		$form = "<table>";
 		$form .= OreDictForm::createFormRow('manager', 'entry_id', $vEntryId, "text", "readonly=\"readonly\"");
@@ -169,35 +133,14 @@ class OreDictEntryManager extends SpecialPage {
 		$form .= OreDictForm::createFormRow('manager', 'item_name', $vItemName);
 		$form .= OreDictForm::createFormRow('manager', 'mod_name', $vModName);
 		$form .= OreDictForm::createFormRow('manager', 'grid_params', $vGridParams);
-		$form .= OreDictForm::createFormRow('manager', 'flags', $vFlags, "text", "readonly=\"readonly\"");
-		$form .= "</table>";
-		$form .= Xml::fieldset($msgFieldsetTagFlags);
-		$form .= "<table>";
-		$form .= OreDictForm::createCheckBox('manager', 'tag_call_grid', 0x40, $vFlags & 0x40);
-		$form .= OreDictForm::createCheckBox('manager', 'tag_call_tag', 0x80, $vFlags & 0x80);
-		$form .= "</table>";
-		$form .= Xml::closeElement('fieldset');
-		$form .= Xml::fieldset($msgFieldsetEntryFlags);
-		$form .= "<table>";
-		$form .= OreDictForm::createCheckBox('manager', 'call_grid', 0x01, $vFlags & 0x01);
-		$form .= OreDictForm::createCheckBox('manager', 'call_tag', 0x02, $vFlags & 0x02);
-		$form .= OreDictForm::createCheckBox('manager', 'disp_grid', 0x04, $vFlags & 0x04);
-		$form .= OreDictForm::createCheckBox('manager', 'disp_tag', 0x08, $vFlags & 0x08);
-		$form .= "</table>";
-		$form .= Xml::closeElement('fieldset');
-		$form .= Xml::fieldset($msgFieldsetSpecialFlags);
-		$form .= "<table>";
-		$form .= OreDictForm::createCheckBox('manager', 'entry_del', 0x100, $vFlags & 0x100, "", "style=\"color:red; font-weight:bold;\"");
-		$form .= "</table>";
-		$form .= Xml::closeElement('fieldset');
 		$form .= "<input type=\"submit\" value=\"".$msgSubmitValue."\">";
+		$form .= "</table>";
 
 		$out = Xml::openElement('form', array('method' => 'get', 'action' => $wgScript, 'id' => 'ext-oredict-manager-form'))
-			 . Xml::fieldset($msgFieldsetMain)
+			 . Xml::fieldset($msgFieldsetMain->text())
 			 . Html::hidden('title', $this->getTitle()->getPrefixedText())
 			 . Html::hidden('token', $this->getUser()->getEditToken())
 			 . Html::hidden('update', 1)
-			 . Html::hidden('orig_flags', $vFlags)
 			 . $form
 			 . Xml::closeElement( 'fieldset' )
 			 . Xml::closeElement( 'form' )

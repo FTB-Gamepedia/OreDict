@@ -13,55 +13,19 @@ class OreDict{
 	private $mOutputLimit;
 	private $mItemName;
 	private $mItemMod;
-	private $mCallType;
 	private $mRawArray;
 
 	static private $mQueries;
-
-	// Bit 0: Call type: cell
-	// Bit 1: Call type: tag
-	// Bit 2: Display type: cell
-	// Bit 3: Display type: tag
-
-	// Bit 4: Randomize output
-	// Bit 5:
-	// Bit 6: [Tag] Call type: cell
-	// Bit 7: [Tag] Call type: tag
-
-	// Default flag: 0b11001111
-	const CALL_GRID = 0x01;
-	const CALL_TAG = 0x02;
-
-	const DISP_GRID = 0x04;
-	const DISP_TAG = 0x08;
-
-	const CTRL_RAND = 0x10;
-
-	const MASK_CALL = 0x03;
-	const MASK_DISP = 0x0c;
-	const MASK_CTRL = 0x30;
-	const MASK_FLAG = 0xc0;
-
-	const FLAG_DEFAULT = 0xcf;
-
-	const MODE_GRID = 0x45;
-	const MODE_TAG = 0x8a;
-	const MODE_FORCE = 0xcf;
-
-	const FLAG_DEL = 0x100;
 
 	/**
 	 * Init properties.
 	 *
 	 * @param string $itemName
 	 * @param string $itemMod
-	 * @param int $callType
 	 */
-
-	public function __construct($itemName, $itemMod = '', $callType = OreDict::CALL_GRID) {
+	public function __construct($itemName, $itemMod = '') {
 		$this->mItemName = $itemName;
 		$this->mOutputLimit = 20;
-		$this->mCallType = $callType;
 		$this->mItemMod = $itemMod;
 	}
 
@@ -116,33 +80,15 @@ class OreDict{
 	public function exec($byTag = false) {
 		$dbr = wfGetDB(DB_SLAVE);
 
-		// Masks
-		$mfTag = OreDict::MASK_FLAG;
-		$mfCall = OreDict::MASK_CALL;
-		$mfDisp = OreDict::MASK_DISP;
-		$mfCtrl = OreDict::MASK_CTRL;
-		$fDel = OreDict::FLAG_DEL;
-
 		// Vars
 		$itemModEscaped = $dbr->addQuotes($this->mItemMod);
-		$fType = $this->mCallType;
 
 		$sLim = $this->mOutputLimit;
-		if ($mfCtrl & $fType & OreDict::CTRL_RAND) {
-			$sRand = "RAND()";
-		} else {
-			$sRand = "entry_id";
-		}
-
-		// Generate dummy entry
-		if ($fType == 0x00) {
-			self::$mQueries[$this->mItemName][$this->mItemMod][$fType][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
-		}
 
 		// Query database
-		if (!isset(self::$mQueries[$this->mItemName][$this->mItemMod][$fType])) {
+		if (!isset(self::$mQueries[$this->mItemName][$this->mItemMod])) {
 			if ($byTag) {
-				OreDictError::notice("Querying the ore dictionary for Tag = $this->mItemName Mod = $this->mItemMod (Call type = $fType)");
+				OreDictError::notice("Querying the ore dictionary for Tag = $this->mItemName Mod = $this->mItemMod");
 
 				$result = $dbr->select(
 					"ext_oredict_items",
@@ -150,19 +96,15 @@ class OreDict{
 					[
 						'tag_name' => $this->mItemName,
 						"($itemModEscaped = '' OR mod_name = $itemModEscaped)",
-						"($mfTag & $fType & flags)",
-						"($mfCall & $fType & flags)",
-						"($mfDisp & $fType & flags)",
-						"NOT ($fDel & flags)"
 					],
 					__METHOD__,
 					[
-						"ORDER BY" => $sRand,
+						"ORDER BY" => "entry_id",
 						"LIMIT" => $sLim,
 					]
 				);
 			} else {
-				OreDictError::notice("Querying the ore dictionary for Item = $this->mItemName Mod = $this->mItemMod (Call type = $fType)");
+				OreDictError::notice("Querying the ore dictionary for Item = $this->mItemName Mod = $this->mItemMod");
 
 				$subResult = $dbr->select(
 					"ext_oredict_items",
@@ -170,9 +112,6 @@ class OreDict{
 					[
 						'item_name' => $this->mItemName,
 						"($itemModEscaped = '' OR mod_name = $itemModEscaped)",
-						"($mfTag & $fType & flags)",
-						"($mfCall & $fType & flags)",
-						"NOT ($fDel & flags)"
 					],
 					__METHOD__
 				);
@@ -182,10 +121,7 @@ class OreDict{
 				foreach ($subResult as $r) {
 					$tagNameList[] = $r->tag_name;
 				}
-				$where = [
-					"($mfDisp & $fType & `flags`)",
-					"NOT($fDel & `flags`)"
-				];
+				$where = [];
 				if (!empty($tagNameList)) {
 					$where['tag_name'] = $tagNameList;
 				}
@@ -196,7 +132,7 @@ class OreDict{
 					$where,
 					__METHOD__,
 					[
-						"ORDER BY" => $sRand,
+						"ORDER BY" => "entry_id",
 						"LIMIT" => $sLim,
 					]
 				);
@@ -204,11 +140,11 @@ class OreDict{
 			//OreDictError::query($query);
 			//$result = $dbr->query($query);
 			foreach ($result as $row) {
-				self::$mQueries[$this->mItemName][$this->mItemMod][$fType][] = new OreDictItem($row);
+				self::$mQueries[$this->mItemName][$this->mItemMod][] = new OreDictItem($row);
 			}
 
-			if (!isset(self::$mQueries[$this->mItemName][$this->mItemMod][$fType])) {
-				self::$mQueries[$this->mItemName][$this->mItemMod][$fType][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
+			if (!isset(self::$mQueries[$this->mItemName][$this->mItemMod])) {
+				self::$mQueries[$this->mItemName][$this->mItemMod][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
 				OreDictError::notice("OreDict returned an empty set (i.e. 0 rows)! Using provided params as is. Suppressing future identical warnings.");
 			} else {
 				$rows = $result->numRows();
@@ -216,12 +152,7 @@ class OreDict{
 			}
 		}
 
-		// Rotate results if not randomized
-		if (!($mfCtrl & $fType & OreDict::CTRL_RAND) && !$byTag) {
-			shuffle(self::$mQueries[$this->mItemName][$this->mItemMod][$fType]);
-		}
-
-		$this->mRawArray = self::$mQueries[$this->mItemName][$this->mItemMod][$fType];
+		$this->mRawArray = self::$mQueries[$this->mItemName][$this->mItemMod];
 		return true;
 	}
 
@@ -324,12 +255,10 @@ class OreDict{
 	 * @param string $tag Tag name
 	 * @param User $user User performing the addition
 	 * @param string $params Grid parameters
-	 * @param int $flags Flags
 	 * @return bool|int False if it failed to add, or the new ID.
 	 */
-	static public function addEntry($mod, $name, $tag, $user, $params = '', $flags = OreDict::FLAG_DEFAULT) {
+	static public function addEntry($mod, $name, $tag, $user, $params = '') {
 		$dbw = wfGetDB(DB_MASTER);
-		$flags = intval($flags);
 
 		$result = $dbw->insert(
 			'ext_oredict_items',
@@ -338,7 +267,6 @@ class OreDict{
 				'tag_name' => $tag,
 				'mod_name' => $mod,
 				'grid_params' => $params,
-				'flags' => $flags
 			],
 			__METHOD__
 		);
@@ -369,8 +297,7 @@ class OreDict{
 			"5::tag" => $tag,
 			"6::item" => $name,
 			"7::mod" => $mod,
-			"8::params" => $params,
-			"9::flags" => sprintf("0x%03X (0b%09b)",$flags,$flags)));
+			"8::params" => $params));
 		$logEntry->setComment(wfMessage('oredict-import-comment')->text());
 		$logId = $logEntry->insert();
 		$logEntry->publish($logId);
@@ -410,7 +337,6 @@ class OreDict{
 		$item = empty($update['item_name']) ? $row->item_name : $update['item_name'];
 		$mod = empty($update['mod_name']) ? $row->mod_name : $update['mod_name'];
 		$params = empty($update['grid_params']) ? $row->grid_params : $update['grid_params'];
-		$flags = empty($update['flags']) ? $row->flags : $update['flags'];
 
 		// Prepare log vars
 		$target = empty($mod) ? "$tag - $item" : "$tag - $item ($mod)";
@@ -428,10 +354,6 @@ class OreDict{
 			$diff['params'][] = $row->grid_params;
 			$diff['params'][] = $params;
 		}
-		if ($row->flags != $flags) {
-			$diff['flags'][] = sprintf("0x%03X (0b%09b)", $row->flags, $row->flags);
-			$diff['flags'][] = sprintf("0x%03X (0b%09b)", $flags, $flags);
-		}
 		$diffString = "";
 		foreach ($diff as $field => $change) {
 			$diffString .= "$field [$change[0] -> $change[1]] ";
@@ -448,12 +370,10 @@ class OreDict{
 			"7::item" => $row->item_name,
 			"8::mod" => $row->mod_name,
 			"9::params" => $row->grid_params,
-			"10::flags" => sprintf("0x%03X (0b%09b)", $row->flags, $row->flags),
-			"11::to_item" => $item,
-			"12::to_mod" => $mod,
-			"13::to_params" => $params,
-			"14::to_flags" => sprintf("0x%03X (0b%09b)", $flags, $flags),
-			"15::id" => $id,
+			"10::to_item" => $item,
+			"11::to_mod" => $mod,
+			"12::to_params" => $params,
+			"13::id" => $id,
 			"4::diff" => $diffString,
 			"5::diff_json" => json_encode($diff)));
 		$logId = $logEntry->insert();
@@ -463,7 +383,7 @@ class OreDict{
 
 	/**
 	 * @param $row ?		The row to get the data from.
-	 * @return array		An array containing the tag, mod, item, grid params, and flags for use throughout the API.
+	 * @return array		An array containing the tag, mod, item, and grid params for use throughout the API.
 	 */
 	static public function getArrayFromRow($row) {
 		return array(
@@ -471,7 +391,6 @@ class OreDict{
 			'mod_name' => $row->mod_name,
 			'item_name' => $row->item_name,
 			'grid_params' => $row->grid_params,
-			'flags' => $row->flags,
 			'id' => $row->entry_id
 		);
 	}
@@ -483,7 +402,6 @@ class OreDictItem{
 	private $mItemMod;
 	private $mItemParams;
 	private $mId;
-	private $mFlags;
 
 	/**
 	 * Contsructor, inits properties
@@ -492,11 +410,9 @@ class OreDictItem{
 	 * @param string $tag
 	 * @param string $mod
 	 * @param string $params
-	 * @param string $flags
 	 * @throws MWException Throws and MWException when input format is incorrect.
 	 */
-
-	public function __construct($item, $tag = '', $mod = '', $params = '', $flags = '') {
+	public function __construct($item, $tag = '', $mod = '', $params = '') {
 		OreDictError::debug("Constructing OreDictItem.");
 		if (is_object($item))
 			if (get_class($item) == "stdClass") {
@@ -515,11 +431,6 @@ class OreDictItem{
 				} else {
 					throw new MWException("Incorrect input format! Missing property \"tag_name\" in stdClass.");
 				}
-				if (isset($item->flags)) {
-					$this->mFlags = $item->flags;
-				} else {
-					throw new MWException("Incorrect input format! Missing property \"flags\" in stdClass.");
-				}
 				if (isset($item->grid_params)) {
 					$this->mItemParams = OreDictHooks::ParseParamString($item->grid_params);
 				} else {
@@ -536,7 +447,6 @@ class OreDictItem{
 		$this->mTagName = $tag;
 		$this->mItemMod = $mod;
 		$this->mItemParams = OreDictHooks::ParseParamString($params);
-		$this->mFlags = $flags;
 		$this->setMainParams();
 		return true;
 	}
@@ -610,7 +520,6 @@ class OreDictItem{
 		$this->mItemParams[1] = $this->mItemName;
 		$this->mItemParams['mod'] = $this->mItemMod;
 		$this->mItemParams['ore-dict-name'] = $this->mTagName;
-		$this->mItemParams['entry-flags'] = $this->mFlags;
 	}
 
 	/**

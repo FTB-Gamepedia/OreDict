@@ -62,7 +62,7 @@ class ImportOreDict extends SpecialPage {
 
 			foreach ($input as $line) {
 				// Parse line
-				// Line format: OreDict name!item name!mod name!params!flags=207
+				// Line format: OreDict name!item name!mod name!params
 				$line = trim($line);
 				if ($line == "") {
 					continue;
@@ -71,7 +71,7 @@ class ImportOreDict extends SpecialPage {
 				foreach ($p as $key => $opt) {
 					$p[$key] = trim($opt);
 				}
-				if (count($p) != 5) {
+				if (count($p) != 4) {
 					$out->addHTML($this->returnMessage(false, wfMessage('oredict-import-fail-format', $line)->text()));
 					continue;
 				}
@@ -79,7 +79,6 @@ class ImportOreDict extends SpecialPage {
 				$itemName = $p[1];
 				$modName = $p[2];
 				$params = $p[3];
-				$flags = empty($p[4]) || $p[4] == "" ? 207 : intval($p[4]);
 				// Check if entry already exist
 				if (OreDict::entryExists($itemName, $tagName, $modName)) {
 					// If updated mode and entry already exist, update
@@ -107,10 +106,6 @@ class ImportOreDict extends SpecialPage {
 							$diff['params'][] = $item->grid_params;
 							$diff['params'][] = $params;
 						}
-						if ($item->flags != $flags) {
-							$diff['flags'][] = $item->flags;
-							$diff['flags'][] = $flags;
-						}
 						$diffString = "";
 						foreach ($diff as $field => $change) {
 							$diffString .= "$field [$change[0] -> $change[1]] ";
@@ -124,13 +119,13 @@ class ImportOreDict extends SpecialPage {
 						$logEntry = new ManualLogEntry('oredict', 'editentry');
 						$logEntry->setPerformer($this->getUser());
 						$logEntry->setTarget(Title::newFromText("Entry/$target", NS_SPECIAL));
-						$logEntry->setParameters(array("6::tag" => $tag, "7::item" => $item->item_name, "8::mod" => $item->mod_name, "9::params" => $item->grid_params, "10::flags" => sprintf("0x%03X (0b%09b)",$item->flags,$item->flags), "11::to_item" => $fItem, "12::to_mod" => $mod, "13::to_params" => $params, "14::to_flags" => sprintf("0x%03X (0b%09b)",$flags,$flags),"15::id" => $item->entry_id, "4::diff" => $diffString, "5::diff_json" => json_encode($diff)));
+						$logEntry->setParameters(array("6::tag" => $tag, "7::item" => $item->item_name, "8::mod" => $item->mod_name, "9::params" => $item->grid_params, "10::to_item" => $fItem, "11::to_mod" => $mod, "12::to_params" => $params, "13::id" => $item->entry_id, "4::diff" => $diffString, "5::diff_json" => json_encode($diff)));
 						$logEntry->setComment("Updating entries using import tool.");
 						$logId = $logEntry->insert();
 						$logEntry->publish($logId);
 						// End log
 
-						$dbw->update('ext_oredict_items', array('grid_params' => $params, 'flags' => $flags), array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName));
+						$dbw->update('ext_oredict_items', array('grid_params' => $params), array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName));
 						$out->addHTML($this->returnMessage(true, wfMessage('oredict-import-success-update')->text()));
 						continue;
 					} else {
@@ -140,7 +135,7 @@ class ImportOreDict extends SpecialPage {
 					}
 				}
 				// Add entry
-				$result = OreDict::addEntry($modName, $itemName, $tagName, $this->getUser(), $params, $flags);
+				$result = OreDict::addEntry($modName, $itemName, $tagName, $this->getUser(), $params);
 				if ($result == false) {
 					$out->addHTML($this->returnMessage(false, wfMessage('oredict-import-fail-insert')->text()));
 					continue;
