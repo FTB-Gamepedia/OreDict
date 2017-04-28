@@ -21,6 +21,7 @@ class OreDictHooks {
 	public static function SchemaUpdate($updater) {
 		$extDir = __DIR__;
 		$updater->addExtensionUpdate(['addTable', 'ext_oredict_items', "{$extDir}/install/sql/ext_oredict_items.sql", true]);
+		$updater->addExtensionUpdate(['modifyField', 'ext_oredict_items', "{$extDir}/upgrade/sql/remove_flags.sql", true]);
 		return true;
 	}
 
