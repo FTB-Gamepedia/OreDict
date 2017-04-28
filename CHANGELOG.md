@@ -1,6 +1,18 @@
 # Changelog
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
+## Version 3
+### 3.0.0
+* Remove the entire flag/mode/call type system and flags column (schema update required) (#46, #44).
+* Localize "Importing entries." log comment 
+* Localize everything applicable in the following special pages:
+  * ImportOreDict
+  * OreDictEntryManager
+  * OreDictList
+* Use `Message#text` instead of the `Message` directly in `returnMessage`
+* API help messages are now localized (part of #43).
+* Source code is officially licensed under the MIT license (#41).
+
 ## Version 2
 ### 2.1.0
 * Use query continue API for the OreDictSearch query API (#38)
