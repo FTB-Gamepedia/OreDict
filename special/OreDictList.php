@@ -110,16 +110,14 @@ class OreDictList extends SpecialPage {
 		$msgItemName = wfMessage('oredict-item-name');
 		$msgModName = wfMessage('oredict-mod-name');
 		$msgGridParams = wfMessage('oredict-grid-params');
-		$msgFlags = wfMessage('oredict-flags');
 		$canEdit = in_array("editoredict", $this->getUser()->getRights());
-		$table .= "! !! # !! $msgTagName !! $msgItemName !! $msgModName !! $msgGridParams !! $msgFlags\n";
+		$table .= "! !! # !! $msgTagName !! $msgItemName !! $msgModName !! $msgGridParams\n";
 		foreach ($results as $result) {
 			$lId = $result->entry_id;
 			$lTag = $result->tag_name;
 			$lItem = $result->item_name;
 			$lMod = $result->mod_name;
 			$lParams = $result->grid_params;
-			$lFlags = $result->flags;
 			$table .= "|-\n";
 			// Check user rights
 			if ($canEdit) {
@@ -128,7 +126,7 @@ class OreDictList extends SpecialPage {
 			} else {
 				$editLink = "";
 			}
-			$table .= "| style=\"width:23px; padding-left:5px; padding-right:5px; text-align:center; font-weight:bold;\" | $editLink || $lId || $lTag || $lItem || $lMod || $lParams || $lFlags\n";
+			$table .= "| style=\"width:23px; padding-left:5px; padding-right:5px; text-align:center; font-weight:bold;\" | $editLink || $lId || $lTag || $lItem || $lMod || $lParams\n";
 		}
 		$table .= "|}\n";
 

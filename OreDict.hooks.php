@@ -21,6 +21,7 @@ class OreDictHooks {
 	public static function SchemaUpdate($updater) {
 		$extDir = __DIR__;
 		$updater->addExtensionUpdate(['addTable', 'ext_oredict_items', "{$extDir}/install/sql/ext_oredict_items.sql", true]);
+		$updater->addExtensionUpdate(['dropField', 'ext_oredict_items', 'flags', "{$extDir}/upgrade/sql/remove_flags.sql", true]);
 		return true;
 	}
 
@@ -96,27 +97,6 @@ class OreDictHooks {
 		// Create grids
 		$outs = array();
 		foreach ($items as $options) {
-			// Set mode
-			$mode = 0x00;
-			if (isset($options['grid'])) {
-				 $mode = $mode | OreDict::MODE_GRID;
-			}
-			if (isset($options['tag'])) {
-				$mode = $mode | OreDict::MODE_TAG;
-			}
-			if (isset($options['force'])) {
-				$mode = $mode | OreDict::MODE_FORCE;
-			}
-			if ($mode == 0x00) {
-				 $mode = $mode | OreDict::MODE_GRID;
-			}
-			if (isset($options['shuffle'])) {
-				$mode = $mode | OreDict::CTRL_RAND;
-			}
-			if (isset($options['no-oredict'])) {
-				$mode = 0x00;
-			}
-
 			// Set mod
 			$mod = '';
 			if (isset($options['mod'])) {
@@ -124,7 +104,7 @@ class OreDictHooks {
 			}
 
 			// Call OreDict
-			$dict = new OreDict($options[1], $mod, $mode);
+			$dict = new OreDict($options[1], $mod);
 			$dict->exec(isset($options['tag']));
 			$outs[] = $dict->runHooks(self::BuildParamString($options));
 		}
@@ -154,34 +134,13 @@ class OreDictHooks {
 		}
 		$options = OreDictHooks::ExtractOptions($opts);
 
-		// Set mode
-		$mode = 0x00;
-		if (isset($options['grid'])) {
-			 $mode = $mode | OreDict::MODE_GRID;
-		}
-		if (isset($options['tag'])) {
-			$mode = $mode | OreDict::MODE_TAG;
-		}
-		if (isset($options['force'])) {
-			$mode = $mode | OreDict::MODE_FORCE;
-		}
-		if ($mode == 0x00) {
-			 $mode = $mode | OreDict::MODE_GRID;
-		}
-		if (isset($options['shuffle'])) {
-			$mode = $mode | OreDict::CTRL_RAND;
-		}
-		if (isset($options['no-oredict'])) {
-			$mode = 0x00;
-		}
-
 		// Set mod
 		$mod = '';
 		if (isset($options['mod'])) {
 			$mod = $options['mod'];
 		}
 		// Call OreDict
-		$dict = new OreDict($options[1], $mod, $mode);
+		$dict = new OreDict($options[1], $mod);
 		$dict->exec(isset($options['tag']));
 		return $dict->runHooks(self::BuildParamString($options));
 	}

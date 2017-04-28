@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS /*_*/ext_oredict_items (
   `item_name` varchar(100) NOT NULL,
   `mod_name` varchar(10) NOT NULL,
   `grid_params` text NOT NULL,
-  `flags` int(11) NOT NULL,
   PRIMARY KEY (`entry_id`)
 ) /*$wgDBTableOptions*/;
 

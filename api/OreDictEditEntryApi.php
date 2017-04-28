@@ -20,9 +20,6 @@ class OreDictEditEntryApi extends ApiBase {
             'params' => [
                 ApiBase::PARAM_TYPE => 'string',
             ],
-            'flags' => [
-                ApiBase::PARAM_TYPE => 'integer',
-            ],
             'id' => [
                 ApiBase::PARAM_TYPE => 'integer',
                 ApiBase::PARAM_MIN => 1,
@@ -69,14 +66,12 @@ class OreDictEditEntryApi extends ApiBase {
         $item = $this->getParameter('item');
         $tag = $this->getParameter('tag');
         $params = $this->getParameter('params');
-        $flags = $this->getParameter('flags');
 
         $update = array(
             'mod_name' => $mod,
             'item_name' => $item,
             'tag_name' => $tag,
             'grid_params' => $params,
-            'flags' => $flags
         );
 
         $result = OreDict::editEntry($update, $id, $this->getUser());
