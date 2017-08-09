@@ -79,7 +79,13 @@
 	},
 	"config": {
 		"ShowExceptionDetails": true,
-		"OreDictDebug": false
+		"OreDictDebug": false,
+		"GrantPermissions": {
+			"oredict": {
+				"editoredict": true,
+				"importoredict": true
+			}
+		}
 	},
 	"manifest_version": 1
 }
