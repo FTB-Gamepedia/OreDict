@@ -91,5 +91,6 @@
 	"apihelp-query+oredictsearch-param-mod": "Restricts results to this mod.",
 	"apihelp-query+oredictsearch-param-tag": "Restricts results to this tag name.",
 	"apihelp-query+oredictsearch-param-name": "Restricts results to this item name.",
-	"apihelp-query+oredictsearch-param-from": "The entry ID to start listing at."
+	"apihelp-query+oredictsearch-param-from": "The entry ID to start listing at.",
+	"grant-oredict": "Edit and import OreDict entries"
 }
