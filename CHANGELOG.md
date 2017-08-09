@@ -2,6 +2,10 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.1.0
+* Add ability to grant permissions to bots (#48, #49)
+* Remove flag-related things from the log entries (#47)
+
 ### 3.0.0
 * Remove the entire flag/mode/call type system and flags column (schema update required) (#46, #44).
 * Localize "Importing entries." log comment 
