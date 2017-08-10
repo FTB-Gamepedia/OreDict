@@ -59,7 +59,8 @@
 			"styles": "css/ext.oredict.list.css"
 		},
 		"ext.oredict.manager": {
-			"scripts": "js/ext.oredict.manager.js"
+			"scripts": "js/ext.oredict.manager.js",
+			"styles": "css/ext.oredict.manager.css"
 		}
 	},
 	"ResourceFileModulePaths": {
