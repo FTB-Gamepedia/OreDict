@@ -202,7 +202,8 @@ class OreDictEntryManager extends SpecialPage {
 							'flags' => ['destructive'],
 							'icon' => 'remove',
 							'name' => 'delete',
-							'value' => 1
+							'value' => 1,
+							'disabled' => $vEntryId == -1
 						])
 					]
 				])
@@ -257,7 +258,10 @@ class OreDictEntryManager extends SpecialPage {
 						]),
 						new OOUI\ButtonInputWidget([
 							'id' => 'form-create-new',
-							'label' => 'Create new entry' // todo localization
+							'label' => 'Create new entry', // todo localization
+							'name' => 'entry_id',
+							'value' => -1,
+							'type' => 'submit'
 						])
 					]
 				])
