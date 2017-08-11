@@ -68,7 +68,24 @@ class OreDictEntryManager extends SpecialPage {
 				return;
 			}
 
-			$this->updateEntry($opts);
+			$result = $this->updateEntry($opts);
+			// It's obvious if a deletion was successful
+			if ($opts->getValue('delete') != 1) {
+				switch ($result) {
+					case 0: {
+						// Success: no op
+						break;
+					}
+					case 1: {
+						$out->addWikiText($this->msg('oredict-manager-fail-general')->text());
+						break;
+					}
+					case 2: {
+						$out->addWikiText($this->msg('oredict-import-fail-nochange')->text());
+						break;
+					}
+				}
+			}
 		}
 
 		// Load data
@@ -99,9 +116,20 @@ class OreDictEntryManager extends SpecialPage {
 			return -2;
 		}
 
-		return OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params);
+		$result = OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params);
+		if ($result == false) {
+			return -2;
+		}
+		return $result;
 	}
 
+	/**
+	 * @param FormOptions $opts
+	 * @return bool|int False if it was a deletion or there was nothing to update. These cases are not important for the
+	 * 					purposes of this special page.
+	 * 					Returns the integer returned by OreDict#editEntry denoting success of the update. This is
+	 * 					actually useful.
+	 */
 	private function updateEntry(FormOptions $opts) {
 		$dbw = wfGetDB(DB_MASTER);
 		$entryId = intval($opts->getValue('entry_id'));
@@ -113,16 +141,16 @@ class OreDictEntryManager extends SpecialPage {
 			'grid_params' => $opts->getValue('grid_params'),
 		);
 		if ($stuff->numRows() == 0) {
-			return;
+			return false;
 		}
 
 		// Try to delete before doing any other processing
 		if ($opts->getValue('delete') == 1) {
 			OreDict::deleteEntry($entryId, $this->getUser());
-			return;
+			return false;
 		}
 
-		OreDict::editEntry($ary, $entryId, $this->getUser());
+		return OreDict::editEntry($ary, $entryId, $this->getUser());
 	}
 
 	private function outputUpdateForm(stdClass $opts = NULL) {

@@ -90,6 +90,13 @@ class ImportOreDict extends SpecialPage {
 						$tag = $tagName;
 						$fItem = $itemName;
 						$mod = $modName;
+
+						// Sanitize inputs
+						if (!OreDict::isStrValid($tag) || !OreDict::isStrValid($fItem) || !OreDict::isStrValid($mod)) {
+							$out->addHTML($this->returnMessage(false, $this->msg('oredict-import-fail-chars')->text()));
+							continue;
+						}
+
 						$item = $stuff->current();
 
 						// Prepare log vars

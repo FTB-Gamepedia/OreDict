@@ -258,6 +258,10 @@ class OreDict{
 	 * @return bool|int False if it failed to add, or the new ID.
 	 */
 	static public function addEntry($mod, $name, $tag, $user, $params = '') {
+		if (!self::isStrValid($mod) || !self::isStrValid($name) || !self::isStrValid($tag)) {
+			return false;
+		}
+
 		$dbw = wfGetDB(DB_MASTER);
 
 		$result = $dbw->insert(
@@ -306,6 +310,14 @@ class OreDict{
 	}
 
 	/**
+	 * @param $str string The string to check
+	 * @return bool Whether this string is non-empty and does not contain invalid values.
+	 */
+	public static function isStrValid($str) {
+		return !empty($str) && Title::newFromText($str) !== null;
+	}
+
+	/**
 	 * Edits an entry based on the data given in the first parameter.
 	 * @param $update	array	An array essentially identical to a row. This contains the new data.
 	 * @param $id		Int		The entry ID.
@@ -322,6 +334,17 @@ class OreDict{
 			__METHOD__
 		);
 		$row = $stuff->current();
+
+		$tag = empty($update['tag_name']) ? $row->tag_name : $update['tag_name'];
+		$item = empty($update['item_name']) ? $row->item_name : $update['item_name'];
+		$mod = empty($update['mod_name']) ? $row->mod_name : $update['mod_name'];
+		$params = empty($update['grid_params']) ? $row->grid_params : $update['grid_params'];
+
+		// Sanitize input
+		if (!self::isStrValid($tag) || !self::isStrValid($item) || !self::isStrValid($mod)) {
+			return 1;
+		}
+
 		$result = $dbw->update(
 			'ext_oredict_items',
 			$update,
@@ -332,11 +355,6 @@ class OreDict{
 		if ($result == false) {
 			return 1;
 		}
-
-		$tag = empty($update['tag_name']) ? $row->tag_name : $update['tag_name'];
-		$item = empty($update['item_name']) ? $row->item_name : $update['item_name'];
-		$mod = empty($update['mod_name']) ? $row->mod_name : $update['mod_name'];
-		$params = empty($update['grid_params']) ? $row->grid_params : $update['grid_params'];
 
 		// Prepare log vars
 		$target = empty($mod) ? "$tag - $item" : "$tag - $item ($mod)";
