@@ -258,7 +258,7 @@ class OreDictEntryManager extends SpecialPage {
 						]),
 						new OOUI\ButtonInputWidget([
 							'id' => 'form-create-new',
-							'label' => 'Create new entry', // todo localization
+							'label' => $this->msg('oredict-manager-create-legend')->text(),
 							'name' => 'entry_id',
 							'value' => -1,
 							'type' => 'submit'
