@@ -29,6 +29,7 @@ class OreDictEntryManager extends SpecialPage {
 		$this->checkPermissions();
 
 		$out = $this->getOutput();
+		$out->enableOOUI();
 
 		// Add modules
 		$out->addModules( 'ext.oredict.manager' );
@@ -121,47 +122,143 @@ class OreDictEntryManager extends SpecialPage {
 		global $wgScript;
 		$vEntryId = is_object($opts) ? $opts->entry_id : -1;
 		$vTagName = is_object($opts) ? $opts->tag_name : '';
-		$vTagReadonly = is_object($opts) ? "readonly=\"readonly\"" : '';
+		$vTagReadonly = is_object($opts);
 		$vItemName = is_object($opts) ? $opts->item_name : '';
 		$vModName = is_object($opts) ? $opts->mod_name : '';
 		$vGridParams = is_object($opts) ? $opts->grid_params : '';
-		$msgFieldsetMain = is_object($opts) ? wfMessage('oredict-manager-edit-legend') : wfMessage('oredict-manager-create-legend');
-		$msgSubmitValue = is_object($opts) ? wfMessage('oredict-manager-update') : wfMessage('oredict-manager-create');
-		$form = "<table>";
-		$form .= OreDictForm::createFormRow('manager', 'entry_id', $vEntryId, "text", "readonly=\"readonly\"");
-		$form .= OreDictForm::createFormRow('manager', 'tag_name', $vTagName, "text", $vTagReadonly);
-		$form .= OreDictForm::createFormRow('manager', 'item_name', $vItemName);
-		$form .= OreDictForm::createFormRow('manager', 'mod_name', $vModName);
-		$form .= OreDictForm::createFormRow('manager', 'grid_params', $vGridParams);
-		$form .= "<input type=\"submit\" value=\"".$msgSubmitValue."\">";
-		$form .= "</table>";
+		$msgFieldsetMain = is_object($opts) ? $this->msg('oredict-manager-edit-legend') : $this->msg('oredict-manager-create-legend');
+		$msgSubmitValue = is_object($opts) ? $this->msg('oredict-manager-update') : $this->msg('oredict-manager-create');
 
-		$out = Xml::openElement('form', array('method' => 'get', 'action' => $wgScript, 'id' => 'ext-oredict-manager-form'))
-			 . Xml::fieldset($msgFieldsetMain->text())
-			 . Html::hidden('title', $this->getTitle()->getPrefixedText())
-			 . Html::hidden('token', $this->getUser()->getEditToken())
-			 . Html::hidden('update', 1)
-			 . $form
-			 . Xml::closeElement( 'fieldset' )
-			 . Xml::closeElement( 'form' )
-			 . "\n";
+		$fieldset = new OOUI\FieldsetLayout([
+			'label' => $msgFieldsetMain->text(),
+			'items' => [
+				new OOUI\FieldLayout(
+					new OOUI\TextInputWidget([
+						'type' => 'number',
+						'name' => 'entry_id',
+						'value' => $vEntryId,
+						'readOnly' => true
+					]),
+					[
+						'label' => $this->msg('oredict-manager-entry_id')->text()
+					]
+				),
+				new OOUI\FieldLayout(
+					new OOUI\TextInputWidget([
+						'name' => 'tag_name',
+						'value' => $vTagName,
+						'readOnly' => $vTagReadonly
+					]),
+					[
+						'label' => $this->msg('oredict-manager-tag_name')->text()
+					]
+				),
+				new OOUI\FieldLayout(
+					new OOUI\TextInputWidget([
+						'name' => 'item_name',
+						'value' => $vItemName
+					]),
+					[
+						'label' => $this->msg('oredict-manager-item_name')->text()
+					]
+				),
+				new OOUI\FieldLayout(
+					new OOUI\TextInputWidget([
+						'name' => 'mod_name',
+						'value' => $vModName
+					]),
+					[
+						'label' => $this->msg('oredict-manager-mod_name')->text()
+					]
+				),
+				new OOUI\FieldLayout(
+					new OOUI\TextInputWidget([
+						'name' => 'grid_params',
+						'value' => $vGridParams
+					]),
+					[
+						'label' => $this->msg('oredict-manager-grid_params')->text()
+					]
+				),
+				new OOUI\ButtonInputWidget([
+					'type' => 'submit',
+					'label' => $msgSubmitValue->text(),
+					'flags' => ['primary', 'progressive']
+				])
+			]
+		]);
+		$form = new OOUI\FormLayout([
+			'method' => 'GET',
+			'action' => $wgScript,
+			'id' => 'ext-oredict-manager-form'
+		]);
 
-		return $out;
+		$form->appendContent(
+			$fieldset,
+			new OOUI\HtmlSnippet(
+				Html::hidden('title', $this->getTitle()->getPrefixedText()) .
+				Html::hidden('token', $this->getUser()->getEditToken()) .
+				Html::hidden('update', 1)
+			)
+		);
+
+		return new OOUI\PanelLayout([
+			'classes' => ['entry-manager-wrapper'],
+			'framed' => true,
+			'expanded' => false,
+			'padded' => true,
+			'content' => $form
+		]);
 	}
 
 	private function outputSearchForm() {
 		global $wgScript;
-		$form = "<table>";
-		$form .= OreDictForm::createFormRow('manager-filter', 'entry_id', '', 'number', 'min="1" id="form-entry-id"');
-		$form .= "<tr><td></td><td><input type=\"submit\" value=\"".wfMessage("oredict-manager-submit")."\"><input type=\"button\" value=\"Create new entry\" id=\"form-create-new\"></td></tr>";
-		$form .= "</table>";
+		$fieldset = new OOUI\FieldsetLayout([
+			'label' => $this->msg('oredict-manager-filter-legend')->text(),
+			'items' => [
+				new OOUI\FieldLayout(
+					new OOUI\TextInputWidget([
+						'type' => 'number',
+						'name' => 'entry_id',
+						'value' => '',
+						'min' => '1',
+						'id' => 'form-entry-id',
+						'icon' => 'search'
+					]),
+					[
+						'label' => $this->msg('oredict-manager-filter-entry_id')->text()
+					]
+				),
+				new OOUI\HorizontalLayout([
+					'items' => [
+						new OOUI\ButtonInputWidget([
+							'label' => $this->msg('oredict-manager-submit')->text(),
+							'type' => 'submit'
+						]),
+						new OOUI\ButtonInputWidget([
+							'id' => 'form-create-new',
+							'label' => 'Create new entry' // todo localization
+						])
+					]
+				])
+			]
+		]);
+		$form = new OOUI\FormLayout([
+			'method' => 'GET',
+			'action' => $wgScript,
+			'id' => 'ext-oredict-manager-filter'
+		]);
+		$form->appendContent(
+			$fieldset,
+			new OOUI\HtmlSnippet(Html::hidden('title', $this->getTitle()->getPrefixedText()))
+		);
 
-		$out = Xml::openElement('form', array('method' => 'get', 'action' => $wgScript, 'id' => 'ext-oredict-manager-filter')) .
-			Xml::fieldset($this->msg('oredict-manager-filter-legend')->text()) .
-			Html::hidden('title', $this->getTitle()->getPrefixedText()) .
-			$form .
-			Xml::closeElement( 'fieldset' ) . Xml::closeElement( 'form' ) . "\n";
-
-		return $out;
+		return new OOUI\PanelLayout([
+			'classes' => ['entry-manager-filter-wrapper'],
+			'framed' => true,
+			'expanded' => false,
+			'padded' => true,
+			'content' => $form
+		]);
 	}
 }
