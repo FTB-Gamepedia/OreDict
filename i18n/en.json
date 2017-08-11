@@ -54,7 +54,7 @@
 	"oredict-manager-item_name": "Item name:",
 	"oredict-manager-mod_name": "Abbreviated mod name:",
 	"oredict-manager-grid_params": "Default grid parameters:",
-	"oredict-manager-entry_del": "Mark entry as deleted",
+	"oredict-manager-entry_del": "Delete entry",
 	"oredict-manager-update": "Save",
 	"oredict-manager-create": "Create",
 	"oredict-manager-submit": "Go",

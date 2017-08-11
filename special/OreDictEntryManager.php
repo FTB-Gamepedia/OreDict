@@ -45,6 +45,7 @@ class OreDictEntryManager extends SpecialPage {
 		$opts->add( 'mod_name', '' );
 		$opts->add( 'grid_params', '' );
 		$opts->add( 'update', 0 );
+		$opts->add('delete', 0);
 
 		$opts->fetchValuesFromRequest( $this->getRequest() );
 
@@ -61,7 +62,7 @@ class OreDictEntryManager extends SpecialPage {
 		if ($opts->getValue('entry_id') === 0) {
 			return;
 		}
-		if ($opts->getValue('update') == 1 && $opts->getValue('entry_id') != -1) {
+		if (($opts->getValue('update') == 1 || $opts->getValue('delete') == 1) && $opts->getValue('entry_id') != -1) {
 			// XSRF prevention
 			if ( !$this->getUser()->matchEditToken( $this->getRequest()->getVal( 'token' ) ) ) {
 				return;
@@ -112,6 +113,12 @@ class OreDictEntryManager extends SpecialPage {
 			'grid_params' => $opts->getValue('grid_params'),
 		);
 		if ($stuff->numRows() == 0) {
+			return;
+		}
+
+		// Try to delete before doing any other processing
+		if ($opts->getValue('delete') == 1) {
+			OreDict::deleteEntry($entryId, $this->getUser());
 			return;
 		}
 
@@ -180,10 +187,24 @@ class OreDictEntryManager extends SpecialPage {
 						'label' => $this->msg('oredict-manager-grid_params')->text()
 					]
 				),
-				new OOUI\ButtonInputWidget([
-					'type' => 'submit',
-					'label' => $msgSubmitValue->text(),
-					'flags' => ['primary', 'progressive']
+				new OOUI\HorizontalLayout([
+					'items' => [
+						new OOUI\ButtonInputWidget([
+							'type' => 'submit',
+							'label' => $msgSubmitValue->text(),
+							'flags' => ['primary', 'progressive'],
+							'name' => 'update',
+							'value' => 1
+						]),
+						new OOUI\ButtonInputWidget([
+							'type' => 'submit',
+							'label' => $this->msg('oredict-manager-entry_del')->text(),
+							'flags' => ['destructive'],
+							'icon' => 'remove',
+							'name' => 'delete',
+							'value' => 1
+						])
+					]
 				])
 			]
 		]);
@@ -197,8 +218,7 @@ class OreDictEntryManager extends SpecialPage {
 			$fieldset,
 			new OOUI\HtmlSnippet(
 				Html::hidden('title', $this->getTitle()->getPrefixedText()) .
-				Html::hidden('token', $this->getUser()->getEditToken()) .
-				Html::hidden('update', 1)
+				Html::hidden('token', $this->getUser()->getEditToken())
 			)
 		);
 

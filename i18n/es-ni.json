@@ -36,7 +36,7 @@
 	"oredict-manager-item_name": "Nombre del artículo:",
 	"oredict-manager-mod_name": "Nombre abreviado del mod:",
 	"oredict-manager-grid_params": "Parámetros para la cuadrícula por omisión:",
-	"oredict-manager-entry_del": "Marcás entrada como borrado",
+	"oredict-manager-entry_del": "Borra la entrada",
 	"oredict-manager-update": "Guardás",
 	"oredict-manager-create": "Creás",
 	"oredict-manager-submit": "Andá",
