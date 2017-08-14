@@ -2,6 +2,13 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.2.0
+* Sanitize/validate tag name, item name, and mod abbreviation inputs (#53, #54).
+* Use localization for "create new entry" button in OReDictEntryManager.
+* Fix OreDictEntryManager "create new entry" filter button doing nothing (#50).
+* Add a button to OreDictEntryManager to delete the entry, disabled when creating a new entry (#51).
+* Update OreDictEntryManager, OreDictList, and ImportOreDict to use OOjs UI (#52).
+
 ### 3.1.0
 * Add ability to grant permissions to bots (#48, #49)
 * Remove flag-related things from the log entries (#47)
