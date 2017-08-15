@@ -4,11 +4,21 @@
     color: #666666;
 }
 
+.oredict-import-textarea {
+    padding-bottom: 0.5em;
+}
+
 .oredict-import-textarea textarea {
     width: 150%;
 }
 
-.oredict-import-update {
-    padding-top: 10px;
-    vertical-align: bottom;
+.oredict-import-update-hint-label {
+    font-size: x-small;
+    padding: .2em .5em;
+    color: #666;
+    display: inline !important;
+}
+
+.oo-ui-checkboxInputWidget {
+    display: inline-block;
 }

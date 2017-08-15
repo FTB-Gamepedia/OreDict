@@ -194,18 +194,14 @@ class ImportOreDict extends SpecialPage {
 							'label' => $this->msg('oredict-import-submit')->text(),
 							'flags' => ['primary', 'progressive']
 						]),
-						new OOUI\FieldLayout(
-							new OOUI\CheckboxInputWidget([
-								'value' => '1',
-								'name' => 'update_table',
-								'inputId' => 'update_table'
-							]),
-							[
-								'classes' => ['oredict-import-update'],
-								'label' => $this->msg('oredict-import-update')->text(),
-								'align' => 'inline'
-							]
-						),
+						new OOUI\CheckboxInputWidget([
+							'value' => '1',
+							'name' => 'update_table',
+							'inputId' => 'update_table'
+						]),
+						new OOUI\LabelWidget([
+							'label' => $this->msg('oredict-import-update')->text()
+						]),
 						new OOUI\LabelWidget([
 							'classes' => ['oredict-import-update-hint-label'],
 							'label' => new OOUI\HtmlSnippet($this->msg('oredict-import-update-hint')->parse())
