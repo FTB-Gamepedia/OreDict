@@ -93,5 +93,22 @@
 	"apihelp-query+oredictsearch-param-tag": "Restricts results to this tag name.",
 	"apihelp-query+oredictsearch-param-name": "Restricts results to this item name.",
 	"apihelp-query+oredictsearch-param-from": "The entry ID to start listing at.",
-	"grant-oredict": "Edit and import OreDict entries"
+	"grant-oredict": "Edit and import OreDict entries",
+	"oredict-grid_foreach-format-error": "Incorrect input format in #grid_foreach! Aborting!",
+	"oredict-query-notice": "Querying the ore dictionary for $1 = $2 Mod = $3",
+	"oredict-empty-query-notice": "OreDict returned an empty set (i.e. 0 rows)! Using provided params as is. Suppressing future identical warnings.",
+	"oredict-nonempty-query-notice": "OreDict returned $1 {{PLURAL:$1|row|rows}}.",
+	"oredictitem-constructor-debug": "Constructing OreDictItem.",
+	"oredictitem-constructor-error": "Incorrect input format! Missing property \"$1\" in stdClass.",
+	"oredictitem-join-debug": "Joining params: $1.",
+	"oredicterror-page-msg": "$1: $2",
+	"oredicterror-type-log": "Log",
+	"oredicterror-type-warning": "Warning",
+	"oredicterror-type-deprecated": "Deprecated",
+	"oredicterror-type-query": "Query",
+	"oredicterror-type-error": "Error",
+	"oredicterror-type-notice": "Notice",
+	"oredicterror-heading": "OreDict extension warnings",
+	"oredicterror-heading-type": "Type",
+	"oredicterror-heading-msg": "Message"
 }

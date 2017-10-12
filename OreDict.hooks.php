@@ -52,7 +52,7 @@ class OreDictHooks {
 		// Check if input is in the correct format
 		foreach ($opts as $opt) {
 			if (strpos("{{", $opt) !== false || strpos("}}", $opt) !== false) {
-				OreDictError::error("Incorrect input format in #grid_foreach! Aborting!");
+				OreDictError::error(wfMessage('oredict-grid_foreach-format-error')->text());
 				return "";
 			}
 		}
