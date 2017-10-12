@@ -112,22 +112,26 @@ class OreDictList extends SpecialPage {
 		$msgModName = wfMessage('oredict-mod-name');
 		$msgGridParams = wfMessage('oredict-grid-params');
 		$canEdit = in_array("editoredict", $this->getUser()->getRights());
-		$table .= "! !! # !! $msgTagName !! $msgItemName !! $msgModName !! $msgGridParams\n";
+		$table .= "!";
+		if ($canEdit) {
+			$table .= " !!";
+		}
+		$table .= " # !! $msgTagName !! $msgItemName !! $msgModName !! $msgGridParams\n";
+		$linkStyle = "style=\"width:23px; padding-left:5px; padding-right:5px; text-align:center; font-weight:bold;\"";
 		foreach ($results as $result) {
 			$lId = $result->entry_id;
 			$lTag = $result->tag_name;
 			$lItem = $result->item_name;
 			$lMod = $result->mod_name;
 			$lParams = $result->grid_params;
-			$table .= "|-\n";
+			$table .= "|-\n| ";
 			// Check user rights
 			if ($canEdit) {
 				$msgEdit = wfMessage('oredict-list-edit')->text();
 				$editLink = "[[Special:OreDictEntryManager/$lId|$msgEdit]]";
-			} else {
-				$editLink = "";
+				$table .= "$linkStyle | $editLink || ";
 			}
-			$table .= "| style=\"width:23px; padding-left:5px; padding-right:5px; text-align:center; font-weight:bold;\" | $editLink || $lId || $lTag || $lItem || $lMod || $lParams\n";
+			$table .= "$lId || $lTag || $lItem || $lMod || $lParams\n";
 		}
 		$table .= "|}\n";
 
