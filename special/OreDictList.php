@@ -118,6 +118,7 @@ class OreDictList extends SpecialPage {
 		}
 		$table .= " # !! $msgTagName !! $msgItemName !! $msgModName !! $msgGridParams\n";
 		$linkStyle = "style=\"width:23px; padding-left:5px; padding-right:5px; text-align:center; font-weight:bold;\"";
+		$lastID = 0;
 		foreach ($results as $result) {
 			$lId = $result->entry_id;
 			$lTag = $result->tag_name;
@@ -132,6 +133,8 @@ class OreDictList extends SpecialPage {
 				$table .= "$linkStyle | $editLink || ";
 			}
 			$table .= "$lId || $lTag || $lItem || $lMod || $lParams\n";
+
+			$lastID = $lId;
 		}
 		$table .= "|}\n";
 
@@ -167,7 +170,16 @@ class OreDictList extends SpecialPage {
 		$pageSelection = '<div style="text-align:center;" class="plainlinks">'.$prevPage.' | '.$nextPage.'</div>';
 
 		$out->addHtml($this->buildForm($opts));
-		$out->addWikiText(wfMessage('oredict-list-displaying', $begin, $end, $maxRows)->text() . " $pageSelection\n");
+		if ($maxRows == 0) {
+			$out->addWikiText(wfMessage('oredict-list-display-none')->text());
+		} else {
+			// We are currently at the end from the iteration earlier in the function, so we have to go back to get the
+			// first row's entry ID.
+			$results->rewind();
+			$firstID = $results->current()->entry_id;
+			$out->addWikiText(wfMessage('oredict-list-displaying', $firstID, $lastID, $maxRows)->text());
+		}
+		$out->addWikiText(" $pageSelection\n");
 		$out->addWikitext($table);
 
 		// Add modules
