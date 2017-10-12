@@ -56,9 +56,6 @@ class OreDictEntryManager extends SpecialPage {
 
 		$out->addHtml($this->outputSearchForm());
 
-		if ($opts->getValue('update') == 1 && $opts->getValue('entry_id') == -1) {
-			$opts->setValue('entry_id', $this->createEntry($opts));
-		}
 		if ($opts->getValue('entry_id') === 0) {
 			return;
 		}
@@ -86,6 +83,9 @@ class OreDictEntryManager extends SpecialPage {
 					}
 				}
 			}
+		}
+		if ($opts->getValue('update') == 1 && $opts->getValue('entry_id') == -1) {
+			$opts->setValue('entry_id', $this->createEntry($opts));
 		}
 
 		// Load data
