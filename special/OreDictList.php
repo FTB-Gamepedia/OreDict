@@ -238,7 +238,8 @@ class OreDictList extends SpecialPage {
 				new OOUI\FieldLayout(
 					new OOUI\DropdownInputWidget([
 						'options' => self::SIZES,
-						'value' => $opts->getValue('limit')
+						'value' => $opts->getValue('limit'),
+						'name' => 'limit'
 					]),
 					['label' => $this->msg('oredict-list-limit')->text()]
 				),
