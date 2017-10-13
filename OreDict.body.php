@@ -74,10 +74,10 @@ class OreDict{
 	 * Queries the OreDict table
 	 *
 	 * @param bool $byTag
+	 * @param bool $noFallback
 	 * @return bool
 	 */
-
-	public function exec($byTag = false) {
+	public function exec($byTag = false, $noFallback = false) {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		// Vars
@@ -144,7 +144,7 @@ class OreDict{
 			}
 
 			if (!isset(self::$mQueries[$this->mItemName][$this->mItemMod])) {
-				self::$mQueries[$this->mItemName][$this->mItemMod][] = new OreDictItem($this->mItemName, '', $this->mItemMod,'',0xcf);
+				self::$mQueries[$this->mItemName][$this->mItemMod] = [];
 				OreDictError::notice(wfMessage('oredict-empty-query-notice')->text());
 			} else {
 				$rows = $result->numRows();
@@ -152,7 +152,16 @@ class OreDict{
 			}
 		}
 
-		$this->mRawArray = self::$mQueries[$this->mItemName][$this->mItemMod];
+		if (empty(self::$mQueries[$this->mItemName][$this->mItemMod])) {
+			if ($noFallback) {
+				$this->mRawArray = [];
+			} else {
+				$this->mRawArray = [new OreDictItem($this->mItemName, '', $this->mItemMod, '')];
+			}
+		} else {
+			$this->mRawArray = self::$mQueries[$this->mItemName][$this->mItemMod];
+		}
+
 		return true;
 	}
 

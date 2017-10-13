@@ -105,7 +105,7 @@ class OreDictHooks {
 
 			// Call OreDict
 			$dict = new OreDict($options[1], $mod);
-			$dict->exec(isset($options['tag']));
+			$dict->exec(isset($options['tag']), isset($options['no-fallback']));
 			$outs[] = $dict->runHooks(self::BuildParamString($options));
 		}
 
@@ -141,7 +141,7 @@ class OreDictHooks {
 		}
 		// Call OreDict
 		$dict = new OreDict($options[1], $mod);
-		$dict->exec(isset($options['tag']));
+		$dict->exec(isset($options['tag']), isset($options['no-fallback']));
 		return $dict->runHooks(self::BuildParamString($options));
 	}
 
