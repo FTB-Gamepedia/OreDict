@@ -2,6 +2,16 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.3.0
+* New `no-fallback` param for `#dict` to prevent the fallback icon from showing for missing OreDict entries. OreDict entries that direct to missing tiles still display the fallback icon (#57).
+* "Entry already exists and no changes were made!" message no longer shows when creating an entry in the OreDictEntryManager; it also doesn't submit redundant queries to the database (#58).
+* Fix entries per page in OreDictList (#56).
+* Improve OreDictList display message to be more correct (#59).
+* Localization for errors and warnings (#43).
+* Don't show empty column in OreDictList when the user cannot edit entries (#55).
+* Correct ImportOreDict textarea width
+* Fix up weird spacing in ImportOreDict import button area
+
 ### 3.2.0
 * Sanitize/validate tag name, item name, and mod abbreviation inputs (#53, #54).
 * Use localization for "create new entry" button in OReDictEntryManager.
