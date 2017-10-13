@@ -111,5 +111,6 @@
 	"oredicterror-type-notice": "Notice",
 	"oredicterror-heading": "OreDict extension warnings",
 	"oredicterror-heading-type": "Type",
-	"oredicterror-heading-msg": "Message"
+	"oredicterror-heading-msg": "Message",
+	"oredicterror-none": "No warnings."
 }

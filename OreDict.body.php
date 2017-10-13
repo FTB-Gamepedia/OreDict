@@ -609,7 +609,7 @@ class OreDictError{
 			if ($message[0] == "warnings" || $message[0] == "error") $flag = false;
 		}
 		if ($flag) {
-			$html .= "<tr><td style=\"text-align:center; background-color:blue; color:white; font-weight:bold;\">Notice</td><td>No warnings.</td></tr>";
+			$html .= "<tr><td style=\"text-align:center; background-color:blue; color:white; font-weight:bold;\">" . wfMessage('oredicterror-type-notice')->text() . "</td><td>" . wfMessage('oredicterror-none')->text() . "</td></tr>";
 		}
 		$html .= "</table>";
 
