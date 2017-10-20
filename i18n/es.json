@@ -42,6 +42,6 @@
 	"oredict-manager-submit": "Vas",
 	"log-name-oredict": "Registro del OreDict",
 	"log-description-oredict": "Aquí tú puedes encontrar una lista de cambios que están haciendo a entradas en el OreDict.",
-	"logentry-oredict-editentry": "$1 editó la entrada #$15 ($7{{#if:$8|&nbsp;de $8}}). Cambios: $4;",
+	"logentry-oredict-editentry": "$1 editó la entrada #$13 ($7{{#if:$8|&nbsp;de $8}}). Cambios: $4;",
 	"logentry-oredict-createentry": "$1 creó la entrada #$4 ($6{{#if:$7|&nbsp;de $7}}) y lo asignó a la $5 etiqueta."
 }
