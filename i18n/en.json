@@ -16,7 +16,7 @@
 	"oredict-import-input-hint": "Entries must be in the following format: <code>$tagName!$itemName!$modName!$gridParams</code>. <code>$gridParams</code> may be left blank.",
 	"oredict-import-submit": "Import",
 	"oredict-import-update": "Update mode",
-	"oredict-import-update-hint": "Extension will overwrite any conflicting entries, if you want to edit only one entry, use the [[Special:OreDictEntryManager|Entry Manager]] instead. Please note that you can only modify the grid params using this method.",
+	"oredict-import-update-hint": "Extension will overwrite any conflicting entries; if you want to edit only one entry, use the [[Special:OreDictEntryManager|Entry Manager]] instead. Please note that you can only modify the grid params using this method.",
 	"oredict-import-success": "SUCCESS",
 	"oredict-import-success-update": "Successfully updated entry!",
 	"oredict-import-success-new": "Successfully inserted entry to ID: $1!",
