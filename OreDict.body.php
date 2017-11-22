@@ -418,7 +418,7 @@ class OreDict{
 			'mod_name' => $row->mod_name,
 			'item_name' => $row->item_name,
 			'grid_params' => $row->grid_params,
-			'id' => $row->entry_id
+			'id' => intval($row->entry_id)
 		);
 	}
 }
