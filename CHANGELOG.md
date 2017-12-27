@@ -2,6 +2,13 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.3.1
+* Return ID as int instead of string in oredictsearch list API and oredictentry prop API (#63).
+* Fix comma splice in update hint on import page (#61).
+* Fix editentry log entry ID (#60).
+* Fix type in Special:Version.
+* Add missing internationalization for "No warnings," Notice in the edit window.
+
 ### 3.3.0
 * New `no-fallback` param for `#dict` to prevent the fallback icon from showing for missing OreDict entries. OreDict entries that direct to missing tiles still display the fallback icon (#57).
 * "Entry already exists and no changes were made!" message no longer shows when creating an entry in the OreDictEntryManager; it also doesn't submit redundant queries to the database (#58).
@@ -25,7 +32,7 @@ This changelog only shows recent version history, because of the lack of documen
 
 ### 3.0.0
 * Remove the entire flag/mode/call type system and flags column (schema update required) (#46, #44).
-* Localize "Importing entries." log comment 
+* Localize "Importing entries." log comment
 * Localize everything applicable in the following special pages:
   * ImportOreDict
   * OreDictEntryManager
