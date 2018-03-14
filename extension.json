@@ -9,6 +9,12 @@
 		"edittilesheets",
 		"importtilesheets"
 	],
+	"GrantPermissions": {
+		"oredict": {
+			"editoredict": true,
+			"importoredict": true
+		}
+	},
 	"SpecialPages": {
 		"OreDictEntryManager": "OreDictEntryManager",
 		"OreDictList": "OreDictList",
@@ -83,13 +89,7 @@
 	},
 	"config": {
 		"ShowExceptionDetails": true,
-		"OreDictDebug": false,
-		"GrantPermissions": {
-			"oredict": {
-				"editoredict": true,
-				"importoredict": true
-			}
-		}
+		"OreDictDebug": false
 	},
 	"manifest_version": 1
 }
