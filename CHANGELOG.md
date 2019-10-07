@@ -2,6 +2,10 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.3.2
+* Fix GrantPermissions (#66).
+* Update `mw.util.wikiGetlink`, deprecated in 1.23, to `mw.util.getUrl` (#70) (chaud).
+
 ### 3.3.1
 * Return ID as int instead of string in oredictsearch list API and oredictentry prop API (#63).
 * Fix comma splice in update hint on import page (#61).
@@ -21,7 +25,7 @@ This changelog only shows recent version history, because of the lack of documen
 
 ### 3.2.0
 * Sanitize/validate tag name, item name, and mod abbreviation inputs (#53, #54).
-* Use localization for "create new entry" button in OReDictEntryManager.
+* Use localization for "create new entry" button in OreDictEntryManager.
 * Fix OreDictEntryManager "create new entry" filter button doing nothing (#50).
 * Add a button to OreDictEntryManager to delete the entry, disabled when creating a new entry (#51).
 * Update OreDictEntryManager, OreDictList, and ImportOreDict to use OOjs UI (#52).
