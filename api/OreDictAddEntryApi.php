@@ -51,7 +51,7 @@ class OreDictAddEntryApi extends ApiBase {
 
     public function execute() {
         if (!in_array('editoredict', $this->getUser()->getRights())) {
-            $this->dieUsage('You do not have the permission to add OreDict entries', 'permissiondenied');
+            $this->dieWithError('You do not have the permission to add OreDict entries', 'permissiondenied');
         }
 
         $mod = $this->getParameter('mod');
@@ -64,7 +64,7 @@ class OreDictAddEntryApi extends ApiBase {
             $ret = array('result' => $result);
             $this->getResult()->addValue('edit', 'neworedict', $ret);
         } else {
-            $this->dieUsage('Entry already exists', 'entryexists');
+            $this->dieWithError('Entry already exists', 'entryexists');
         }
     }
 }
