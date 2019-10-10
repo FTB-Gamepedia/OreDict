@@ -52,13 +52,13 @@ class OreDictEditEntryApi extends ApiBase {
 
     public function execute() {
         if (!in_array('editoredict', $this->getUser()->getRights())) {
-            $this->dieUsage('You do not have the permission to add OreDict entries', 'permissiondenied');
+            $this->dieWithError('You do not have the permission to add OreDict entries', 'permissiondenied');
         }
-        
+
         $id = $this->getParameter('id');
 
         if (!OreDict::checkExistsByID($id)) {
-            $this->dieUsage("Entry $id does not exist", 'entrynotexist');
+            $this->dieWithError("Entry $id does not exist", 'entrynotexist');
             return;
         }
 
@@ -82,11 +82,11 @@ class OreDictEditEntryApi extends ApiBase {
                 break;
             }
             case 1: {
-                $this->dieUsage("Failed to edit $id in the database", 'dbfail');
+                $this->dieWithError("Failed to edit $id in the database", 'dbfail');
                 return;
             }
             case 2: {
-                $this->dieUsage("There was no change made for entry $id", 'nodiff');
+                $this->dieWithError("There was no change made for entry $id", 'nodiff');
                 return;
             }
         }
