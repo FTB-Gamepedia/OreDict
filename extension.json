@@ -88,7 +88,6 @@
 		]
 	},
 	"config": {
-		"ShowExceptionDetails": true,
 		"OreDictDebug": false
 	},
 	"manifest_version": 1
