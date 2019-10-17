@@ -2,6 +2,10 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.3.3
+* Fix ImportOreDict textarea multiline
+* Remove wgShowExceptionDetails config assignment
+
 ### 3.3.2
 * Fix GrantPermissions (#66).
 * Update `mw.util.wikiGetlink`, deprecated in 1.23, to `mw.util.getUrl` (#70) (chaud).
