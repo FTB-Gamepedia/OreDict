@@ -180,10 +180,9 @@ class ImportOreDict extends SpecialPage {
 				new OOUI\LabelWidget([
 					'label' => new OOUI\HtmlSnippet($this->msg('oredict-import-input-hint')->parse())
 				]),
-				new OOUI\TextInputWidget([
+				new OOUI\MultilineTextInputWidget([
 					'classes' => ['oredict-import-textarea'],
 					'autofocus' => true,
-					'multiline' => true,
 					'rows' => 40,
 					'name' => 'input'
 				]),
