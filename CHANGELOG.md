@@ -2,6 +2,9 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.3.4
+* Fix API descriptions/summaries (#73).
+
 ### 3.3.3
 * Fix ImportOreDict textarea multiline
 * Remove wgShowExceptionDetails config assignment
