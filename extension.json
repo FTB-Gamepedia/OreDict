@@ -39,7 +39,6 @@
 		"OreDictItem": "OreDict.body.php",
 		"OreDictError": "OreDict.body.php",
 		"OreDictHooks": "OreDict.hooks.php",
-		"OreDictForm": "classes/OreDictForm.php",
 		"OreDictEntryManager": "special/OreDictEntryManager.php",
 		"OreDictList": "special/OreDictList.php",
 		"ImportOreDict": "special/ImportOreDict.php",

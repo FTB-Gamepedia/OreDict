@@ -44,7 +44,6 @@ $wgAutoloadClasses['OreDict'] = dirname(__FILE__)."/OreDict.body.php";
 $wgAutoloadClasses['OreDictItem'] = dirname(__FILE__)."/OreDict.body.php";
 $wgAutoloadClasses['OreDictError'] = dirname(__FILE__)."/OreDict.body.php";
 $wgAutoloadClasses['OreDictHooks'] = dirname(__FILE__)."/OreDict.hooks.php";
-$wgAutoloadClasses['OreDictForm'] = dirname(__FILE__)."/classes/OreDictForm.php";
 
 $wgAutoloadClasses['OreDictEntryManager'] = dirname(__FILE__)."/special/OreDictEntryManager.php";
 $wgAutoloadClasses['OreDictList'] = dirname(__FILE__)."/special/OreDictList.php";
