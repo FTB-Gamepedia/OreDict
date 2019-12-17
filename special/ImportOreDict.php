@@ -53,7 +53,7 @@ class ImportOreDict extends SpecialPage {
 		// Process and save POST data
 		if ($_POST) {
 			// XSRF prevention
-			if ( !$this->getUser()->matchEditToken( $this->getRequest()->getVal( 'token' ) ) ) {
+			if ( !$this->getUser()->matchEditToken( $this->getRequest()->getVal( 'wpEditToken' ) ) ) {
 				return;
 			}
 
@@ -154,83 +154,43 @@ class ImportOreDict extends SpecialPage {
 			}
 			$out->addHtml('</tt>');
 		} else {
-			$out->addHtml($this->buildForm());
+			$this->displayForm();
 		}
 	}
 
-	/**
-	 * Build the oredict creation form
-	 *
-	 * @return string
-	 */
+	private function displayForm() {
+		global $wgArticlePath;
 
-	private function buildForm() {
-		global $wgArticlePath, $wgUser;
+		$formDescriptor = [
+		    'input' => [
+		        'type' => 'textarea',
+		        'name' => 'input',
+                'autofocus' => true,
+                'rows' => 40,
+                'cssclass' => 'oredict-import-textarea',
+                'label-message' => 'oredict-import-input',
+                'help-message' => 'oredict-import-input-hint'
+            ],
+            'update_table' => [
+                'type' => 'check',
+                'name' => 'update_table',
+                'id' => 'update_table',
+                'default' => 0,
+                'label-message' => 'oredict-import-update',
+                'help-message' => 'oredict-import-update-hint'
+            ]
+        ];
 
-		$fieldset = new OOUI\FieldsetLayout([
-			'label' => $this->msg('oredict-import-legend')->text(),
-			'items' => [
-				new OOUI\HorizontalLayout([
-					'items' => [
-						new OOUI\LabelWidget([
-							'label' => $this->msg('oredict-import-input')->text()
-						])
-					]
-				]),
-				new OOUI\LabelWidget([
-					'label' => new OOUI\HtmlSnippet($this->msg('oredict-import-input-hint')->parse())
-				]),
-				new OOUI\MultilineTextInputWidget([
-					'classes' => ['oredict-import-textarea'],
-					'autofocus' => true,
-					'rows' => 40,
-					'name' => 'input'
-				]),
-				new OOUI\HorizontalLayout([
-					'items' => [
-						new OOUI\ButtonInputWidget([
-							'type' => 'submit',
-							'label' => $this->msg('oredict-import-submit')->text(),
-							'flags' => ['primary', 'progressive']
-						]),
-						new OOUI\CheckboxInputWidget([
-							'value' => '1',
-							'name' => 'update_table',
-							'inputId' => 'update_table'
-						]),
-						new OOUI\LabelWidget([
-							'label' => $this->msg('oredict-import-update')->text()
-						]),
-						new OOUI\LabelWidget([
-							'classes' => ['oredict-import-update-hint-label'],
-							'label' => new OOUI\HtmlSnippet($this->msg('oredict-import-update-hint')->parse())
-						])
-					]
-				]),
-
-			]
-		]);
-
-		$form = new OOUI\FormLayout([
-			'method' => 'POST',
-			'action' => str_replace('$1', 'Special:ImportOreDict', $wgArticlePath),
-			'id' => 'ext-oredict-import-form'
-		]);
-		$form->appendContent(
-			$fieldset,
-			new OOUI\HtmlSnippet(
-				Html::hidden('title', $this->getTitle()->getPrefixedText()) .
-				Html::hidden('token', $wgUser->getEditToken())
-			)
-		);
-
-		return new OOUI\PanelLayout([
-			'classes' => ['oredict-importer-wrapper'],
-			'framed' => true,
-			'expanded' => false,
-			'padded' => true,
-			'content' => $form
-		]);
+        $htmlForm = HTMLForm::factory('ooui', $formDescriptor, $this->getContext());
+        $htmlForm
+            ->setMethod('post')
+            ->setAction(str_replace('$1', 'Special:ImportOreDict', $wgArticlePath))
+            ->setWrapperLegendMsg('tilesheet-create-legend')
+            ->setId('ext-oredict-import-form')
+            ->setSubmitTextMsg('oredict-import-submit')
+            ->setSubmitProgressive()
+            ->prepareForm()
+            ->displayForm(false);
 	}
 
 	/**

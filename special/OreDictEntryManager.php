@@ -94,14 +94,14 @@ class OreDictEntryManager extends SpecialPage {
 
 		if ($results->numRows() == 0 && $opts->getValue('entry_id') != -1 && $opts->getValue('entry_id') != -2) {
 			$out->addWikiText(wfMessage('oredict-manager-fail-norows')->text());
-			// $out->addHtml($this->outputUpdateForm());
+			// $this->>displayUpdateForm();
 		} else if ($opts->getValue('entry_id') == -2) {
 			$out->addWikiText(wfMessage('oredict-manager-fail-insert')->text());
-			$out->addHtml($this->outputUpdateForm());
+			$this->displayUpdateForm();
 		} else if ($results->numRows() == 1) {
-			$out->addHtml($this->outputUpdateForm($results->current()));
+            $this->displayUpdateForm($results->current());
 		} else {
-			$out->addHtml($this->outputUpdateForm());
+            $this->displayUpdateForm();
 		}
 	}
 
@@ -150,111 +150,69 @@ class OreDictEntryManager extends SpecialPage {
 		return OreDict::editEntry($ary, $entryId, $this->getUser());
 	}
 
-	private function outputUpdateForm(stdClass $opts = NULL) {
-		global $wgScript;
+	private function displayUpdateForm(stdClass $opts = NULL) {
 		$vEntryId = is_object($opts) ? $opts->entry_id : -1;
 		$vTagName = is_object($opts) ? $opts->tag_name : '';
 		$vTagReadonly = is_object($opts);
 		$vItemName = is_object($opts) ? $opts->item_name : '';
 		$vModName = is_object($opts) ? $opts->mod_name : '';
 		$vGridParams = is_object($opts) ? $opts->grid_params : '';
-		$msgFieldsetMain = is_object($opts) ? $this->msg('oredict-manager-edit-legend') : $this->msg('oredict-manager-create-legend');
-		$msgSubmitValue = is_object($opts) ? $this->msg('oredict-manager-update') : $this->msg('oredict-manager-create');
+		$msgFieldsetMain = is_object($opts) ? 'oredict-manager-edit-legend' : 'oredict-manager-create-legend';
+		$msgSubmitValue = is_object($opts) ? 'oredict-manager-update' : 'oredict-manager-create';
 
-		$fieldset = new OOUI\FieldsetLayout([
-			'label' => $msgFieldsetMain->text(),
-			'items' => [
-				new OOUI\FieldLayout(
-					new OOUI\TextInputWidget([
-						'type' => 'number',
-						'name' => 'entry_id',
-						'value' => $vEntryId,
-						'readOnly' => true
-					]),
-					[
-						'label' => $this->msg('oredict-manager-entry_id')->text()
-					]
-				),
-				new OOUI\FieldLayout(
-					new OOUI\TextInputWidget([
-						'name' => 'tag_name',
-						'value' => $vTagName,
-						'readOnly' => $vTagReadonly
-					]),
-					[
-						'label' => $this->msg('oredict-manager-tag_name')->text()
-					]
-				),
-				new OOUI\FieldLayout(
-					new OOUI\TextInputWidget([
-						'name' => 'item_name',
-						'value' => $vItemName
-					]),
-					[
-						'label' => $this->msg('oredict-manager-item_name')->text()
-					]
-				),
-				new OOUI\FieldLayout(
-					new OOUI\TextInputWidget([
-						'name' => 'mod_name',
-						'value' => $vModName
-					]),
-					[
-						'label' => $this->msg('oredict-manager-mod_name')->text()
-					]
-				),
-				new OOUI\FieldLayout(
-					new OOUI\TextInputWidget([
-						'name' => 'grid_params',
-						'value' => $vGridParams
-					]),
-					[
-						'label' => $this->msg('oredict-manager-grid_params')->text()
-					]
-				),
-				new OOUI\HorizontalLayout([
-					'items' => [
-						new OOUI\ButtonInputWidget([
-							'type' => 'submit',
-							'label' => $msgSubmitValue->text(),
-							'flags' => ['primary', 'progressive'],
-							'name' => 'update',
-							'value' => 1
-						]),
-						new OOUI\ButtonInputWidget([
-							'type' => 'submit',
-							'label' => $this->msg('oredict-manager-entry_del')->text(),
-							'flags' => ['destructive'],
-							'icon' => 'remove',
-							'name' => 'delete',
-							'value' => 1,
-							'disabled' => $vEntryId == -1
-						])
-					]
-				])
-			]
-		]);
-		$form = new OOUI\FormLayout([
-			'method' => 'GET',
-			'action' => $wgScript,
-			'id' => 'ext-oredict-manager-form'
-		]);
-
-		$form->appendContent(
-			$fieldset,
-			new OOUI\HtmlSnippet(
-				Html::hidden('title', $this->getTitle()->getPrefixedText()) .
-				Html::hidden('token', $this->getUser()->getEditToken())
-			)
-		);
-
-		return new OOUI\PanelLayout([
-			'classes' => ['entry-manager-wrapper'],
-			'framed' => true,
-			'expanded' => false,
-			'padded' => true,
-			'content' => $form
-		]);
+		$formDescriptor = [
+		    'entry_id' => [
+		        'type' => 'int',
+                'name' => 'entry_id',
+                'default' => $vEntryId,
+                'readonly' => true,
+                'label-message' => 'oredict-manager-entry_id'
+            ],
+            'tag_name' => [
+                'type' => 'text',
+                'name' => 'tag_name',
+                'default' => $vTagName,
+                'readonly' => $vTagReadonly,
+                'label-message' => 'oredict-manager-tag_name'
+            ],
+            'item_name' => [
+                'type' => 'text',
+                'name' => 'item_name',
+                'default' => $vItemName,
+                'label-message' => 'oredict-manager-item_name'
+            ],
+            'mod_name' => [
+                'type' => 'text',
+                'name' => 'mod_name',
+                'default' => $vModName,
+                'label-message' => 'oredict-manager-mod_name'
+            ],
+            'grid_params' => [
+                'type' => 'text',
+                'name' => 'grid_params',
+                'default' => $vGridParams,
+                'label-message' => 'oredict-manager-grid_params'
+            ]
+        ];
+		$htmlForm = HTMLForm::factory('ooui', $formDescriptor, $this->getContext());
+		$htmlForm
+            ->addButton([
+                'name' => 'delete',
+                'value' => 1,
+                'label-message' => 'oredict-manager-entry_del',
+                'flags' => ['destructive'],
+                'attribs' => ['disabled' => $vEntryId == -1],
+                'iconElement' => 'remove'
+            ])
+            ->addHIddenField('token', $this->getUser()->getEditToken())
+            ->setMethod('get')
+            ->addHiddenField('update', 1)
+            ->setWrapperLegendMsg($msgFieldsetMain)
+            ->setId('ext-oredict-manager-form')
+            ->setSubmitTextMsg($msgSubmitValue)
+            ->setSubmitProgressive()
+            ->prepareForm()
+            ->displayForm(false);
 	}
 
 	private function outputSearchForm() {

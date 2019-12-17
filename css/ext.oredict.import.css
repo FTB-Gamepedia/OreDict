@@ -1,22 +1,9 @@
-.oredict-import-update-hint-label {
-    font-size: x-small;
-    padding-top: 0.5em;
-    color: #666666;
-}
-
 .oredict-import-textarea {
     padding-bottom: 0.5em;
 }
 
 .oredict-import-textarea textarea {
     width: 145.5%;
-}
-
-.oredict-import-update-hint-label {
-    font-size: x-small;
-    padding: .2em .5em;
-    color: #666;
-    display: inline !important;
 }
 
 .oo-ui-checkboxInputWidget {
