@@ -5,6 +5,7 @@
 	"url": "http://help.gamepedia.com/Extension:OreDict",
 	"descriptionmsg": "oredict-desc",
 	"type": "parserhook",
+	"license-name": "MIT",
 	"AvailableRights": [
 		"edittilesheets",
 		"importtilesheets"
