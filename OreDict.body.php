@@ -356,7 +356,12 @@ class OreDict{
 
 		$result = $dbw->update(
 			'ext_oredict_items',
-			$update,
+			array(
+				'tag_name' => $tag,
+				'item_name' => $item,
+				'mod_name' => $mod,
+				'grid_params' => $params
+			),
 			array('entry_id' => $id),
 			__METHOD__
 		);
