@@ -169,7 +169,7 @@ class OreDictList extends SpecialPage {
 		}
 		$pageSelection = '<div style="text-align:center;" class="plainlinks">'.$prevPage.' | '.$nextPage.'</div>';
 
-		$out->addHtml($this->buildForm($opts));
+		$this->displayForm($opts);
 		if ($maxRows == 0) {
 			$out->addWikiText(wfMessage('oredict-list-display-none')->text());
 		} else {
@@ -186,86 +186,62 @@ class OreDictList extends SpecialPage {
 		$out->addModules( 'ext.oredict.list' );
 	}
 
-	const SIZES = [
-		['data' => 20],
-		['data' => 50],
-		['data' => 100],
-		['data' => 250],
-		['data' => 500],
-		['data' => 5000]
-	];
+	public function displayForm(FormOptions $opts) {
+		$lang = $this->getLanguage();
+		$formDescriptor = [
+		    'from' => [
+		        'type' => 'int',
+                'name' => 'from',
+                'default' => $opts->getValue('from'),
+                'min' => 1,
+                'id' => 'from',
+                'label-message' => 'oredict-list-from'
+            ],
+            'start' => [
+                'type' => 'text',
+                'name' => 'start',
+                'default' => $opts->getValue('start'),
+                'id' => 'start',
+                'label-message' => 'oredict-list-start'
+            ],
+            'tag' => [
+                'type' => 'text',
+                'name' => 'tag',
+                'default' => $opts->getValue('tag'),
+                'id' => 'tag',
+                'label-message' => 'oredict-list-tag'
+            ],
+            'mod' => [
+                'type' => 'text',
+                'name' => 'mod',
+                'default' => $opts->getValue('mod'),
+                'id' => 'mod',
+                'label-message' => 'oredict-list-mod'
+            ],
+            'limit' => [
+                'type' => 'limitselect',
+                'name' => 'limit',
+                'label-message' => 'oredict-list-limit',
+                'options' => [
+                    $lang->formatNum(20) => 20,
+                    $lang->formatNum(50) => 50,
+                    $lang->formatNum(100) => 100,
+                    $lang->formatNum(250) => 250,
+                    $lang->formatNum(500) => 500,
+                    $lang->formatNum(5000) => 5000
+                ],
+                'default' => $opts->getValue('limit')
+            ]
+        ];
 
-	public function buildForm(FormOptions $opts) {
-		global $wgScript;
-
-		$fieldset = new OOUI\FieldsetLayout([
-			'label' => $this->msg('oredict-list-legend')->text(),
-			'items' => [
-				new OOUI\FieldLayout(
-					new OOUI\TextInputWidget([
-						'type' => 'number',
-						'name' => 'from',
-						'value' => $opts->getValue('from'),
-						'min' => '1',
-						'id' => 'from'
-					]),
-					['label' => $this->msg('oredict-list-from')->text()]
-				),
-				new OOUI\FieldLayout(
-					new OOUI\TextInputWidget([
-						'name' => 'start',
-						'value' => $opts->getValue('start'),
-						'id' => 'start'
-					]),
-					['label' => $this->msg('oredict-list-start')->text()]
-				),
-				new OOUI\FieldLayout(
-					new OOUI\TextInputWidget([
-						'name' => 'tag',
-						'value' => $opts->getValue('tag'),
-						'id' => 'tag'
-					]),
-					['label' => $this->msg('oredict-list-tag')->text()]
-				),
-				new OOUI\FieldLayout(
-					new OOUI\TextInputWidget([
-						'name' => 'mod',
-						'value' => $opts->getValue('mod'),
-						'id' => 'mod'
-					]),
-					['label' => $this->msg('oredict-list-mod')->text()]
-				),
-				new OOUI\FieldLayout(
-					new OOUI\DropdownInputWidget([
-						'options' => self::SIZES,
-						'value' => $opts->getValue('limit'),
-						'name' => 'limit'
-					]),
-					['label' => $this->msg('oredict-list-limit')->text()]
-				),
-				new OOUI\ButtonInputWidget([
-					'type' => 'submit',
-					'label' => $this->msg('oredict-list-submit')->text(),
-					'flags' => ['primary', 'progressive']
-				])
-			]
-		]);
-
-		$form = new OOUI\FormLayout([
-			'method' => 'GET',
-			'action' => $wgScript,
-			'id' => 'ext-oredict-list-filter',
-		]);
-		$form->appendContent(
-			$fieldset,
-			new OOUI\HtmlSnippet(Html::hidden('title', $this->getTitle()->getPrefixedText()))
-		);
-		return new OOUI\PanelLayout([
-			'classes' => ['oredictlist-filter-wrapper'],
-			'framed' => true,
-			'expanded' => false,
-			'padded' => true,
-			'content' => $form
-		]);
+		$htmlForm = HTMLForm::factory('ooui', $formDescriptor, $this->getContext());
+		$htmlForm
+            ->setMethod('get')
+            ->setWrapperLegendMsg('oredict-list-legend')
+            ->setId('ext-oredict-list-filter')
+            ->setSubmitTextMsg('oredict-list-submit')
+            ->setSubmitProgressive()
+            ->prepareForm()
+            ->displayForm(false);
 	}
 }
