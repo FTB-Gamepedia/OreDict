@@ -2,6 +2,12 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.3.5
+* Remove unused OreDictForm class.
+* Update ImportOreDict, OreDictEntryManager (update form only), and OreDictList to use HTMLFormg (#74).
+* Fix license issue on Special:Version (#76) (xbony2).
+* editEntry: Use sanitized inputs in SQL UPDATE. We sanitized the inputs to make sure there are no bad (empty, invalid string) values, but then use the provided inputs rather than the sanitized inputs in the SQL query. This was introduced in #54 (v3.2.0) and was exposed in the API as seen in #77.
+
 ### 3.3.4
 * Fix API descriptions/summaries (#73).
 
