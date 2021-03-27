@@ -74,11 +74,11 @@ class OreDictEntryManager extends SpecialPage {
 						break;
 					}
 					case 1: {
-						$out->addWikiText($this->msg('oredict-manager-fail-general')->text());
+						$out->addWikiTextAsInterface($this->msg('oredict-manager-fail-general')->text());
 						break;
 					}
 					case 2: {
-						$out->addWikiText($this->msg('oredict-import-fail-nochange')->text());
+						$out->addWikiTextAsInterface($this->msg('oredict-import-fail-nochange')->text());
 						break;
 					}
 				}
@@ -89,14 +89,14 @@ class OreDictEntryManager extends SpecialPage {
 		}
 
 		// Load data
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$results = $dbr->select('ext_oredict_items','*',array('entry_id' => $opts->getValue('entry_id')));
 
 		if ($results->numRows() == 0 && $opts->getValue('entry_id') != -1 && $opts->getValue('entry_id') != -2) {
-			$out->addWikiText(wfMessage('oredict-manager-fail-norows')->text());
+			$out->addWikiTextAsInterface(wfMessage('oredict-manager-fail-norows')->text());
 			// $this->>displayUpdateForm();
 		} else if ($opts->getValue('entry_id') == -2) {
-			$out->addWikiText(wfMessage('oredict-manager-fail-insert')->text());
+			$out->addWikiTextAsInterface(wfMessage('oredict-manager-fail-insert')->text());
 			$this->displayUpdateForm();
 		} else if ($results->numRows() == 1) {
             $this->displayUpdateForm($results->current());
@@ -210,7 +210,6 @@ class OreDictEntryManager extends SpecialPage {
             ->setWrapperLegendMsg($msgFieldsetMain)
             ->setId('ext-oredict-manager-form')
             ->setSubmitTextMsg($msgSubmitValue)
-            ->setSubmitProgressive()
             ->prepareForm()
             ->displayForm(false);
 	}
@@ -257,7 +256,7 @@ class OreDictEntryManager extends SpecialPage {
 		]);
 		$form->appendContent(
 			$fieldset,
-			new OOUI\HtmlSnippet(Html::hidden('title', $this->getTitle()->getPrefixedText()))
+			new OOUI\HtmlSnippet(Html::hidden('title', $this->getPageTitle()->getPrefixedText()))
 		);
 
 		return new OOUI\PanelLayout([

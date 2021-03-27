@@ -97,16 +97,8 @@ class OreDictHooks {
 		// Create grids
 		$outs = array();
 		foreach ($items as $options) {
-			// Set mod
-			$mod = '';
-			if (isset($options['mod'])) {
-				$mod = $options['mod'];
-			}
-
 			// Call OreDict
-			$dict = new OreDict($options[1], $mod);
-			$dict->exec(isset($options['tag']), isset($options['no-fallback']));
-			$outs[] = $dict->runHooks(self::BuildParamString($options));
+			$outs[] = self::runHooks($options);
 		}
 
 		$ret = "";
@@ -134,15 +126,8 @@ class OreDictHooks {
 		}
 		$options = OreDictHooks::ExtractOptions($opts);
 
-		// Set mod
-		$mod = '';
-		if (isset($options['mod'])) {
-			$mod = $options['mod'];
-		}
 		// Call OreDict
-		$dict = new OreDict($options[1], $mod);
-		$dict->exec(isset($options['tag']), isset($options['no-fallback']));
-		return $dict->runHooks(self::BuildParamString($options));
+		return self::runHooks($options);
 	}
 
 	/**
@@ -212,5 +197,31 @@ class OreDictHooks {
 		$editPage->editFormTextAfterWarn .= $errors->output();
 
 		return true;
+	}
+
+	private static function getOptions($options) {
+		// Set mod
+		$mod = '';
+		if (isset($options['mod'])) {
+			$mod = $options['mod'];
+		}
+
+		// Set limit
+		if (isset($options['limit'])) {
+			$limit = $options['limit'];
+		}
+		if (!isset($limit) || $limit <= 0) {
+			$limit = 20;
+		}
+
+		return array($mod, $limit);
+	}
+
+	private static function runHooks($options) {
+		list ($mod, $limit) = self::getOptions($options);
+
+		$dict = new OreDict($options[1], $mod, $limit);
+		$dict->exec(isset($options['tag']), isset($options['no-fallback']));
+		return $dict->runHooks(self::BuildParamString($options));
 	}
 }

@@ -22,11 +22,12 @@ class OreDict{
 	 *
 	 * @param string $itemName
 	 * @param string $itemMod
+	 * @param int $limit
 	 */
-	public function __construct($itemName, $itemMod = '') {
+	public function __construct(string $itemName, string $itemMod, int $limit) {
 		$this->mItemName = $itemName;
-		$this->mOutputLimit = 20;
 		$this->mItemMod = $itemMod;
+		$this->mOutputLimit = $limit;
 	}
 
 	/**
@@ -78,7 +79,7 @@ class OreDict{
 	 * @return bool
 	 */
 	public function exec($byTag = false, $noFallback = false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// Vars
 		$itemModEscaped = $dbr->addQuotes($this->mItemMod);
@@ -192,7 +193,7 @@ class OreDict{
 	 * @return bool
 	 */
 	static public function entryExists($item, $tag, $mod) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$result = $dbr->select(
 			'ext_oredict_items',
@@ -212,7 +213,7 @@ class OreDict{
 	 * @return mixed		See checkExists.
 	 */
 	static public function checkExistsByID($id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			'ext_oredict_items',
 			array(
@@ -414,8 +415,8 @@ class OreDict{
 	}
 
 	/**
-	 * @param $row ?		The row to get the data from.
-	 * @return array		An array containing the tag, mod, item, and grid params for use throughout the API.
+	 * @param ? $row The row to get the data from.
+	 * @return array An array containing the tag, mod, item, and grid params for use throughout the API.
 	 */
 	static public function getArrayFromRow($row) {
 		return array(

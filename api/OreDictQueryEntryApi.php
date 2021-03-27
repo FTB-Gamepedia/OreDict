@@ -25,7 +25,7 @@ class OreDictQueryEntryApi extends ApiQueryBase {
 
     public function execute() {
         $ids = $this->getParameter('ids');
-        $dbr = wfGetDB(DB_SLAVE);
+        $dbr = wfGetDB(DB_REPLICA);
         $ret = array();
 
         foreach ($ids as $id) {

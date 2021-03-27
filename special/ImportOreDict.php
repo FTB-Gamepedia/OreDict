@@ -57,7 +57,7 @@ class ImportOreDict extends SpecialPage {
 				return;
 			}
 
-			$out->addHtml('<tt>');
+			$out->addHtml('<samp>');
 			$dbw = wfGetDB(DB_MASTER);
 
 			$input = explode("\n", trim($opts->getValue('input')));
@@ -152,7 +152,7 @@ class ImportOreDict extends SpecialPage {
 
 				$out->addHTML($this->returnMessage(true, wfMessage('oredict-import-success-new', $result)->text()));
 			}
-			$out->addHtml('</tt>');
+			$out->addHtml('</samp>');
 		} else {
 			$this->displayForm();
 		}
@@ -188,7 +188,6 @@ class ImportOreDict extends SpecialPage {
             ->setWrapperLegendMsg('tilesheet-create-legend')
             ->setId('ext-oredict-import-form')
             ->setSubmitTextMsg('oredict-import-submit')
-            ->setSubmitProgressive()
             ->prepareForm()
             ->displayForm(false);
 	}

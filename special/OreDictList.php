@@ -62,7 +62,7 @@ class OreDictList extends SpecialPage {
 		$page = intval($opts->getValue('page'));
 
 		// Load data
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$results =  $dbr->select(
 			'ext_oredict_items',
 			'COUNT(`entry_id`) AS row_count',
@@ -85,7 +85,7 @@ class OreDictList extends SpecialPage {
 		}
 
 		$begin = $page * $limit;
-		$end = min($begin + $limit, $maxRows);
+		// $end = min($begin + $limit, $maxRows);
 		$order = $start == '' ? 'entry_id ASC' : 'item_name ASC';
 		$results = $dbr->select(
 			'ext_oredict_items',
@@ -171,16 +171,16 @@ class OreDictList extends SpecialPage {
 
 		$this->displayForm($opts);
 		if ($maxRows == 0) {
-			$out->addWikiText(wfMessage('oredict-list-display-none')->text());
+			$out->addWikiTextAsInterface(wfMessage('oredict-list-display-none')->text());
 		} else {
 			// We are currently at the end from the iteration earlier in the function, so we have to go back to get the
 			// first row's entry ID.
 			$results->rewind();
 			$firstID = $results->current()->entry_id;
-			$out->addWikiText(wfMessage('oredict-list-displaying', $firstID, $lastID, $maxRows)->text());
+			$out->addWikiTextAsInterface(wfMessage('oredict-list-displaying', $firstID, $lastID, $maxRows)->text());
 		}
-		$out->addWikiText(" $pageSelection\n");
-		$out->addWikitext($table);
+		$out->addWikiTextAsInterface(" $pageSelection\n");
+		$out->addWikiTextAsInterface($table);
 
 		// Add modules
 		$out->addModules( 'ext.oredict.list' );
@@ -240,7 +240,6 @@ class OreDictList extends SpecialPage {
             ->setWrapperLegendMsg('oredict-list-legend')
             ->setId('ext-oredict-list-filter')
             ->setSubmitTextMsg('oredict-list-submit')
-            ->setSubmitProgressive()
             ->prepareForm()
             ->displayForm(false);
 	}

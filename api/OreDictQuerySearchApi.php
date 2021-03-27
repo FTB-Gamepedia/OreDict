@@ -52,7 +52,7 @@ class OreDictQuerySearchApi extends ApiQueryBase {
         $name = $this->getParameter('name');
         $limit = $this->getParameter('limit');
         $from = $this->getParameter('from');
-        $dbr = wfGetDB(DB_SLAVE);
+        $dbr = wfGetDB(DB_REPLICA);
 
         $conditions = array(
             "entry_id >= $from"

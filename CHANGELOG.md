@@ -2,6 +2,10 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.3.6
+* Add support to set limit of entries returned
+* Replace deprecated calls with their updated equivalents
+
 ### 3.3.5
 * Remove unused OreDictForm class.
 * Update ImportOreDict, OreDictEntryManager (update form only), and OreDictList to use HTMLFormg (#74).
