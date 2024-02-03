@@ -1,5 +1,8 @@
 <?php
 
+use Wikimedia\ParamValidator\ParamValidator;
+use Wikimedia\ParamValidator\TypeDef\IntegerDef;
+
 class OreDictQueryEntryApi extends ApiQueryBase {
     public function __construct($query, $moduleName) {
         parent::__construct($query, $moduleName, 'od');
@@ -8,11 +11,11 @@ class OreDictQueryEntryApi extends ApiQueryBase {
     public function getAllowedParams() {
         return array(
             'ids' => array(
-                ApiBase::PARAM_TYPE => 'integer',
-                ApiBase::PARAM_ISMULTI => true,
-                ApiBase::PARAM_ALLOW_DUPLICATES => false,
-                ApiBase::PARAM_MIN => 1,
-                ApiBase::PARAM_REQUIRED => true,
+            	ParamValidator::PARAM_TYPE => 'integer',
+            	ParamValidator::PARAM_ISMULTI => true,
+            	ParamValidator::PARAM_ALLOW_DUPLICATES => false,
+                IntegerDef::PARAM_MIN => 1,
+            	ParamValidator::PARAM_REQUIRED => true,
             ),
         );
     }

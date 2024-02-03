@@ -1,5 +1,7 @@
 <?php
 
+use Wikimedia\ParamValidator\ParamValidator;
+
 class OreDictAddEntryApi extends ApiBase {
     public function __construct($query, $moduleName) {
         parent::__construct($query, $moduleName, 'od');
@@ -8,20 +10,20 @@ class OreDictAddEntryApi extends ApiBase {
     public function getAllowedParams() {
         return array(
             'mod' => array(
-                ApiBase::PARAM_TYPE => 'string',
-                ApiBase::PARAM_REQUIRED => true,
+                ParamValidator::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_REQUIRED => true,
             ),
             'tag' => array(
-                ApiBase::PARAM_TYPE => 'string',
-                ApiBase::PARAM_REQUIRED => true,
+            	ParamValidator::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_REQUIRED => true,
             ),
             'item' => array(
-                ApiBase::PARAM_TYPE => 'string',
-                ApiBase::PARAM_REQUIRED => true,
+            	ParamValidator::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_REQUIRED => true,
             ),
             'params' => array(
-                ApiBase::PARAM_TYPE => 'string',
-                ApiBase::PARAM_DFLT => '',
+            	ParamValidator::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_DEFAULT => '',
             ),
             'token' => null,
         );

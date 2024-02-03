@@ -1,5 +1,8 @@
 <?php
 
+use Wikimedia\ParamValidator\ParamValidator;
+use Wikimedia\ParamValidator\TypeDef\IntegerDef;
+
 class OreDictEditEntryApi extends ApiBase {
     public function __construct($query, $moduleName) {
         parent::__construct($query, $moduleName, 'od');
@@ -9,21 +12,21 @@ class OreDictEditEntryApi extends ApiBase {
         return array(
             'token' => null,
             'mod' => [
-                ApiBase::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_TYPE => 'string',
             ],
             'tag' => [
-                ApiBase::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_TYPE => 'string',
             ],
             'item' => [
-                ApiBase::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_TYPE => 'string',
             ],
             'params' => [
-                ApiBase::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_TYPE => 'string',
             ],
             'id' => [
-                ApiBase::PARAM_TYPE => 'integer',
-                ApiBase::PARAM_MIN => 1,
-                ApiBase::PARAM_REQUIRED => true,
+            	ParamValidator::PARAM_TYPE => 'integer',
+                IntegerDef::PARAM_MIN => 1,
+            	ParamValidator::PARAM_REQUIRED => true,
             ],
         );
     }
