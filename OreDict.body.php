@@ -78,7 +78,7 @@ class OreDict{
 	 * @return bool
 	 */
 	public function exec($byTag = false, $noFallback = false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// Vars
 		$itemModEscaped = $dbr->addQuotes($this->mItemMod);
@@ -192,7 +192,7 @@ class OreDict{
 	 * @return bool
 	 */
 	static public function entryExists($item, $tag, $mod) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$result = $dbr->select(
 			'ext_oredict_items',
@@ -212,7 +212,7 @@ class OreDict{
 	 * @return mixed		See checkExists.
 	 */
 	static public function checkExistsByID($id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			'ext_oredict_items',
 			array(
@@ -234,7 +234,7 @@ class OreDict{
 	 * @return mixed		The first deletion.
 	 */
 	static public function deleteEntry($id, $user) {
-		$dbw = wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_PRIMARY);
 		$res = $dbw->select('ext_oredict_items', array('tag_name', 'item_name', 'mod_name'), array('entry_id' => $id));
 		$row = $res->current();
 		$tag = $row->tag_name;
@@ -271,7 +271,7 @@ class OreDict{
 			return false;
 		}
 
-		$dbw = wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_PRIMARY);
 
 		$result = $dbw->insert(
 			'ext_oredict_items',
@@ -335,7 +335,7 @@ class OreDict{
 	 * @throws MWException		See Database#query.
 	 */
 	static public function editEntry($update, $id, $user) {
-		$dbw = wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_PRIMARY);
 		$stuff = $dbw->select(
 			'ext_oredict_items',
 			array('*'),

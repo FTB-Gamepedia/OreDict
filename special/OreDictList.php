@@ -62,7 +62,7 @@ class OreDictList extends SpecialPage {
 		$page = intval($opts->getValue('page'));
 
 		// Load data
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$results =  $dbr->select(
 			'ext_oredict_items',
 			'COUNT(`entry_id`) AS row_count',

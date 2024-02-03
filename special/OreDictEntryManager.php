@@ -89,7 +89,7 @@ class OreDictEntryManager extends SpecialPage {
 		}
 
 		// Load data
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$results = $dbr->select('ext_oredict_items','*',array('entry_id' => $opts->getValue('entry_id')));
 
 		if ($results->numRows() == 0 && $opts->getValue('entry_id') != -1 && $opts->getValue('entry_id') != -2) {
@@ -128,7 +128,7 @@ class OreDictEntryManager extends SpecialPage {
 	 * 					actually useful.
 	 */
 	private function updateEntry(FormOptions $opts) {
-		$dbw = wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_PRIMARY);
 		$entryId = intval($opts->getValue('entry_id'));
 		$stuff = $dbw->select('ext_oredict_items', '*', array('entry_id' => $entryId));
 		$ary = array(

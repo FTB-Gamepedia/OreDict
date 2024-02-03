@@ -58,7 +58,7 @@ class ImportOreDict extends SpecialPage {
 			}
 
 			$out->addHtml('<tt>');
-			$dbw = wfGetDB(DB_MASTER);
+			$dbw = wfGetDB(DB_PRIMARY);
 
 			$input = explode("\n", trim($opts->getValue('input')));
 
