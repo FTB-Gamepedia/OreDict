@@ -188,7 +188,6 @@ class ImportOreDict extends SpecialPage {
             ->setWrapperLegendMsg('tilesheet-create-legend')
             ->setId('ext-oredict-import-form')
             ->setSubmitTextMsg('oredict-import-submit')
-            ->setSubmitProgressive()
             ->prepareForm()
             ->displayForm(false);
 	}

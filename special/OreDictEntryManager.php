@@ -210,7 +210,6 @@ class OreDictEntryManager extends SpecialPage {
             ->setWrapperLegendMsg($msgFieldsetMain)
             ->setId('ext-oredict-manager-form')
             ->setSubmitTextMsg($msgSubmitValue)
-            ->setSubmitProgressive()
             ->prepareForm()
             ->displayForm(false);
 	}

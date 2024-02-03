@@ -240,7 +240,6 @@ class OreDictList extends SpecialPage {
             ->setWrapperLegendMsg('oredict-list-legend')
             ->setId('ext-oredict-list-filter')
             ->setSubmitTextMsg('oredict-list-submit')
-            ->setSubmitProgressive()
             ->prepareForm()
             ->displayForm(false);
 	}
