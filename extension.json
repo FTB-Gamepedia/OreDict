@@ -35,6 +35,7 @@
 			"services": [
 				"DBLoadBalancer"
 			]
+		}
 	},
 	"LogTypes": [
 		"oredict"
@@ -119,16 +120,16 @@
 		"localBasePath": "",
 		"remoteExtPath": "OreDict"
 	},
+	"HookHandlers": {
+		"main": {
+			"class": "OreDictHooks",
+			"services": []
+		}
+	},
 	"Hooks": {
-		"ParserFirstCallInit": [
-			"OreDictHooks::SetupParser"
-		],
-		"EditPage::showEditForm:initial": [
-			"OreDictHooks::OutputWarnings"
-		],
-		"LoadExtensionSchemaUpdates": [
-			"OreDictHooks::SchemaUpdate"
-		]
+		"ParserFirstCallInit": "main",
+		"EditPage::showEditForm:initial": "main",
+		"LoadExtensionSchemaUpdates": "main"
 	},
 	"config": {
 		"OreDictDebug": false
