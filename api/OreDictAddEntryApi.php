@@ -1,9 +1,11 @@
 <?php
 
 use Wikimedia\ParamValidator\ParamValidator;
+use Wikimedia\Rdbms\ILoadBalancer;
+use MediaWiki\Permissions\PermissionManager;
 
 class OreDictAddEntryApi extends ApiBase {
-    public function __construct($query, $moduleName) {
+    public function __construct($query, $moduleName, private ILoadBalancer $dbLoadBalancer, private PermissionManager $permissionManager) {
         parent::__construct($query, $moduleName, 'od');
     }
 
@@ -52,7 +54,7 @@ class OreDictAddEntryApi extends ApiBase {
     }
 
     public function execute() {
-        if (!in_array('editoredict', $this->getUser()->getRights())) {
+        if (!$this->permissionManager->userHasRight($this->getUser(), 'editoredict')) {
             $this->dieWithError('You do not have the permission to add OreDict entries', 'permissiondenied');
         }
 
@@ -61,8 +63,8 @@ class OreDictAddEntryApi extends ApiBase {
         $tag = $this->getParameter('tag');
         $params = $this->getParameter('params');
 
-        if (!OreDict::entryExists($item, $tag, $mod)) {
-            $result = OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params);
+        if (!OreDict::entryExists($item, $tag, $mod, $this->dbLoadBalancer)) {
+            $result = OreDict::addEntry($mod, $item, $tag, $this->getUser(), $this->dbLoadBalancer, $params);
             $ret = array('result' => $result);
             $this->getResult()->addValue('edit', 'neworedict', $ret);
         } else {

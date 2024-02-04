@@ -1,4 +1,7 @@
 <?php
+use Wikimedia\Rdbms\ILoadBalancer;
+use MediaWiki\Permissions\PermissionManager;
+
 /**
  * OreDictList special page file
  *
@@ -12,7 +15,7 @@
 class OreDictList extends SpecialPage {
 	protected $opts;
 
-	public function __construct() {
+	public function __construct(private ILoadBalancer $dbLoadBalancer, private PermissionManager $permissionManager) {
 		parent::__construct('OreDictList');
 	}
 
@@ -62,7 +65,7 @@ class OreDictList extends SpecialPage {
 		$page = intval($opts->getValue('page'));
 
 		// Load data
-		$dbr = wfGetDB(DB_REPLICA);
+		$dbr = $this->dbLoadBalancer->getConnection(DB_REPLICA);
 		$results =  $dbr->select(
 			'ext_oredict_items',
 			'COUNT(`entry_id`) AS row_count',
@@ -111,7 +114,7 @@ class OreDictList extends SpecialPage {
 		$msgItemName = wfMessage('oredict-item-name');
 		$msgModName = wfMessage('oredict-mod-name');
 		$msgGridParams = wfMessage('oredict-grid-params');
-		$canEdit = in_array("editoredict", $this->getUser()->getRights());
+		$canEdit = $this->permissionManager->userHasRight($this->getUser(), 'editoredict');
 		$table .= "!";
 		if ($canEdit) {
 			$table .= " !!";

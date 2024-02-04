@@ -2,9 +2,10 @@
 
 use Wikimedia\ParamValidator\ParamValidator;
 use Wikimedia\ParamValidator\TypeDef\IntegerDef;
+use Wikimedia\Rdbms\ILoadBalancer;
 
 class OreDictQueryEntryApi extends ApiQueryBase {
-    public function __construct($query, $moduleName) {
+    public function __construct($query, $moduleName, private ILoadBalancer $dbLoadBalancer) {
         parent::__construct($query, $moduleName, 'od');
     }
 
@@ -28,7 +29,7 @@ class OreDictQueryEntryApi extends ApiQueryBase {
 
     public function execute() {
         $ids = $this->getParameter('ids');
-        $dbr = wfGetDB(DB_REPLICA);
+        $dbr = $this->dbLoadBalancer->getConnection(DB_REPLICA);
         $ret = array();
 
         foreach ($ids as $id) {

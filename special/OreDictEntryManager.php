@@ -1,4 +1,6 @@
 <?php
+use Wikimedia\Rdbms\ILoadBalancer;
+
 /**
  * OreDictEntryManager special page file
  *
@@ -10,7 +12,7 @@
  */
 
 class OreDictEntryManager extends SpecialPage {
-	public function __construct() {
+	public function __construct(private ILoadBalancer $dbLoadBalancer) {
 		parent::__construct('OreDictEntryManager', 'editoredict');
 	}
 
@@ -89,7 +91,7 @@ class OreDictEntryManager extends SpecialPage {
 		}
 
 		// Load data
-		$dbr = wfGetDB(DB_REPLICA);
+		$dbr = $this->dbLoadBalancer->getConnection(DB_REPLICA);
 		$results = $dbr->select('ext_oredict_items','*',array('entry_id' => $opts->getValue('entry_id')));
 
 		if ($results->numRows() == 0 && $opts->getValue('entry_id') != -1 && $opts->getValue('entry_id') != -2) {
@@ -112,7 +114,7 @@ class OreDictEntryManager extends SpecialPage {
 		$params = $opts->getValue('grid_params');
 
 		// Check if exists
-		if (OreDict::entryExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'))) {
+		if (OreDict::entryExists($opts->getValue('item_name'), $opts->getValue('tag_name'), $opts->getValue('mod_name'), $this->dbLoadBalancer)) {
 			return -2;
 		}
 
@@ -128,7 +130,7 @@ class OreDictEntryManager extends SpecialPage {
 	 * 					actually useful.
 	 */
 	private function updateEntry(FormOptions $opts) {
-		$dbw = wfGetDB(DB_PRIMARY);
+		$dbw = $this->dbLoadBalancer->getConnection(DB_PRIMARY);
 		$entryId = intval($opts->getValue('entry_id'));
 		$stuff = $dbw->select('ext_oredict_items', '*', array('entry_id' => $entryId));
 		$ary = array(
@@ -143,7 +145,7 @@ class OreDictEntryManager extends SpecialPage {
 
 		// Try to delete before doing any other processing
 		if ($opts->getValue('delete') == 1) {
-			OreDict::deleteEntry($entryId, $this->getUser());
+			OreDict::deleteEntry($entryId, $this->getUser(), $this->dbLoadBalancer);
 			return false;
 		}
 
