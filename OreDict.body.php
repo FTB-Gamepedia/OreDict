@@ -1,5 +1,6 @@
 <?php
 use Wikimedia\Rdbms\ILoadBalancer;
+use MediaWiki\MediaWikiServices;
 
 /**
  * OreDict main file
@@ -68,7 +69,7 @@ class OreDict{
 
 	public function runHooks($params = "") {
 		$out = "";
-		Hooks::run("OreDictOutput", array(&$out, $this->mRawArray, $params));
+		MediaWikiServices::getInstance()->getHookContainer()->run("OreDictOutput", array(&$out, $this->mRawArray, $params));
 		return array($out, 'noparse' => false, 'isHTML' => false);
 	}
 
