@@ -149,7 +149,7 @@ class OreDictEntryManager extends SpecialPage {
 			return false;
 		}
 
-		return OreDict::editEntry($ary, $entryId, $this->getUser());
+		return OreDict::editEntry($ary, $entryId, $this->getUser(), $this->dbLoadBalancer);
 	}
 
 	private function displayUpdateForm(stdClass $opts = NULL) {
@@ -258,7 +258,7 @@ class OreDictEntryManager extends SpecialPage {
 		]);
 		$form->appendContent(
 			$fieldset,
-			new OOUI\HtmlSnippet(Html::hidden('title', $this->getTitle()->getPrefixedText()))
+			new OOUI\HtmlSnippet(Html::hidden('title', $this->getPageTitle()->getPrefixedText()))
 		);
 
 		return new OOUI\PanelLayout([

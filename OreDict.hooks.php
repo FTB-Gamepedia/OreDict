@@ -35,7 +35,7 @@ class OreDictHooks implements LoadExtensionSchemaUpdatesHook, ParserFirstCallIni
 	 * @param Parser $parser
 	 * @return bool
 	 */
-	public function onParserFirstCallInit(Parser &$parser) {
+	public function onParserFirstCallInit($parser) {
 		$parser->setFunctionHook('dict', 'OreDictHooks::RenderParser');
 		$parser->setFunctionHook('grid_foreach', 'OreDictHooks::RenderMultiple');
 		return true;
@@ -47,7 +47,7 @@ class OreDictHooks implements LoadExtensionSchemaUpdatesHook, ParserFirstCallIni
 	 * @param Parser $parser
 	 * @return array|string
 	 */
-	public static function RenderMultiple(Parser &$parser) {
+	public static function RenderMultiple(Parser $parser) {
 		$opts = array();
 		for ($i = 1; $i < func_num_args(); $i++) {
 			$opts[] = func_get_arg($i);
@@ -131,7 +131,7 @@ class OreDictHooks implements LoadExtensionSchemaUpdatesHook, ParserFirstCallIni
 	 * @param Parser $parser
 	 * @return array
 	 */
-	public static function RenderParser(Parser &$parser) {
+	public static function RenderParser(Parser $parser) {
 		$opts = array();
 		for ($i = 1; $i < func_num_args(); $i++) {
 			$opts[] = func_get_arg($i);
@@ -208,7 +208,7 @@ class OreDictHooks implements LoadExtensionSchemaUpdatesHook, ParserFirstCallIni
 	 * @param OutputPage $out
 	 * @return bool
 	 */
-	public function onEditPage__showEditForm_initial(EditPage &$editPage, OutputPage &$out) {
+	public function onEditPage__showEditForm_initial($editPage, $out) {
 		global $wgOreDictDebug;
 
 		// Output errors
