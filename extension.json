@@ -133,7 +133,9 @@
 		"LoadExtensionSchemaUpdates": "main"
 	},
 	"config": {
-		"OreDictDebug": false
+		"OreDictDebug": {
+			"value": false
+		}
 	},
-	"manifest_version": 1
+	"manifest_version": 2
 }
