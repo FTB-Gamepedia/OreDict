@@ -192,58 +192,58 @@ class OreDictList extends SpecialPage {
 	public function displayForm(FormOptions $opts) {
 		$lang = $this->getLanguage();
 		$formDescriptor = [
-		    'from' => [
-		        'type' => 'int',
-                'name' => 'from',
-                'default' => $opts->getValue('from'),
-                'min' => 1,
-                'id' => 'from',
-                'label-message' => 'oredict-list-from'
-            ],
-            'start' => [
-                'type' => 'text',
-                'name' => 'start',
-                'default' => $opts->getValue('start'),
-                'id' => 'start',
-                'label-message' => 'oredict-list-start'
-            ],
-            'tag' => [
-                'type' => 'text',
-                'name' => 'tag',
-                'default' => $opts->getValue('tag'),
-                'id' => 'tag',
-                'label-message' => 'oredict-list-tag'
-            ],
-            'mod' => [
-                'type' => 'text',
-                'name' => 'mod',
-                'default' => $opts->getValue('mod'),
-                'id' => 'mod',
-                'label-message' => 'oredict-list-mod'
-            ],
-            'limit' => [
-                'type' => 'limitselect',
-                'name' => 'limit',
-                'label-message' => 'oredict-list-limit',
-                'options' => [
-                    $lang->formatNum(20) => 20,
-                    $lang->formatNum(50) => 50,
-                    $lang->formatNum(100) => 100,
-                    $lang->formatNum(250) => 250,
-                    $lang->formatNum(500) => 500,
-                    $lang->formatNum(5000) => 5000
-                ],
-                'default' => $opts->getValue('limit')
-            ]
-        ];
+			'from' => [
+				'type' => 'int',
+				'name' => 'from',
+				'default' => $opts->getValue('from'),
+				'min' => 1,
+				'id' => 'from',
+				'label-message' => 'oredict-list-from'
+			],
+			'start' => [
+				'type' => 'text',
+				'name' => 'start',
+				'default' => $opts->getValue('start'),
+				'id' => 'start',
+				'label-message' => 'oredict-list-start'
+			],
+			'tag' => [
+				'type' => 'text',
+				'name' => 'tag',
+				'default' => $opts->getValue('tag'),
+				'id' => 'tag',
+				'label-message' => 'oredict-list-tag'
+			],
+			'mod' => [
+				'type' => 'text',
+				'name' => 'mod',
+				'default' => $opts->getValue('mod'),
+				'id' => 'mod',
+				'label-message' => 'oredict-list-mod'
+			],
+			'limit' => [
+				'type' => 'limitselect',
+				'name' => 'limit',
+				'label-message' => 'oredict-list-limit',
+				'options' => [
+					$lang->formatNum(20) => 20,
+					$lang->formatNum(50) => 50,
+					$lang->formatNum(100) => 100,
+					$lang->formatNum(250) => 250,
+					$lang->formatNum(500) => 500,
+					$lang->formatNum(5000) => 5000
+				],
+				'default' => $opts->getValue('limit')
+			]
+		];
 
 		$htmlForm = HTMLForm::factory('ooui', $formDescriptor, $this->getContext());
 		$htmlForm
-            ->setMethod('get')
-            ->setWrapperLegendMsg('oredict-list-legend')
-            ->setId('ext-oredict-list-filter')
-            ->setSubmitTextMsg('oredict-list-submit')
-            ->prepareForm()
-            ->displayForm(false);
+			->setMethod('get')
+			->setWrapperLegendMsg('oredict-list-legend')
+			->setId('ext-oredict-list-filter')
+			->setSubmitTextMsg('oredict-list-submit')
+			->prepareForm()
+			->displayForm(false);
 	}
 }

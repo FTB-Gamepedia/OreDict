@@ -164,34 +164,34 @@ class ImportOreDict extends SpecialPage {
 		global $wgArticlePath;
 
 		$formDescriptor = [
-		    'input' => [
-		        'type' => 'textarea',
-		        'name' => 'input',
-                'autofocus' => true,
-                'rows' => 40,
-                'cssclass' => 'oredict-import-textarea',
-                'label-message' => 'oredict-import-input',
-                'help-message' => 'oredict-import-input-hint'
-            ],
-            'update_table' => [
-                'type' => 'check',
-                'name' => 'update_table',
-                'id' => 'update_table',
-                'default' => 0,
-                'label-message' => 'oredict-import-update',
-                'help-message' => 'oredict-import-update-hint'
-            ]
-        ];
+			'input' => [
+				'type' => 'textarea',
+				'name' => 'input',
+				'autofocus' => true,
+				'rows' => 40,
+				'cssclass' => 'oredict-import-textarea',
+				'label-message' => 'oredict-import-input',
+				'help-message' => 'oredict-import-input-hint'
+			],
+			'update_table' => [
+				'type' => 'check',
+				'name' => 'update_table',
+				'id' => 'update_table',
+				'default' => 0,
+				'label-message' => 'oredict-import-update',
+				'help-message' => 'oredict-import-update-hint'
+			]
+		];
 
-        $htmlForm = HTMLForm::factory('ooui', $formDescriptor, $this->getContext());
-        $htmlForm
-            ->setMethod('post')
-            ->setAction(str_replace('$1', 'Special:ImportOreDict', $wgArticlePath))
-            ->setWrapperLegendMsg('tilesheet-create-legend')
-            ->setId('ext-oredict-import-form')
-            ->setSubmitTextMsg('oredict-import-submit')
-            ->prepareForm()
-            ->displayForm(false);
+		$htmlForm = HTMLForm::factory('ooui', $formDescriptor, $this->getContext());
+		$htmlForm
+			->setMethod('post')
+			->setAction(str_replace('$1', 'Special:ImportOreDict', $wgArticlePath))
+			->setWrapperLegendMsg('tilesheet-create-legend')
+			->setId('ext-oredict-import-form')
+			->setSubmitTextMsg('oredict-import-submit')
+			->prepareForm()
+			->displayForm(false);
 	}
 
 	/**
