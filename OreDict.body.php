@@ -81,7 +81,7 @@ class OreDict{
 	 * @return bool
 	 */
 	public function exec($byTag = false, $noFallback = false) {
-		$dbr = wfGetDB(DB_REPLICA);
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection(DB_REPLICA);
 
 		// Vars
 		$itemModEscaped = $dbr->addQuotes($this->mItemMod);
