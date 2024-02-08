@@ -1,7 +1,11 @@
 <?php
 
+use Wikimedia\ParamValidator\ParamValidator;
+use Wikimedia\ParamValidator\TypeDef\IntegerDef;
+use Wikimedia\Rdbms\ILoadBalancer;
+
 class OreDictEditEntryApi extends ApiBase {
-    public function __construct($query, $moduleName) {
+    public function __construct($query, $moduleName, private ILoadBalancer $dbLoadBalancer, private PermissionManager $permissionManager) {
         parent::__construct($query, $moduleName, 'od');
     }
 
@@ -9,21 +13,21 @@ class OreDictEditEntryApi extends ApiBase {
         return array(
             'token' => null,
             'mod' => [
-                ApiBase::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_TYPE => 'string',
             ],
             'tag' => [
-                ApiBase::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_TYPE => 'string',
             ],
             'item' => [
-                ApiBase::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_TYPE => 'string',
             ],
             'params' => [
-                ApiBase::PARAM_TYPE => 'string',
+            	ParamValidator::PARAM_TYPE => 'string',
             ],
             'id' => [
-                ApiBase::PARAM_TYPE => 'integer',
-                ApiBase::PARAM_MIN => 1,
-                ApiBase::PARAM_REQUIRED => true,
+            	ParamValidator::PARAM_TYPE => 'integer',
+                IntegerDef::PARAM_MIN => 1,
+            	ParamValidator::PARAM_REQUIRED => true,
             ],
         );
     }
@@ -51,13 +55,13 @@ class OreDictEditEntryApi extends ApiBase {
     }
 
     public function execute() {
-        if (!in_array('editoredict', $this->getUser()->getRights())) {
+        if (!$this->permissionManager->userHasRight($this->getUser(), 'editoredict')) {
             $this->dieWithError('You do not have the permission to add OreDict entries', 'permissiondenied');
         }
 
         $id = $this->getParameter('id');
 
-        if (!OreDict::checkExistsByID($id)) {
+        if (!OreDict::checkExistsByID($id, $this->dbLoadBalancer)) {
             $this->dieWithError("Entry $id does not exist", 'entrynotexist');
             return;
         }
@@ -74,7 +78,7 @@ class OreDictEditEntryApi extends ApiBase {
             'grid_params' => $params,
         );
 
-        $result = OreDict::editEntry($update, $id, $this->getUser());
+        $result = OreDict::editEntry($update, $id, $this->getUser(), $this->dbLoadBalancer);
         $ret = array();
         switch ($result) {
             case 0: {

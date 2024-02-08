@@ -1,18 +1,22 @@
 <?php
 
+use Wikimedia\ParamValidator\ParamValidator;
+use Wikimedia\ParamValidator\TypeDef\IntegerDef;
+use Wikimedia\Rdbms\ILoadBalancer;
+
 class OreDictQueryEntryApi extends ApiQueryBase {
-    public function __construct($query, $moduleName) {
+    public function __construct($query, $moduleName, private ILoadBalancer $dbLoadBalancer) {
         parent::__construct($query, $moduleName, 'od');
     }
 
     public function getAllowedParams() {
         return array(
             'ids' => array(
-                ApiBase::PARAM_TYPE => 'integer',
-                ApiBase::PARAM_ISMULTI => true,
-                ApiBase::PARAM_ALLOW_DUPLICATES => false,
-                ApiBase::PARAM_MIN => 1,
-                ApiBase::PARAM_REQUIRED => true,
+            	ParamValidator::PARAM_TYPE => 'integer',
+            	ParamValidator::PARAM_ISMULTI => true,
+            	ParamValidator::PARAM_ALLOW_DUPLICATES => false,
+                IntegerDef::PARAM_MIN => 1,
+            	ParamValidator::PARAM_REQUIRED => true,
             ),
         );
     }
@@ -25,7 +29,7 @@ class OreDictQueryEntryApi extends ApiQueryBase {
 
     public function execute() {
         $ids = $this->getParameter('ids');
-        $dbr = wfGetDB(DB_SLAVE);
+        $dbr = $this->dbLoadBalancer->getConnection(DB_REPLICA);
         $ret = array();
 
         foreach ($ids as $id) {

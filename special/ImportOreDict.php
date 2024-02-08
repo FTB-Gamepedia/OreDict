@@ -9,11 +9,13 @@
  * @license
  */
 
+use Wikimedia\Rdbms\ILoadBalancer;
+
 class ImportOreDict extends SpecialPage {
 	/**
 	 * Calls parent constructor and sets special page title
 	 */
-	public function __construct() {
+	public function __construct(private ILoadBalancer $dbLoadBalancer) {
 		parent::__construct('ImportOreDict', 'importoredict');
 	}
 
@@ -58,7 +60,7 @@ class ImportOreDict extends SpecialPage {
 			}
 
 			$out->addHtml('<tt>');
-			$dbw = wfGetDB(DB_MASTER);
+			$dbw = $this->dbLoadBalancer->getConnection(DB_PRIMARY);
 
 			$input = explode("\n", trim($opts->getValue('input')));
 
@@ -82,7 +84,7 @@ class ImportOreDict extends SpecialPage {
 				$modName = $p[2];
 				$params = $p[3];
 				// Check if entry already exist
-				if (OreDict::entryExists($itemName, $tagName, $modName)) {
+				if (OreDict::entryExists($itemName, $tagName, $modName, $this->dbLoadBalancer)) {
 					// If updated mode and entry already exist, update
 					if ($opts->getValue('update_table') == 1) {
 						$stuff = $dbw->select('ext_oredict_items', '*', array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName));
@@ -144,7 +146,7 @@ class ImportOreDict extends SpecialPage {
 					}
 				}
 				// Add entry
-				$result = OreDict::addEntry($modName, $itemName, $tagName, $this->getUser(), $params);
+				$result = OreDict::addEntry($modName, $itemName, $tagName, $this->getUser(), $this->dbLoadBalancer, $params);
 				if ($result == false) {
 					$out->addHTML($this->returnMessage(false, wfMessage('oredict-import-fail-insert')->text()));
 					continue;
@@ -188,7 +190,6 @@ class ImportOreDict extends SpecialPage {
             ->setWrapperLegendMsg('tilesheet-create-legend')
             ->setId('ext-oredict-import-form')
             ->setSubmitTextMsg('oredict-import-submit')
-            ->setSubmitProgressive()
             ->prepareForm()
             ->displayForm(false);
 	}

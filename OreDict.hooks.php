@@ -1,4 +1,8 @@
 <?php
+use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
+use MediaWiki\Hook\ParserFirstCallInitHook;
+use MediaWiki\Hook\EditPage__showEditForm_initialHook;
+
 /**
  * OreDict hooks file
  * Defines entry points to the extension
@@ -10,7 +14,7 @@
  * @license
  */
 
-class OreDictHooks {
+class OreDictHooks implements LoadExtensionSchemaUpdatesHook, ParserFirstCallInitHook, EditPage__showEditForm_initialHook {
 	/**
 	 * Setups and Modifies Database Information
 	 *
@@ -18,7 +22,7 @@ class OreDictHooks {
 	 * @param	object	DatabaseUpdater Object
 	 * @return	boolean	true
 	 */
-	public static function SchemaUpdate($updater) {
+	public function onLoadExtensionSchemaUpdates($updater) {
 		$extDir = __DIR__;
 		$updater->addExtensionUpdate(['addTable', 'ext_oredict_items', "{$extDir}/install/sql/ext_oredict_items.sql", true]);
 		$updater->addExtensionUpdate(['dropField', 'ext_oredict_items', 'flags', "{$extDir}/upgrade/sql/remove_flags.sql", true]);
@@ -31,19 +35,19 @@ class OreDictHooks {
 	 * @param Parser $parser
 	 * @return bool
 	 */
-	public static function SetupParser(Parser &$parser) {
+	public function onParserFirstCallInit($parser) {
 		$parser->setFunctionHook('dict', 'OreDictHooks::RenderParser');
 		$parser->setFunctionHook('grid_foreach', 'OreDictHooks::RenderMultiple');
 		return true;
 	}
 
 	/**
-	 * Generate grids from a string.
+	 * Generate grids from a string. Called by the #grid_foreach parser function (see onParserFirstCallInit).
 	 *
 	 * @param Parser $parser
 	 * @return array|string
 	 */
-	public static function RenderMultiple(Parser &$parser) {
+	public static function RenderMultiple(Parser $parser) {
 		$opts = array();
 		for ($i = 1; $i < func_num_args(); $i++) {
 			$opts[] = func_get_arg($i);
@@ -122,12 +126,12 @@ class OreDictHooks {
 	}
 
 	/**
-	 * Query OreDict and return output.
+	 * Query OreDict and return output. Called by the #dict parser function (see onParserFirstCallInit).
 	 *
 	 * @param Parser $parser
 	 * @return array
 	 */
-	public static function RenderParser(Parser &$parser) {
+	public static function RenderParser(Parser $parser) {
 		$opts = array();
 		for ($i = 1; $i < func_num_args(); $i++) {
 			$opts[] = func_get_arg($i);
@@ -204,7 +208,7 @@ class OreDictHooks {
 	 * @param OutputPage $out
 	 * @return bool
 	 */
-	public static function OutputWarnings(EditPage &$editPage, OutputPage &$out) {
+	public function onEditPage__showEditForm_initial($editPage, $out) {
 		global $wgOreDictDebug;
 
 		// Output errors

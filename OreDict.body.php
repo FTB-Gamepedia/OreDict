@@ -1,4 +1,7 @@
 <?php
+use Wikimedia\Rdbms\ILoadBalancer;
+use MediaWiki\MediaWikiServices;
+
 /**
  * OreDict main file
  *
@@ -66,7 +69,7 @@ class OreDict{
 
 	public function runHooks($params = "") {
 		$out = "";
-		Hooks::run("OreDictOutput", array(&$out, $this->mRawArray, $params));
+		MediaWikiServices::getInstance()->getHookContainer()->run("OreDictOutput", array(&$out, $this->mRawArray, $params));
 		return array($out, 'noparse' => false, 'isHTML' => false);
 	}
 
@@ -78,7 +81,7 @@ class OreDict{
 	 * @return bool
 	 */
 	public function exec($byTag = false, $noFallback = false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection(DB_REPLICA);
 
 		// Vars
 		$itemModEscaped = $dbr->addQuotes($this->mItemMod);
@@ -189,10 +192,11 @@ class OreDict{
 	 * @param string $item
 	 * @param string $tag
 	 * @param string $mod
+	 * @param ILoadBalancer $dbLoadBalancer
 	 * @return bool
 	 */
-	static public function entryExists($item, $tag, $mod) {
-		$dbr = wfGetDB(DB_SLAVE);
+	static public function entryExists($item, $tag, $mod, ILoadBalancer $dbLoadBalancer) {
+		$dbr = $dbLoadBalancer->getConnection(DB_REPLICA);
 
 		$result = $dbr->select(
 			'ext_oredict_items',
@@ -209,10 +213,11 @@ class OreDict{
 
 	/**
 	 * @param $id	Int		The entry ID
+	 * @param $dbLoadBalancer ILoadBalancer
 	 * @return mixed		See checkExists.
 	 */
-	static public function checkExistsByID($id) {
-		$dbr = wfGetDB(DB_SLAVE);
+	static public function checkExistsByID($id, ILoadBalancer $dbLoadBalancer) {
+		$dbr = $dbLoadBalancer->getConnection(DB_REPLICA);
 		$res = $dbr->select(
 			'ext_oredict_items',
 			array(
@@ -224,17 +229,18 @@ class OreDict{
 			__METHOD__
 		);
 		$row = $res->current();
-		return OreDict::entryExists($row->item_name, $row->tag_name, $row->mod_name);
+		return OreDict::entryExists($row->item_name, $row->tag_name, $row->mod_name, $dbLoadBalancer);
 	}
 
 	/**
 	 * Deletes the entry by its ID, and logs it as the user.
 	 * @param $id	Int		The entry ID
 	 * @param $user User	The user
+	 * @param $dbLoadBalancer ILoadBalancer
 	 * @return mixed		The first deletion.
 	 */
-	static public function deleteEntry($id, $user) {
-		$dbw = wfGetDB(DB_MASTER);
+	static public function deleteEntry($id, $user, ILoadBalancer $dbLoadBalancer) {
+		$dbw = $dbLoadBalancer->getConnection(DB_PRIMARY);
 		$res = $dbw->select('ext_oredict_items', array('tag_name', 'item_name', 'mod_name'), array('entry_id' => $id));
 		$row = $res->current();
 		$tag = $row->tag_name;
@@ -263,15 +269,16 @@ class OreDict{
 	 * @param string $name Item name
 	 * @param string $tag Tag name
 	 * @param User $user User performing the addition
+	 * @param ILoadBalancer $dbLoadBalancer
 	 * @param string $params Grid parameters
 	 * @return bool|int False if it failed to add, or the new ID.
 	 */
-	static public function addEntry($mod, $name, $tag, $user, $params = '') {
+	static public function addEntry($mod, $name, $tag, $user, ILoadBalancer $dbLoadBalancer, $params = '') {
 		if (!self::isStrValid($mod) || !self::isStrValid($name) || !self::isStrValid($tag)) {
 			return false;
 		}
 
-		$dbw = wfGetDB(DB_MASTER);
+		$dbw = $dbLoadBalancer->getConnection(DB_PRIMARY);
 
 		$result = $dbw->insert(
 			'ext_oredict_items',
@@ -331,11 +338,12 @@ class OreDict{
 	 * @param $update	array	An array essentially identical to a row. This contains the new data.
 	 * @param $id		Int		The entry ID.
 	 * @param $user		User	The user performing this edit.
+	 * @param $dbLoadBalancer ILoadBalancer
 	 * @return int				1 if the update query failed, 2 if there was no change, or 0 if successful.
 	 * @throws MWException		See Database#query.
 	 */
-	static public function editEntry($update, $id, $user) {
-		$dbw = wfGetDB(DB_MASTER);
+	static public function editEntry($update, $id, $user, ILoadBalancer $dbLoadBalancer) {
+		$dbw = $dbLoadBalancer->getConnection(DB_PRIMARY);
 		$stuff = $dbw->select(
 			'ext_oredict_items',
 			array('*'),

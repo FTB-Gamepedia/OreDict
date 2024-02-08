@@ -17,9 +17,25 @@
 		}
 	},
 	"SpecialPages": {
-		"OreDictEntryManager": "OreDictEntryManager",
-		"OreDictList": "OreDictList",
-		"ImportOreDict": "ImportOreDict"
+		"OreDictEntryManager": {
+			"class": "OreDictEntryManager",
+			"services": [
+				"DBLoadBalancer"
+			]
+		},
+		"OreDictList": {
+			"class": "OreDictList",
+			"services": [
+				"DBLoadBalancer",
+				"PermissionManager"
+			]
+		},
+		"ImportOreDict": {
+			"class": "ImportOreDict",
+			"services": [
+				"DBLoadBalancer"
+			]
+		}
 	},
 	"LogTypes": [
 		"oredict"
@@ -47,18 +63,47 @@
 		"OreDictDeleteEntryApi": "api/OreDictDeleteEntryApi.php",
 		"OreDictEditEntryApi": "api/OreDictEditEntryApi.php",
 		"OreDictQueryEntryApi": "api/OreDictQueryEntryApi.php",
-		"OreDictQuerySearchApi": "api/OreDictQuerySearchApi.php"
+		"OreDictQuerySearchApi": "api/OreDictQuerySearchApi.php",
+		"OreDict\\Hook\\OreDictOutputHook": "includes/Hook/OreDictOutputHook.php"
 	},
 	"APIModules": {
-		"neworedict": "OreDictAddEntryApi",
-		"deleteoredict": "OreDictDeleteEntryApi",
-		"editoredict": "OreDictEditEntryApi"
+		"neworedict": {
+			"class": "OreDictAddEntryApi",
+			"services": [
+				"DBLoadBalancer",
+				"PermissionManager"
+			]
+		},
+		"deleteoredict": {
+			"class": "OreDictDeleteEntryApi",
+			"services": [
+				"DBLoadBalancer",
+				"PermissionManager"
+			]
+		},
+		"editoredict": {
+			"class": "OreDictEditEntryApi",
+			"services": [
+				"DBLoadBalancer",
+				"PermissionManager"
+			]
+		}
 	},
 	"APIPropModules": {
-		"oredictentry": "OreDictQueryEntryApi"
+		"oredictentry": {
+			"class": "OreDictQueryEntryApi",
+			"services": [
+				"DBLoadBalancer"
+			]
+		}
 	},
 	"APIListModules": {
-		"oredictsearch": "OreDictQuerySearchApi"
+		"oredictsearch": {
+			"class": "OreDictQuerySearchApi",
+			"services": [
+				"DBLoadBalancer"
+			]
+		}
 	},
 	"ResourceModules": {
 		"ext.oredict.list": {
@@ -76,19 +121,21 @@
 		"localBasePath": "",
 		"remoteExtPath": "OreDict"
 	},
+	"HookHandlers": {
+		"main": {
+			"class": "OreDictHooks",
+			"services": []
+		}
+	},
 	"Hooks": {
-		"ParserFirstCallInit": [
-			"OreDictHooks::SetupParser"
-		],
-		"EditPage::showEditForm:initial": [
-			"OreDictHooks::OutputWarnings"
-		],
-		"LoadExtensionSchemaUpdates": [
-			"OreDictHooks::SchemaUpdate"
-		]
+		"ParserFirstCallInit": "main",
+		"EditPage::showEditForm:initial": "main",
+		"LoadExtensionSchemaUpdates": "main"
 	},
 	"config": {
-		"OreDictDebug": false
+		"OreDictDebug": {
+			"value": false
+		}
 	},
-	"manifest_version": 1
+	"manifest_version": 2
 }
