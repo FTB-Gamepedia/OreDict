@@ -56,6 +56,7 @@
 		"OreDictItem": "OreDict.body.php",
 		"OreDictError": "OreDict.body.php",
 		"OreDictHooks": "OreDict.hooks.php",
+		"LoadExtensionSchemaUpdatesHookHandler": "hooks/LoadExtensionSchemaUpdatesHookHandler.php",
 		"OreDictEntryManager": "special/OreDictEntryManager.php",
 		"OreDictList": "special/OreDictList.php",
 		"ImportOreDict": "special/ImportOreDict.php",
@@ -125,12 +126,15 @@
 		"main": {
 			"class": "OreDictHooks",
 			"services": []
+		},
+		"LoadExtensionSchemaUpdatesHookHandler": {
+			"class": "LoadExtensionSchemaUpdatesHookHandler"
 		}
 	},
 	"Hooks": {
 		"ParserFirstCallInit": "main",
 		"EditPage::showEditForm:initial": "main",
-		"LoadExtensionSchemaUpdates": "main"
+		"LoadExtensionSchemaUpdates": "LoadExtensionSchemaUpdatesHookHandler"
 	},
 	"config": {
 		"OreDictDebug": {

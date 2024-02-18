@@ -1,5 +1,4 @@
 <?php
-use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\Hook\EditPage__showEditForm_initialHook;
 
@@ -14,21 +13,7 @@ use MediaWiki\Hook\EditPage__showEditForm_initialHook;
  * @license
  */
 
-class OreDictHooks implements LoadExtensionSchemaUpdatesHook, ParserFirstCallInitHook, EditPage__showEditForm_initialHook {
-	/**
-	 * Setups and Modifies Database Information
-	 *
-	 * @access	public
-	 * @param	object	DatabaseUpdater Object
-	 * @return	boolean	true
-	 */
-	public function onLoadExtensionSchemaUpdates($updater) {
-		$extDir = __DIR__;
-		$updater->addExtensionUpdate(['addTable', 'ext_oredict_items', "{$extDir}/install/sql/ext_oredict_items.sql", true]);
-		$updater->addExtensionUpdate(['dropField', 'ext_oredict_items', 'flags', "{$extDir}/upgrade/sql/remove_flags.sql", true]);
-		return true;
-	}
-
+class OreDictHooks implements ParserFirstCallInitHook, EditPage__showEditForm_initialHook {
 	/**
 	 * Entry point for parser functions.
 	 *
