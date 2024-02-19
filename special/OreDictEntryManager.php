@@ -92,8 +92,13 @@ class OreDictEntryManager extends SpecialPage {
 
 		// Load data
 		$dbr = $this->dbLoadBalancer->getConnection(DB_REPLICA);
-		$results = $dbr->select('ext_oredict_items','*',array('entry_id' => $opts->getValue('entry_id')));
-
+		$results = $dbr->newSelectQueryBuilder()
+			->select('*')
+			->from('ext_oredict_items')
+			->where(array('entry_id' => $opts->getValue('entry_id')))
+			->fetchResultSet();
+		
+		// todo: refactor
 		if ($results->numRows() == 0 && $opts->getValue('entry_id') != -1 && $opts->getValue('entry_id') != -2) {
 			$out->addWikiTextAsInterface(wfMessage('oredict-manager-fail-norows')->text());
 			// $this->>displayUpdateForm();
@@ -130,16 +135,20 @@ class OreDictEntryManager extends SpecialPage {
 	 * 					actually useful.
 	 */
 	private function updateEntry(FormOptions $opts) {
-		$dbw = $this->dbLoadBalancer->getConnection(DB_PRIMARY);
+		$dbr = $this->dbLoadBalancer->getConnection(DB_REPLICA);
 		$entryId = intval($opts->getValue('entry_id'));
-		$stuff = $dbw->select('ext_oredict_items', '*', array('entry_id' => $entryId));
+		$numEntries = $dbr->newSelectQueryBuilder()
+			->select('COUNT(`entry_id`)')
+			->from('ext_oredict_items')
+			->where(array('entry_id' => $entryId))
+			->fetchField();
 		$ary = array(
 			'tag_name' => $opts->getValue('tag_name'),
 			'item_name' => $opts->getValue('item_name'),
 			'mod_name' => $opts->getValue('mod_name'),
 			'grid_params' => $opts->getValue('grid_params'),
 		);
-		if ($stuff->numRows() == 0) {
+		if ($numEntries == 0) {
 			return false;
 		}
 

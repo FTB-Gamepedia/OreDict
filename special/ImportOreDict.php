@@ -87,8 +87,16 @@ class ImportOreDict extends SpecialPage {
 				if (OreDict::entryExists($itemName, $tagName, $modName, $this->dbLoadBalancer)) {
 					// If updated mode and entry already exist, update
 					if ($opts->getValue('update_table') == 1) {
-						$stuff = $dbw->select('ext_oredict_items', '*', array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName));
-
+						$item = $dbw->newSelectQueryBuilder()
+							->select('*')
+							->from('ext_oredict_items')
+							->where(array(
+								'item_name' => $itemName,
+								'tag_name' => $tagName,
+								'mod_name' => $modName
+							))
+							->fetchRow();
+						
 						$tag = $tagName;
 						$fItem = $itemName;
 						$mod = $modName;
@@ -98,8 +106,6 @@ class ImportOreDict extends SpecialPage {
 							$out->addHTML($this->returnMessage(false, $this->msg('oredict-import-fail-chars')->text()));
 							continue;
 						}
-
-						$item = $stuff->current();
 
 						// Prepare log vars
 						$target = empty($mod) || $mod == "" ? "$tag - $fItem" : "$tag - $fItem ($mod)";
@@ -136,7 +142,15 @@ class ImportOreDict extends SpecialPage {
 						$logEntry->publish($logId);
 						// End log
 
-						$dbw->update('ext_oredict_items', array('grid_params' => $params), array('item_name' => $itemName, 'tag_name' => $tagName, 'mod_name' => $modName));
+						$dbw->newUpdateQueryBuilder()
+							->update('ext_oredict_items')
+							->set(array('grid_params' => $params))
+							->where(array(
+								'item_name' => $itemName,
+								'tag_name' => $tagName,
+								'mod_name' => $modName
+							))
+							->execute();
 						$out->addHTML($this->returnMessage(true, wfMessage('oredict-import-success-update')->text()));
 						continue;
 					} else {

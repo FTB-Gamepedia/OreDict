@@ -93,31 +93,29 @@ class OreDict{
 			if ($byTag) {
 				OreDictError::notice(wfMessage('oredict-query-notice')->params('Tag', $this->mItemName, $this->mItemMod)->text());
 
-				$result = $dbr->select(
-					"ext_oredict_items",
-					["*"],
-					[
+				$result = $dbr->newSelectQueryBuilder()
+					->select('*')
+					->from('ext_oredict_items')
+					->where([
 						'tag_name' => $this->mItemName,
-						"($itemModEscaped = '' OR mod_name = $itemModEscaped)",
-					],
-					__METHOD__,
-					[
-						"ORDER BY" => "entry_id",
-						"LIMIT" => $sLim,
-					]
-				);
+						"($itemModEscaped = '' OR mod_name = $itemModEscaped)"
+					])
+					->caller(__METHOD__)
+					->orderBy('entry_id')
+					->limit($sLim)
+					->fetchResultSet();
 			} else {
 				OreDictError::notice(wfMessage('oredict-query-notice')->params('Item', $this->mItemName, $this->mItemMod)->text());
 
-				$subResult = $dbr->select(
-					"ext_oredict_items",
-					['tag_name'],
-					[
+				$subResult = $dbr->newSelectQueryBuilder()
+					->select('tag_name')
+					->from('ext_oredict_items')
+					->where([
 						'item_name' => $this->mItemName,
-						"($itemModEscaped = '' OR mod_name = $itemModEscaped)",
-					],
-					__METHOD__
-				);
+						"($itemModEscaped = '' OR mod_name = $itemModEscaped)"
+					])
+					->caller(__METHOD__)
+					->fetchResultSet();
 
 				$tagNameList = [];
 
@@ -128,17 +126,15 @@ class OreDict{
 				if (!empty($tagNameList)) {
 					$where['tag_name'] = $tagNameList;
 				}
-
-				$result = $dbr->select(
-					"ext_oredict_items",
-					["*"],
-					$where,
-					__METHOD__,
-					[
-						"ORDER BY" => "entry_id",
-						"LIMIT" => $sLim,
-					]
-				);
+				
+				$result = $dbr->newSelectQueryBuilder()
+					->select('*')
+					->from('ext_oredict_items')
+					->where($where)
+					->caller(__METHOD__)
+					->orderBy('entry_id')
+					->limit($sLim)
+					->fetchResultSet();
 			}
 			//OreDictError::query($query);
 			//$result = $dbr->query($query);
@@ -198,17 +194,18 @@ class OreDict{
 	static public function entryExists($item, $tag, $mod, ILoadBalancer $dbLoadBalancer) {
 		$dbr = $dbLoadBalancer->getConnection(DB_REPLICA);
 
-		$result = $dbr->select(
-			'ext_oredict_items',
-			'COUNT(entry_id) AS total',
-			[
+		$numEntries = $dbr->newSelectQueryBuilder()
+			->select('COUNT(entry_id)')
+			->from('ext_oredict_items')
+			->where([
 				'item_name' => $item,
 				'tag_name' => $tag,
 				'mod_name' => $mod
-			],
-			__METHOD__
-		);
-		return $result->current()->total != 0;
+			])
+			->caller(__METHOD__)
+			->fetchField();
+			
+		return $numEntries > 0;
 	}
 
 	/**
@@ -218,17 +215,16 @@ class OreDict{
 	 */
 	static public function checkExistsByID($id, ILoadBalancer $dbLoadBalancer) {
 		$dbr = $dbLoadBalancer->getConnection(DB_REPLICA);
-		$res = $dbr->select(
-			'ext_oredict_items',
-			array(
+		$row = $dbr->newSelectQueryBuilder()
+			->select(array(
 				'item_name',
 				'tag_name',
 				'mod_name'
-			),
-			array('entry_id' => $id),
-			__METHOD__
-		);
-		$row = $res->current();
+			))
+			->from('ext_oredict_items')
+			->where(array('entry_id' => $id))
+			->caller(__METHOD__)
+			->fetchRow();
 		return OreDict::entryExists($row->item_name, $row->tag_name, $row->mod_name, $dbLoadBalancer);
 	}
 
@@ -237,22 +233,29 @@ class OreDict{
 	 * @param $id	Int		The entry ID
 	 * @param $user User	The user
 	 * @param $dbLoadBalancer ILoadBalancer
-	 * @return mixed		The first deletion.
+	 * @return bool Whether the deletion was successful
 	 */
 	static public function deleteEntry($id, $user, ILoadBalancer $dbLoadBalancer) {
 		$dbw = $dbLoadBalancer->getConnection(DB_PRIMARY);
-		$res = $dbw->select('ext_oredict_items', array('tag_name', 'item_name', 'mod_name'), array('entry_id' => $id));
-		$row = $res->current();
+		$row = $dbw->newSelectQueryBuilder()
+			->select(array('tag_name', 'item_name', 'mod_name'))
+			->from('ext_oredict_items')
+			->where(array('entry_id' => $id))
+			->fetchRow();
 		$tag = $row->tag_name;
 		$item = $row->item_name;
 		$mod = $row->mod_name;
 		$target = empty($mod) || $mod == '' ? "$tag - $item" : "$tag - $item ($mod)";
 
-		$result = $dbw->delete(
-			'ext_oredict_items',
-			array('entry_id' => $id),
-			__METHOD__
-		);
+		try {
+			$dbw->newDeleteQueryBuilder()
+				->deleteFrom('ext_oredict_items')
+				->where(array('entry_id' => $id))
+				->caller(__METHOD__)
+				->execute();
+		} catch (Exception $e) {
+			return false;
+		}
 
 		$logEntry = new ManualLogEntry('oredict', 'delete');
 		$logEntry->setPerformer($user);
@@ -260,7 +263,7 @@ class OreDict{
 		$logEntry->setParameters(array("6::tag" => $tag, "7::item" => $item, "8::mod" => $mod, "15::id" => $id));
 		$logId = $logEntry->insert();
 		$logEntry->publish($logId);
-		return $result;
+		return true;
 	}
 
 	/**
@@ -280,32 +283,28 @@ class OreDict{
 
 		$dbw = $dbLoadBalancer->getConnection(DB_PRIMARY);
 
-		$result = $dbw->insert(
-			'ext_oredict_items',
-			[
-				'item_name' => $name,
-				'tag_name' => $tag,
-				'mod_name' => $mod,
-				'grid_params' => $params,
-			],
-			__METHOD__
-		);
-
-		if ($result == false) {
+		try {
+			$dbw->newInsertQueryBuilder()
+				->insertInto('ext_oredict_items')
+				->row([
+					'item_name' => $name,
+					'tag_name' => $tag,
+					'mod_name' => $mod,
+					'grid_params' => $params
+				])
+				->caller(__METHOD__)
+				->execute();
+		} catch (Exception $e) {
 			return false;
 		}
-
-		$result = $dbw->select(
-			'ext_oredict_items',
-			['`entry_id` AS id'],
-			[],
-			__METHOD__,
-			[
-				'ORDER BY' => '`entry_id` DESC',
-				"LIMIT" => 1
-			]
-		);
-		$lastInsert = intval($result->current()->id);
+		
+		$lastInsert = intval($dbw->newSelectQueryBuilder()
+			->select('entry_id')
+			->from('ext_oredict_items')
+			->caller(__METHOD__)
+			->orderBy('`entry_id` DESC')
+			->limit(1)
+			->fetchField());
 		$target = ($mod == "" ? "$tag - $name" : "$tag - $name ($mod)");
 
 		// Start log
@@ -340,17 +339,15 @@ class OreDict{
 	 * @param $user		User	The user performing this edit.
 	 * @param $dbLoadBalancer ILoadBalancer
 	 * @return int				1 if the update query failed, 2 if there was no change, or 0 if successful.
-	 * @throws MWException		See Database#query.
 	 */
 	static public function editEntry($update, $id, $user, ILoadBalancer $dbLoadBalancer) {
 		$dbw = $dbLoadBalancer->getConnection(DB_PRIMARY);
-		$stuff = $dbw->select(
-			'ext_oredict_items',
-			array('*'),
-			array('entry_id' => $id),
-			__METHOD__
-		);
-		$row = $stuff->current();
+		$row = $dbw->newSelectQueryBuilder()
+			->select('*')
+			->from('ext_oredict_items')
+			->where(array('entry_id' => $id))
+			->caller(__METHOD__)
+			->fetchRow();
 
 		$tag = empty($update['tag_name']) ? $row->tag_name : $update['tag_name'];
 		$item = empty($update['item_name']) ? $row->item_name : $update['item_name'];
@@ -361,20 +358,20 @@ class OreDict{
 		if (!self::isStrValid($tag) || !self::isStrValid($item) || !self::isStrValid($mod)) {
 			return 1;
 		}
-
-		$result = $dbw->update(
-			'ext_oredict_items',
-			array(
-				'tag_name' => $tag,
-				'item_name' => $item,
-				'mod_name' => $mod,
-				'grid_params' => $params
-			),
-			array('entry_id' => $id),
-			__METHOD__
-		);
-
-		if ($result == false) {
+		
+		try {
+			$dbw->newUpdateQueryBuilder()
+				->update('ext_oredict_items')
+				->set(array(
+					'tag_name' => $tag,
+					'item_name' => $item,
+					'mod_name' => $mod,
+					'grid_params' => $params
+				))
+				->where(array('entry_id' => $id))
+				->caller(__METHOD__)
+				->execute();
+		} catch (Exception $e) {
 			return 1;
 		}
 

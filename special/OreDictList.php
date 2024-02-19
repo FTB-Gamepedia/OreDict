@@ -66,47 +66,40 @@ class OreDictList extends SpecialPage {
 
 		// Load data
 		$dbr = $this->dbLoadBalancer->getConnection(DB_REPLICA);
-		$results =  $dbr->select(
-			'ext_oredict_items',
-			'COUNT(`entry_id`) AS row_count',
-			array(
-				'entry_id >= '.$from,
-				'(mod_name = '.$dbr->addQuotes($mod).' OR '.$dbr->addQuotes($mod).' = \'\' OR'.
-				'('.$dbr->addQuotes($mod).' = \'none\' AND mod_name = \'\'))',
-				'(tag_name = '.$dbr->addQuotes($tag).' OR '.$dbr->addQuotes($tag).' = \'\')',
-				'item_name BETWEEN '.$dbr->addQuotes($start)." AND 'zzzzzzzz'"
-			),
-			__METHOD__,
-			array('LIMIT' => $limit)
-		);
-		foreach ($results as $result) {
-			$maxRows = $result->row_count;
-		}
-
-		if (!isset($maxRows)) {
-			return;
-		}
-
+		$maxRows = $dbr->newSelectQueryBuilder()
+			->select('COUNT(`entry_id`)')
+			->from('ext_oredict_items')
+			->where(array(
+				'entry_id >= ' . $from,
+				'(mod_name = ' . $dbr->addQuotes($mod) . ' OR ' . $dbr->addQuotes($mod) . " = '' OR " .
+					'(' . $dbr->addQuotes($mod) . " = 'none' AND mod_name = ''))",
+				'(tag_name = ' . $dbr->addQuotes($tag) . ' OR ' . $dbr->addQuotes($tag) . " = '')",
+				'item_name BETWEEN ' . $dbr->addQuotes($start) . " AND 'zzzzzzzz'"
+			))
+			->caller(__METHOD__)
+			->limit($limit)
+			->fetchField();
+		
+		if (!$maxRows) return;
+		
 		$begin = $page * $limit;
 		$end = min($begin + $limit, $maxRows);
 		$order = $start == '' ? 'entry_id ASC' : 'item_name ASC';
-		$results = $dbr->select(
-			'ext_oredict_items',
-			'*',
-			array(
-				'entry_id >= '.$from,
-				'(mod_name = '.$dbr->addQuotes($mod).' OR '.$dbr->addQuotes($mod).' = \'\' OR ('.
-				$dbr->addQuotes($mod).' = \'none\' AND mod_name = \'\'))',
-				'(tag_name = '.$dbr->addQuotes($tag).' OR '.$dbr->addQuotes($tag).' = \'\')',
-				'item_name BETWEEN '.$dbr->addQuotes($start)." AND 'zzzzzzzz'"
-			),
-			__METHOD__,
-			array(
-				'ORDER BY' => $order,
-				'LIMIT' => $limit,
-				'OFFSET' => $begin
-			)
-		);
+		$results = $dbr->newSelectQueryBuilder()
+			->select('*')
+			->from('ext_oredict_items')
+			->where(array(
+				'entry_id >= ' . $from,
+				'(mod_name = ' . $dbr->addQuotes($mod) . ' OR ' . $dbr->addQuotes($mod) . " = '' OR (" .
+					$dbr->addQuotes($mod) . " = 'none' AND mod_name = ''))",
+				'(tag_name = ' . $dbr->addQuotes($tag) . ' OR ' . $dbr->addQuotes($tag) . " = '')",
+				'item_name BETWEEN ' . $dbr->addQuotes($start) . " AND 'zzzzzzzz'"
+			))
+			->caller(__METHOD__)
+			->orderBy($order)
+			->limit($limit)
+			->offset($begin)
+			->fetchResultSet();
 
 		// Output table
 		$table = "{| class=\"mw-datatable\" style=\"width:100%\"\n";
