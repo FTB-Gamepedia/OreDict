@@ -2,6 +2,14 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.4.0
+* Update for MediaWiki 1.41 (#75, #84, PR #86 for 1.39 changes).
+  * OreDictOutputHook is now a proper interface. For your development environment when working with Tilesheets, make sure to put OreDict/includes in the include path.
+  * OreDictItem constructor now throws InvalidArgumentException instead of the generic and deprecated MWException.
+* Archive upgrade/sql file from 3.0.0.
+* Add Japanese translation (PR #80) (tomodachi94).
+* Clean up some code style issues.
+
 ### 3.3.5
 * Remove unused OreDictForm class.
 * Update ImportOreDict, OreDictEntryManager (update form only), and OreDictList to use HTMLFormg (#74).
