@@ -447,7 +447,7 @@ class OreDictItem{
 	 * @param string $tag
 	 * @param string $mod
 	 * @param string $params
-	 * @throws MWException Throws and MWException when input format is incorrect.
+	 * @throws InvalidArgumentException Throws an InvalidArgumentException when input format is incorrect.
 	 */
 	public function __construct($item, $tag = '', $mod = '', $params = '') {
 		OreDictError::debug(wfMessage('oredictitem-constructor-debug')->text());
@@ -456,27 +456,27 @@ class OreDictItem{
 				if (isset($item->item_name)) {
 					$this->mItemName = $item->item_name;
 				} else {
-					throw new MWException(wfMessage('oredictitem-constructor-error')->params('item_name')->text());
+					throw new InvalidArgumentException(wfMessage('oredictitem-constructor-error')->params('item_name')->text());
 				}
 				if (isset($item->mod_name)) {
 					$this->mItemMod = $item->mod_name;
 				} else {
-					throw new MWException(wfMessage('oredictitem-constructor-error')->params('mod_name')->text());
+					throw new InvalidArgumentException(wfMessage('oredictitem-constructor-error')->params('mod_name')->text());
 				}
 				if (isset($item->tag_name)) {
 					 $this->mTagName = $item->tag_name;
 				} else {
-					throw new MWException(wfMessage('oredictitem-constructor-error')->params('tag_name')->text());
+					throw new InvalidArgumentException(wfMessage('oredictitem-constructor-error')->params('tag_name')->text());
 				}
 				if (isset($item->grid_params)) {
 					$this->mItemParams = OreDictHooks::ParseParamString($item->grid_params);
 				} else {
-					throw new MWException(wfMessage('oredictitem-constructor-error')->params('grid_params')->text());
+					throw new InvalidArgumentException(wfMessage('oredictitem-constructor-error')->params('grid_params')->text());
 				}
 				if (isset($item->entry_id)) {
 					$this->mId = $item->entry_id;
 				} else {
-					throw new MWException(wfMessage('oredictitem-constructor-error')->params('entry_id')->text());
+					throw new InvalidArgumentException(wfMessage('oredictitem-constructor-error')->params('entry_id')->text());
 				}
 				return 0;
 			}
