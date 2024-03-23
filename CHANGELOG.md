@@ -2,6 +2,9 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.4.1
+* Escape oredict import return messages, resolves potential security vulnerability (#87, T360557)
+
 ### 3.4.0
 * Update for MediaWiki 1.41 (#75, #84, PR #86 for 1.39 changes).
   * OreDictOutputHook is now a proper interface. For your development environment when working with Tilesheets, make sure to put OreDict/includes in the include path.
