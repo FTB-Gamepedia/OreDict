@@ -7,6 +7,8 @@
 	"type": "parserhook",
 	"license-name": "MIT",
 	"AvailableRights": [
+		"editoredict",
+		"importoredict",
 		"edittilesheets",
 		"importtilesheets"
 	],
