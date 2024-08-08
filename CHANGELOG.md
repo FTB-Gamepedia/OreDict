@@ -2,6 +2,9 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.4.2
+* Add editoredict and importoredict to AvailableRights in extension.json. Resolves issue where these rights cannot be granted to usergroups. Reported by C.Syde on mw:User_talk:SatanicSanta
+
 ### 3.4.1
 * Escape oredict import return messages, resolves potential security vulnerability (#87, T360557)
 
