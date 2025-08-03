@@ -1,4 +1,6 @@
 <?php
+
+use MediaWiki\EditPage\EditPage;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\Hook\EditPage__showEditForm_initialHook;
 

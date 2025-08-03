@@ -1,4 +1,6 @@
 <?php
+
+use MediaWiki\Title\Title;
 use Wikimedia\Rdbms\ILoadBalancer;
 use MediaWiki\MediaWikiServices;
 
@@ -126,7 +128,7 @@ class OreDict{
 				if (!empty($tagNameList)) {
 					$where['tag_name'] = $tagNameList;
 				}
-				
+
 				$result = $dbr->newSelectQueryBuilder()
 					->select('*')
 					->from('ext_oredict_items')
@@ -204,7 +206,7 @@ class OreDict{
 			])
 			->caller(__METHOD__)
 			->fetchField();
-			
+
 		return $numEntries > 0;
 	}
 
@@ -297,7 +299,7 @@ class OreDict{
 		} catch (Exception $e) {
 			return false;
 		}
-		
+
 		$lastInsert = intval($dbw->newSelectQueryBuilder()
 			->select('entry_id')
 			->from('ext_oredict_items')
@@ -358,7 +360,7 @@ class OreDict{
 		if (!self::isStrValid($tag) || !self::isStrValid($item) || !self::isStrValid($mod)) {
 			return 1;
 		}
-		
+
 		try {
 			$dbw->newUpdateQueryBuilder()
 				->update('ext_oredict_items')

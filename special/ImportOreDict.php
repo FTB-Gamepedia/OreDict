@@ -9,6 +9,8 @@
  * @license
  */
 
+use MediaWiki\Html\FormOptions;
+use MediaWiki\Title\Title;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 class ImportOreDict extends SpecialPage {
@@ -96,7 +98,7 @@ class ImportOreDict extends SpecialPage {
 								'mod_name' => $modName
 							))
 							->fetchRow();
-						
+
 						$tag = $tagName;
 						$fItem = $itemName;
 						$mod = $modName;

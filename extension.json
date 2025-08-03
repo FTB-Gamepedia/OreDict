@@ -5,6 +5,9 @@
 	"url": "http://help.gamepedia.com/Extension:OreDict",
 	"descriptionmsg": "oredict-desc",
 	"type": "parserhook",
+	"requires": {
+		"MediaWiki": ">= 1.40.0"
+	},
 	"license-name": "MIT",
 	"AvailableRights": [
 		"editoredict",
