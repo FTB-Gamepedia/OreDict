@@ -1,4 +1,7 @@
 <?php
+
+use MediaWiki\Html\FormOptions;
+use MediaWiki\Html\Html;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 /**
@@ -97,7 +100,7 @@ class OreDictEntryManager extends SpecialPage {
 			->from('ext_oredict_items')
 			->where(array('entry_id' => $opts->getValue('entry_id')))
 			->fetchResultSet();
-		
+
 		// todo: refactor
 		if ($results->numRows() == 0 && $opts->getValue('entry_id') != -1 && $opts->getValue('entry_id') != -2) {
 			$out->addWikiTextAsInterface(wfMessage('oredict-manager-fail-norows')->text());

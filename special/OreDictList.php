@@ -1,4 +1,6 @@
 <?php
+
+use MediaWiki\Html\FormOptions;
 use Wikimedia\Rdbms\ILoadBalancer;
 use MediaWiki\Permissions\PermissionManager;
 
@@ -79,9 +81,9 @@ class OreDictList extends SpecialPage {
 			->caller(__METHOD__)
 			->limit($limit)
 			->fetchField();
-		
+
 		if (!$maxRows) return;
-		
+
 		$begin = $page * $limit;
 		$end = min($begin + $limit, $maxRows);
 		$order = $start == '' ? 'entry_id ASC' : 'item_name ASC';
