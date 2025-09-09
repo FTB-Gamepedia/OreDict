@@ -2,6 +2,10 @@
 This changelog only shows recent version history, because of the lack of documentation from the former maintainers. The very first changelog (1.0.2) is likely incomplete.
 
 ## Version 3
+### 3.4.3
+* Update for MediaWiki 1.44 (#88, PR #89)
+* Fix error when creating entries in the OreDictEntryManager
+
 ### 3.4.2
 * Add editoredict and importoredict to AvailableRights in extension.json. Resolves issue where these rights cannot be granted to usergroups. Reported by C.Syde on mw:User_talk:SatanicSanta
 
