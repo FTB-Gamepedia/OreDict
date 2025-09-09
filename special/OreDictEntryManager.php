@@ -126,7 +126,7 @@ class OreDictEntryManager extends SpecialPage {
 			return -2;
 		}
 
-		$result = OreDict::addEntry($mod, $item, $tag, $this->getUser(), $params);
+		$result = OreDict::addEntry($mod, $item, $tag, $this->getUser(), $this->dbLoadBalancer, $params);
 		return ($result === false ? -2 : $result);
 	}
 
