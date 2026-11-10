@@ -16,7 +16,11 @@ use Wikimedia\Rdbms\ILoadBalancer;
 
 class OreDictEntryManager extends SpecialPage {
 	public function __construct(private ILoadBalancer $dbLoadBalancer) {
-		parent::__construct('OreDictEntryManager', 'editoredict');
+		if (version_compare(MW_VERSION, '1.46', '>=')) {
+			parent::__construct('OreDictEntryManager');
+		} else {
+			parent::__construct('OreDictEntryManager', 'editoredict');
+		}
 	}
 
 	/**
@@ -27,6 +31,11 @@ class OreDictEntryManager extends SpecialPage {
 	 */
 	protected function getGroupName() {
 		return 'oredict';
+	}
+
+	/** @inheritDoc */
+	public function getRestriction(): string {
+		return 'editoredict';
 	}
 
 	public function execute($par) {
