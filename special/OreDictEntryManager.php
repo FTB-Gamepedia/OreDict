@@ -16,11 +16,7 @@ use Wikimedia\Rdbms\ILoadBalancer;
 
 class OreDictEntryManager extends SpecialPage {
 	public function __construct(private ILoadBalancer $dbLoadBalancer) {
-		if (version_compare(MW_VERSION, '1.46', '>=')) {
-			parent::__construct('OreDictEntryManager');
-		} else {
-			parent::__construct('OreDictEntryManager', 'editoredict');
-		}
+		parent::__construct('OreDictEntryManager');
 	}
 
 	/**

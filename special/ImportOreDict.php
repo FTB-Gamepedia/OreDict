@@ -18,11 +18,7 @@ class ImportOreDict extends SpecialPage {
 	 * Calls parent constructor and sets special page title
 	 */
 	public function __construct(private ILoadBalancer $dbLoadBalancer) {
-		if (version_compare(MW_VERSION, '1.46', '>=')) {
-			parent::__construct('ImportOreDict');
-		} else {
-			parent::__construct('ImportOreDict', 'importoredict');
-		}
+		parent::__construct('ImportOreDict');
 	}
 
 	/**
