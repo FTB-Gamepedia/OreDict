@@ -18,7 +18,11 @@ class ImportOreDict extends SpecialPage {
 	 * Calls parent constructor and sets special page title
 	 */
 	public function __construct(private ILoadBalancer $dbLoadBalancer) {
-		parent::__construct('ImportOreDict', 'importoredict');
+		if (version_compare(MW_VERSION, '1.46', '>=')) {
+			parent::__construct('ImportOreDict');
+		} else {
+			parent::__construct('ImportOreDict', 'importoredict');
+		}
 	}
 
 	/**
@@ -26,6 +30,11 @@ class ImportOreDict extends SpecialPage {
 	 */
 	protected function getGroupName() {
 		return 'oredict';
+	}
+
+	/** @inheritDoc */
+	public function getRestriction(): string {
+		return 'importoredict';
 	}
 
 	/**
