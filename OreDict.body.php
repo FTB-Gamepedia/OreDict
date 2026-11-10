@@ -480,14 +480,13 @@ class OreDictItem{
 				} else {
 					throw new InvalidArgumentException(wfMessage('oredictitem-constructor-error')->params('entry_id')->text());
 				}
-				return 0;
+				return;
 			}
 		$this->mItemName = $item;
 		$this->mTagName = $tag;
 		$this->mItemMod = $mod;
 		$this->mItemParams = OreDictHooks::ParseParamString($params);
 		$this->setMainParams();
-		return true;
 	}
 
 	/**
