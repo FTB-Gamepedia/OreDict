@@ -16,7 +16,7 @@ use Wikimedia\Rdbms\ILoadBalancer;
 
 class OreDictEntryManager extends SpecialPage {
 	public function __construct(private ILoadBalancer $dbLoadBalancer) {
-		parent::__construct('OreDictEntryManager', 'editoredict');
+		parent::__construct('OreDictEntryManager');
 	}
 
 	/**
@@ -27,6 +27,11 @@ class OreDictEntryManager extends SpecialPage {
 	 */
 	protected function getGroupName() {
 		return 'oredict';
+	}
+
+	/** @inheritDoc */
+	public function getRestriction(): string {
+		return 'editoredict';
 	}
 
 	public function execute($par) {
